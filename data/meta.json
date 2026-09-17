@@ -1,0 +1,82 @@
+{
+  "cats": {
+    "IND": {
+      "label": "Independent art spaces",
+      "color": "#6B8F71"
+    },
+    "GAL": {
+      "label": "Contemporary art & galleries",
+      "color": "#7B5EA7"
+    },
+    "QUEER": {
+      "label": "Queer events",
+      "color": "#C64E8C"
+    },
+    "MUS": {
+      "label": "Music",
+      "color": "#D9704B"
+    },
+    "MUSPROD": {
+      "label": "Music production",
+      "color": "#B98B2E"
+    },
+    "GAME": {
+      "label": "Games / anime / nerd culture",
+      "color": "#3E8FB0"
+    },
+    "ARCH": {
+      "label": "World Capital of Architecture 2026",
+      "color": "#2A4B7C"
+    },
+    "FASH": {
+      "label": "Fashion",
+      "color": "#A8617A"
+    },
+    "TECH": {
+      "label": "Tech & software",
+      "color": "#48808A"
+    },
+    "NEIGH": {
+      "label": "Neighborhood festivals",
+      "color": "#5B8C3E"
+    },
+    "CHIC": {
+      "label": "Chic / standout",
+      "color": "#6E2C3A"
+    },
+    "BONUS": {
+      "label": "Also on (bonus filler)",
+      "color": "#7A7A7A"
+    }
+  },
+  "genreLabels": {
+    "latin": "Latin",
+    "hiphop": "Hip-Hop",
+    "pop": "Pop",
+    "electronic": "Electronic / EDM",
+    "mixed": "Mixed lineup",
+    "other": "Other (rock, indie, etc.)"
+  },
+  "weeks": [
+    [
+      "2026-08-28",
+      "2026-08-30"
+    ],
+    [
+      "2026-08-31",
+      "2026-09-06"
+    ],
+    [
+      "2026-09-07",
+      "2026-09-13"
+    ],
+    [
+      "2026-09-14",
+      "2026-09-20"
+    ],
+    [
+      "2026-09-21",
+      "2026-09-27"
+    ]
+  ]
+}
