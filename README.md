@@ -1,4 +1,4 @@
-# Barcelona Cultural Calendar — standalone app
+# Local Events Finder — standalone app
 
 > **Picking this up fresh (e.g. in Claude Code)?** Read `CONTEXT.md` first —
 > it covers what this app is for, the category/genre preferences the data
