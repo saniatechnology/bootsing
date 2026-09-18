@@ -2,7 +2,7 @@
 
 Read this first if you're picking up this project cold (e.g. in Claude Code /
 VS Code). It's the "why" behind the app; `README.md` is the "how" (setup,
-running, deploying, cost).
+running, testing, deploying, cost).
 
 ## What this is
 
@@ -15,7 +15,11 @@ lower and stretching across the days they're open. Numbers on each bar match
 a detail row below with the full description and a "more info" link.
 
 The point of the app is **discovery of independent/emerging events**, not a
-tourist-listing site — see the category list and bias below.
+tourist-listing site — see the category list and bias below. This version is
+built as a Next.js (App Router + TypeScript) app — a rewrite of an earlier
+plain-Express version, with the same functionality but a typed data model,
+unit-tested layout logic, and React components instead of hand-built HTML
+strings.
 
 ## What counts as "interesting" (the original brief)
 
@@ -51,7 +55,7 @@ filterable by genre:
 - Primary interest, on by default: **Latin, Hip-Hop, Pop**
 - Secondary interest: **Electronic/EDM** — wanted in the data, but **hidden
   by default in the UI**, with a toggle to reveal it ("show all" / individual
-  chip click)
+  chip click) — see `INITIALLY_HIDDEN_GENRES` in `src/components/CalendarApp.tsx`
 - Genre tags are a best-effort read of each night's lineup/branding (matched
   by venue or event-name keyword — see `GENRE_RULES` in
   `research/build_calendar.py`), not an official classification. No dedicated
@@ -70,7 +74,7 @@ guided-tour program).
 **Going forward, the data does not refresh itself.** Two ways to extend the
 window:
 
-- Lightweight: the in-app chat box has a `web_search` tool now, so asking it
+- Lightweight: the in-app chat box has a `web_search` tool, so asking it
   things like "find live music at Razzmatazz in the first week of October
   and add it" will do a real, current lookup before calling `add_event`.
 - Thorough: for the kind of research that produced this dataset (browsing
@@ -81,14 +85,15 @@ window:
 
 ## Data schema
 
-`data/events.json` — array of event objects:
+The canonical type is `CalendarEvent` in `src/lib/types.ts`. `data/events.json`
+is an array of these:
 
 ```
 {
   "id": 1,
   "name": "Nitsa: Fatima Hajji + NHYMPH",
   "venue": "Sala Apolo",
-  "cat": "MUS",              // one of the category keys below
+  "cat": "MUS",              // one of the CategoryKey values below
   "start": "2026-08-28",     // ISO date
   "end": "2026-08-28",       // ISO date (same as start for single-day events)
   "cost": "Paid",            // free text, e.g. "Free", "€15", "Free (registration)"
@@ -96,14 +101,16 @@ window:
   "link": "https://...",     // "more info" URL
   "flags": [],               // any of "closing" | "rare" | "finale"
   "approx": false,           // true if the date is unconfirmed/approximate
-  "genre": null              // only set for cat === "MUS": one of the genre keys, else null
+  "genre": null              // only set for cat === "MUS": one of the GenreKey values, else null
 }
 ```
 
-`data/meta.json` — category labels/colors, genre labels, and week
-boundaries the frontend uses to build the grid; regenerate it only if you
-change the category or genre schema itself (see `research/build_calendar.py`
-`CATS` / `GENRE_LABELS` for where these definitions originally came from).
+`data/meta.json` (typed as `CalendarMeta`) holds category labels/colors,
+genre labels, and week boundaries; regenerate it only if you change the
+category or genre vocabulary itself (also update the `CATEGORY_KEYS` /
+`GENRE_KEYS` unions in `src/lib/types.ts` to match — see
+`research/build_calendar.py`'s `CATS` / `GENRE_LABELS` for where these
+definitions originally came from).
 
 ### Category keys (`cat`)
 
@@ -127,18 +134,16 @@ change the category or genre schema itself (see `research/build_calendar.py`
 `latin`, `hiphop`, `pop`, `electronic` (hidden by default in the UI),
 `mixed`, `other`.
 
-## Architecture (see README.md for full setup/run/deploy steps)
+## Architecture (see README.md for the fuller module-by-module map)
 
-- `server.js` — Express app. `GET /api/events` serves the JSON above;
-  `POST /api/chat` runs the chat box through the Anthropic API
-  (`claude-sonnet-5`) with `add_event`/`edit_event`/`delete_event` tools plus
-  `web_search`, executes whatever it calls against `data/events.json`, and
-  returns the updated data so the page can re-render.
-- `public/` — static frontend (`index.html`, `app.js`, `style.css`). Renders
-  the weekly grid client-side from the JSON (same visual design as the
-  original single-file artifact this app replaced), plus the category/genre
-  filter chips and the chat panel.
-- `data/` — the only persistent state; a plain JSON file is fine for a
+- `src/lib/` — all non-UI logic: the domain types, pure date/grid-layout
+  math (unit tested in `src/lib/__tests__/`), the filesystem-backed data
+  store, and the Claude tool-use agent loop.
+- `src/app/` — Next.js App Router: `page.tsx` (Server Component, reads data
+  straight off disk) and the two API routes (`/api/events`, `/api/chat`).
+- `src/components/` — the client-side UI: filter chips, the week grid, and
+  the chat panel, all rendering off the typed data model.
+- `data/` — the only persistent state; two plain JSON files, fine for a
   single-user tool but won't survive on serverless hosts with no writable
   disk (see README's deploy section).
 - `research/` — historical, not used by the running app: the original
@@ -152,12 +157,15 @@ change the category or genre schema itself (see `research/build_calendar.py`
 ## Known rough edges
 
 - A handful of WCA2026 "Rutas" entries list venue as "Meets at Museo de
-  Granollers" — extracted via a generic regex that occasionally grabbed a
-  page's "related activities" section instead of the primary event; plausible
-  given these are part of a Granollers-network tour program, but worth a
-  glance if precision matters.
-- The frontend keeps the whole chat conversation in memory
-  (`chatHistory` in `public/app.js`) and resends it every message, so a long
-  single-session chat costs progressively more per turn. Refreshing the page
-  clears it; capping/summarizing it server-side would be the fix if that
-  becomes annoying.
+  Granollers" — extracted via a generic regex (in the original research
+  pass) that occasionally grabbed a page's "related activities" section
+  instead of the primary event; plausible given these are part of a
+  Granollers-network tour program, but worth a glance if precision matters.
+- The chat panel keeps the whole conversation history in a client-side ref
+  (`historyRef` in `src/components/ChatPanel.tsx`) and resends it every
+  message, so a long single-session chat costs progressively more per turn.
+  Refreshing the page clears it; capping/summarizing it server-side (in
+  `src/lib/chat.ts`) would be the fix if that becomes annoying.
+- `data/events.json` has no locking — two simultaneous chat requests could
+  race on the read-modify-write. Not a real risk for one person chatting one
+  message at a time, but worth knowing if this ever becomes multi-user.

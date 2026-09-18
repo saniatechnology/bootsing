@@ -1,64 +1,81 @@
-# Local Events Finder — standalone app
+# Barcelona Cultural Calendar (Next.js)
 
 > **Picking this up fresh (e.g. in Claude Code)?** Read `CONTEXT.md` first —
 > it covers what this app is for, the category/genre preferences the data
 > was researched against, the data schema, and known rough edges. This file
-> covers setup, running, and deployment.
+> covers setup, running, testing, and deployment.
 
-The same weekly calendar grid you had as an artifact, now a real app with:
-
-- a small Express backend that serves the event data from `data/events.json`
-- a chat box in the bottom-right corner that talks to Claude (via your own
-  Anthropic API key) to add, edit, or delete events, using tool calling —
-  changes are written straight back to `data/events.json`
+The weekly calendar grid, rebuilt as a proper Next.js (App Router + TypeScript)
+app: a small typed data layer, React Server Components for the initial render,
+and a chat box that talks to Claude (via your own Anthropic API key) to add,
+edit, or delete events, using tool calling and — when it needs to look
+something up — the Claude API's built-in web search tool.
 
 ## 1. Get an API key
 
-Create one at https://console.anthropic.com/settings/keys. This is a
-pay-as-you-go key billed to your own Anthropic account (separate from your
-claude.ai subscription) — the chat box calls the Claude API directly, and
-each message costs a small fraction of a cent to a few cents depending on
-length.
+Create one at https://console.anthropic.com/settings/keys. This is billed to
+your own Anthropic API console account, separate from any claude.ai
+subscription — see the "Cost" section below for what to expect.
 
 ## 2. Set up
 
 ```bash
-cd local-events-finder
 npm install
-cp .env.example .env
-# edit .env and paste your key in place of sk-ant-...
-npm start
+cp .env.example .env.local
+# edit .env.local and paste your key in place of sk-ant-...
+npm run dev
 ```
 
-Open http://localhost:3000. The calendar loads from `data/events.json`; the
-chat box in the corner can edit that file live — try "Add a free jazz concert
-at Marula Café on Sep 9, cost free" or "Delete the Bresh Club event on Sep 2".
+Open http://localhost:3000. Try asking the chat box in the corner something
+like "add a free jazz night at Marula Café on Sep 9" or "delete the Bresh Club
+event on Sep 2".
+
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Local dev server with hot reload |
+| `npm run build` | Production build (also type-checks) |
+| `npm start` | Run a production build |
+| `npm run lint` | ESLint |
+| `npm test` | Unit tests (Vitest) for the pure date/grid logic |
 
 ## How it's wired together
 
 ```
-public/index.html, app.js, style.css   →  the calendar UI (same design as before,
-                                            now rendered client-side from JSON
-                                            instead of baked into static HTML)
-data/events.json                        →  the one source of truth for events
-server.js                               →  GET /api/events   → returns the JSON
-                                            POST /api/chat    → runs your message
-                                            through Claude with add_event /
-                                            edit_event / delete_event tools,
-                                            executes whatever it calls, saves
-                                            the file, returns the new data
+data/events.json, data/meta.json     →  the one source of truth for events
+                                          and category/genre/week config
+
+src/lib/types.ts                     →  the domain model (CalendarEvent,
+                                          CategoryKey, GenreKey, ...) — every
+                                          other module is built on these types
+src/lib/dates.ts, src/lib/grid.ts     →  pure functions: date math and the
+                                          "which events go where in this
+                                          week's grid" layout algorithm
+                                          (unit tested — see src/lib/__tests__)
+src/lib/store.ts                     →  the only place that touches the
+                                          filesystem (server-only)
+src/lib/tools.ts                     →  the add_event/edit_event/delete_event
+                                          tool definitions Claude can call,
+                                          plus the code that executes them
+src/lib/chat.ts                      →  the tool-use agent loop: call Claude,
+                                          run whatever tools it asks for,
+                                          feed results back, repeat
+
+src/app/page.tsx                     →  Server Component: reads events/meta
+                                          straight from disk, no network hop
+src/app/api/events/route.ts          →  GET  — serves the current events/meta
+src/app/api/chat/route.ts            →  POST — runs a chat message through
+                                          the agent loop and returns the reply
+                                          plus any updated events
+
+src/components/CalendarApp.tsx        →  client component: owns filter state
+                                          and the current event list
+src/components/WeekSection.tsx        →  renders one week's grid + detail
+                                          table from src/lib/grid.ts's output
+src/components/FilterBar.tsx          →  category/genre filter chips
+src/components/ChatPanel.tsx           →  the floating chat box
 ```
-
-The Python script (`../build_calendar.py`) and `export_data.py` are no longer
-needed to regenerate the site — they were only used once, to turn the
-original event list into `data/events.json`. From here on, edit events
-through the chat box (or by hand-editing `data/events.json`).
-
-## Deploying it somewhere permanent
-
-The important constraint: **the event data lives in a plain JSON file on
-disk**, and your API key must stay server-side (never shipped to the
-browser — this app already keeps it in `.env`, never in `public/`).
 
 ## Cost
 
@@ -68,28 +85,34 @@ tokens for the small system prompt and tool definitions. A message where
 Claude uses `web_search` to look something up first adds a flat $0.01 per
 search plus a bit more in tokens for the results, so more like $0.015–$0.02.
 At a couple of edits a few times a week this comes out to well under $1/month.
-This is billed to your own Anthropic API console account/credits
-(console.anthropic.com) — a separate balance from any claude.ai subscription.
+Billed to your own Anthropic API console account/credits, separate from any
+claude.ai subscription.
 
-- **Simplest — a small always-on server (Render, Railway, Fly.io, a cheap
-  VPS):** these keep a persistent disk, so `npm start` there works exactly
-  like it does locally, and edits made through the chat box stick around.
-  This is the recommended path for a personal tool like this one.
-- **Vercel / Netlify style serverless functions:** these do *not* keep a
-  writable persistent disk between requests, so `data/events.json` would
-  reset on every deploy and edits could vanish between invocations. If you
-  want to deploy there anyway, swap the two functions in `server.js`
+## Deploying it somewhere permanent
+
+The important constraint: **the event data lives in two plain JSON files on
+disk** (`data/events.json`, `data/meta.json`), and your API key must stay
+server-side — it's only ever read inside `src/lib/anthropic-client.ts`
+(a server-only module) and the API routes, never shipped to the browser.
+
+- **Simplest — a host with a persistent, writable filesystem** (Render,
+  Railway, Fly.io, a plain VPS running `npm run build && npm start`): edits
+  made through the chat box persist exactly like they do locally.
+- **Vercel (or other serverless-function hosts):** these do **not** keep a
+  writable persistent disk between invocations, so `data/events.json` would
+  reset on every deploy and edits could vanish between requests. If you
+  deploy there anyway, swap the handful of functions in `src/lib/store.ts`
   (`readEvents`/`writeEvents`) for reads/writes to something persistent —
-  Vercel KV/Blob, Postgres (e.g. Neon or Supabase's free tier), or similar —
-  everything else in the app stays the same.
+  Vercel KV/Blob, Postgres (Neon, Supabase), etc. Nothing else in the app
+  needs to change, since every other module only ever talks to `store.ts`.
 - Either way, set `ANTHROPIC_API_KEY` as an environment variable in the
-  host's dashboard rather than committing `.env`.
+  host's dashboard rather than committing `.env.local`.
 
 ## Extending the chat box later
 
-Right now it only has three tools: `add_event`, `edit_event`, `delete_event`.
-If you want it to also answer questions ("what's on this weekend?") without
-editing anything, that already works today — just ask, and Claude will reply
-in text without calling a tool. To add new abilities (e.g. a `search_events`
-tool, or letting it fetch info from a URL you paste in), add a new entry to
-the `TOOLS` array and a matching case in `executeTool()` in `server.js`.
+It currently has four tools: `add_event`, `edit_event`, `delete_event`
+(defined and executed in `src/lib/tools.ts`), and `web_search` (a server-side
+tool the Anthropic API resolves on its own — see the comment in
+`src/lib/chat.ts` for how the agent loop distinguishes the two kinds). To add
+a new ability, add an entry to `CALENDAR_TOOLS` in `src/lib/tools.ts` and a
+matching `case` in `executeTool()`.
