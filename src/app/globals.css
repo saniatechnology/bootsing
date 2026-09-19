@@ -1,29 +1,16 @@
 :root {
-  --bg: #eef1ee;
-  --surface: #ffffff;
-  --surface-2: #f5f7f4;
-  --text: #1c2321;
-  --text-muted: #5b6560;
-  --accent: #146b63;
-  --accent-2: #c77d3b;
-  --border: #d9ded9;
-  --shadow: 0 1px 2px rgba(20, 30, 25, 0.06), 0 4px 14px rgba(20, 30, 25, 0.05);
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #0d0d0d;
+  --text: #ffffff;
+  --text-muted: #a0a0a0;
+  --accent: #ff4d17;
+  --accent-2: #ff4d17;
+  --border: #333333;
+  --shadow: none;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #101513;
-    --surface: #1b2220;
-    --surface-2: #202822;
-    --text: #e7ece8;
-    --text-muted: #92a199;
-    --accent: #4fcfc0;
-    --accent-2: #e2a365;
-    --border: #2b3330;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 18px rgba(0, 0, 0, 0.35);
-  }
-  html {
-    color-scheme: dark;
-  }
+html {
+  color-scheme: dark;
 }
 
 * {
@@ -41,8 +28,9 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: "Public Sans", -apple-system, "Segoe UI", sans-serif;
+  font-family: "Archivo", -apple-system, "Segoe UI", sans-serif;
   padding: 0 0 5rem 0;
+  -webkit-font-smoothing: antialiased;
 }
 
 .wrap {
@@ -67,7 +55,7 @@ body {
 }
 
 header.page {
-  margin-bottom: 2rem;
+  margin-bottom: 1.2rem;
 }
 .topbar {
   display: flex;
@@ -82,28 +70,34 @@ header.page {
   justify-content: center;
   width: 2.4rem;
   height: 2.4rem;
-  border-radius: 50%;
+  border-radius: 0;
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--text-muted);
+  color: var(--text);
   text-decoration: none;
   font-size: 1.1rem;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 .settings-btn:hover {
-  background: var(--surface-2);
-  color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
 }
 .settings-btn:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 h1 {
-  font-family: "Fraunces", serif;
-  font-weight: 700;
-  font-size: clamp(2rem, 4vw, 2.9rem);
-  margin: 0 0 0.35rem;
-  letter-spacing: -0.01em;
+  font-family: "Archivo", sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  background: var(--text);
+  color: var(--bg);
+  padding: 0.2em 0.35em;
 }
 .subtitle {
   color: var(--text-muted);
@@ -115,7 +109,7 @@ h1 {
 .catdot {
   width: 9px;
   height: 9px;
-  border-radius: 50%;
+  border-radius: 0;
   display: inline-block;
   flex: none;
 }
@@ -135,18 +129,22 @@ h1 {
 }
 .nav-btn {
   font: inherit;
-  font-family: "Public Sans", sans-serif;
-  font-size: 0.85rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 999px;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background 0.12s ease, color 0.12s ease, opacity 0.12s ease;
 }
 .nav-btn:hover:not(:disabled) {
-  background: var(--surface-2);
+  background: var(--text);
+  color: var(--bg);
 }
 .nav-btn:focus-visible {
   outline: 2px solid var(--accent);
@@ -158,9 +156,9 @@ h1 {
 }
 .nav-btn.nav-today {
   font-family: "IBM Plex Mono", monospace;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 .group-filter {
   display: flex;
@@ -169,68 +167,58 @@ h1 {
 }
 .group-chip {
   font: inherit;
-  font-family: "Public Sans", sans-serif;
-  font-size: 0.82rem;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  border-radius: 0;
   border: 1px solid var(--border);
-  background: var(--surface-2);
+  background: transparent;
   color: var(--text);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
 }
 .group-chip:hover {
-  background: var(--border);
+  border-color: var(--text);
 }
 .group-chip:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 .group-chip.on {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
 }
 .genrechip {
   margin-left: 0.5rem;
-  font-size: 0.68rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
   border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.05rem 0.5rem;
+  border-radius: 0;
+  padding: 0.1rem 0.4rem;
 }
 
 .week {
-  margin: 2.6rem 0 3.2rem;
-}
-.week-title {
-  font-family: "Fraunces", serif;
-  font-weight: 600;
-  font-size: 1.5rem;
-  margin: 0 0 0.9rem;
-  display: flex;
-  align-items: baseline;
-  gap: 0.7rem;
-}
-.week-range {
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.82rem;
-  font-weight: 400;
-  color: var(--text-muted);
-  letter-spacing: 0.01em;
+  margin-bottom:3.2rem;
 }
 
 .grid {
   display: grid;
-  gap: 4px;
+  gap: 1px;
   background: var(--border);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 .daycell {
   background: var(--surface-2);
@@ -267,15 +255,15 @@ h1 {
   flex: none;
   width: 1.15rem;
   height: 1.15rem;
-  border-radius: 50%;
+  border-radius: 0;
   background: var(--cat);
-  color: #fff;
+  color: #000;
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.65rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 500;
+  font-weight: 600;
 }
 .ev-name {
   font-weight: 600;
@@ -300,9 +288,9 @@ h1 {
   margin-top: 0.9rem;
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 0;
   background: var(--surface);
-  box-shadow: var(--shadow);
+  box-shadow: none;
 }
 table.detail-table {
   border-collapse: collapse;
@@ -370,14 +358,16 @@ footer.note {
 .config-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
+  border-radius: 0;
+  box-shadow: none;
   padding: 1.2rem 1.3rem;
 }
 .config-title {
-  font-family: "Fraunces", serif;
-  font-weight: 600;
-  font-size: 1.15rem;
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
   margin: 0 0 0.4rem;
 }
 .config-note {
@@ -421,13 +411,13 @@ footer.note {
   right: 1.5rem;
   width: 3.2rem;
   height: 3.2rem;
-  border-radius: 50%;
-  border: none;
+  border-radius: 0;
+  border: 1px solid var(--text);
   background: var(--accent);
   color: #fff;
   font-size: 1.4rem;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: none;
   z-index: 40;
 }
 #chat-panel {
@@ -437,9 +427,9 @@ footer.note {
   width: min(380px, calc(100vw - 2rem));
   height: min(520px, calc(100vh - 3rem));
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--shadow);
+  border: 1px solid var(--text);
+  border-radius: 0;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   z-index: 50;
@@ -476,7 +466,7 @@ footer.note {
   line-height: 1.45;
   max-width: 90%;
   padding: 0.5rem 0.7rem;
-  border-radius: 10px;
+  border-radius: 0;
 }
 .msg.user {
   align-self: flex-end;
@@ -519,4 +509,161 @@ footer.note {
 #chat-form button:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+/* --- Manual event selection: number badge <-> checkbox swap --- */
+.ev-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 1.15rem;
+  min-height: 1.15rem;
+}
+.dnum-num {
+  font-family: "IBM Plex Mono", monospace;
+}
+.ev-select-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  accent-color: var(--accent);
+}
+/* Reveal the checkbox on row hover, or whenever it's already ticked. */
+.ev-row:hover .ev-select-box,
+.detail-table tr:hover .ev-select-box,
+.ev-select-box:checked {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Hide the number while the checkbox is showing so they don't overlap. */
+.ev-row:hover .ev-badge,
+.detail-table tr:hover .dnum-num,
+.ev-select:has(.ev-select-box:checked) .ev-badge,
+.ev-select:has(.ev-select-box:checked) .dnum-num {
+  visibility: hidden;
+}
+.ev-row.selected {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+.detail-table tr.selected {
+  background: rgba(255, 77, 23, 0.08);
+}
+
+/* --- Chat: selected-events chip --- */
+.selection-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.selection-chip button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+}
+.selection-chip button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* --- Chat: change-proposal preview card --- */
+.proposal {
+  border: 1px solid var(--text);
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+}
+.proposal-head {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+.proposal-action {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.proposal-action input {
+  margin-top: 0.15rem;
+  accent-color: var(--accent);
+  flex: none;
+}
+.proposal-kind {
+  flex: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.proposal-kind.add {
+  color: #3ddc84;
+  border-color: #3ddc84;
+}
+.proposal-kind.edit {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.proposal-kind.delete {
+  color: #ff5c5c;
+  border-color: #ff5c5c;
+}
+.proposal-summary {
+  line-height: 1.35;
+}
+.proposal-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  justify-content: flex-end;
+}
+.proposal-actions button {
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.8rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+}
+.proposal-confirm {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.proposal-confirm:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.proposal-cancel:hover {
+  border-color: var(--text);
 }

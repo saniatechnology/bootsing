@@ -8,6 +8,9 @@ const chatRequestSchema = z.object({
   // whatever the SDK's MessageParam[] serialized to on the previous response,
   // so it isn't re-validated field by field here, only shaped as an array.
   history: z.array(z.unknown()).default([]),
+  // Event ids the user has manually ticked in the UI, given to the assistant
+  // as context so it can act on "these" without searching.
+  selectedIds: z.array(z.number().int()).default([]),
 });
 
 export async function POST(request: Request) {
@@ -26,7 +29,8 @@ export async function POST(request: Request) {
   try {
     const result = await runChatTurn(
       parsed.data.message,
-      parsed.data.history as Parameters<typeof runChatTurn>[1]
+      parsed.data.history as Parameters<typeof runChatTurn>[1],
+      parsed.data.selectedIds
     );
     return NextResponse.json(result);
   } catch (err) {

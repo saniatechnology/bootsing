@@ -22,7 +22,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             targets the pages/ router's per-page <Head>; the App Router's root
             layout is the documented place for a global font <link> like this. */}
         <link
-          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap"
           rel="stylesheet"
         />
         {/* eslint-disable-next-line @next/next/no-page-custom-font -- see note above. */}

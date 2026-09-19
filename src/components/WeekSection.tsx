@@ -7,9 +7,53 @@ interface WeekSectionProps {
   events: CalendarEvent[];
   meta: CalendarMeta;
   activeGroup: GroupKey | "all";
+  selectedIds: Set<number>;
+  onToggleSelect: (id: number) => void;
 }
 
-export function WeekSection({ week, events, meta, activeGroup }: WeekSectionProps) {
+/**
+ * The number badge that, on row hover or when the event is selected, becomes a
+ * checkbox for manual selection. The checkbox overlays the number and toggles
+ * visibility via CSS (see `.ev-select` in globals.css), so the number stays the
+ * default resting state and selection persists across week navigation.
+ */
+function SelectBadge({
+  index,
+  eventName,
+  selected,
+  onToggle,
+  numClassName,
+}: {
+  index: number;
+  eventName: string;
+  selected: boolean;
+  onToggle: () => void;
+  numClassName: string;
+}) {
+  return (
+    <span className="ev-select">
+      <span className={numClassName} aria-hidden="true">
+        {index}
+      </span>
+      <input
+        type="checkbox"
+        className="ev-select-box"
+        checked={selected}
+        onChange={onToggle}
+        aria-label={`Select ${eventName}`}
+      />
+    </span>
+  );
+}
+
+export function WeekSection({
+  week,
+  events,
+  meta,
+  activeGroup,
+  selectedIds,
+  onToggleSelect,
+}: WeekSectionProps) {
   const layout = buildWeekLayout(events, week);
 
   function isHidden(event: CalendarEvent): boolean {
@@ -28,10 +72,6 @@ export function WeekSection({ week, events, meta, activeGroup }: WeekSectionProp
 
   return (
     <section className="week">
-      <h2 className="week-title">
-        <span className="week-range">{fmtDateRange(layout.weekStart, layout.weekEnd)}</span>
-      </h2>
-
       <div
         className="grid"
         style={{
@@ -48,10 +88,11 @@ export function WeekSection({ week, events, meta, activeGroup }: WeekSectionProp
 
         {layout.rows.map((row) => {
           const { event, index, colStart, span, lane } = row;
+          const selected = selectedIds.has(event.id);
           return (
             <div
               key={event.id}
-              className="ev-row"
+              className={`ev-row${selected ? " selected" : ""}`}
               style={{
                 gridRow: lane + 2,
                 gridColumn: `${colStart} / span ${span}`,
@@ -59,9 +100,15 @@ export function WeekSection({ week, events, meta, activeGroup }: WeekSectionProp
                 display: isHidden(event) ? "none" : undefined,
               }}
             >
-              <span className="ev-badge">{index}</span>
+              <SelectBadge
+                index={index}
+                eventName={event.name}
+                selected={selected}
+                onToggle={() => onToggleSelect(event.id)}
+                numClassName="ev-badge"
+              />
               <span className="ev-name">{event.name}</span>
-              <span className="ev-venue">{event.venue}</span>
+              {/* <span className="ev-venue">{event.venue}</span> */}
               {event.approx && <span className="approx">approx.</span>}
             </div>
           );
@@ -85,9 +132,22 @@ export function WeekSection({ week, events, meta, activeGroup }: WeekSectionProp
           <tbody>
             {layout.rows.map((row) => {
               const { event, index, clippedStart, clippedEnd } = row;
+              const selected = selectedIds.has(event.id);
               return (
-                <tr key={event.id} style={{ display: isHidden(event) ? "none" : undefined }}>
-                  <td className="dnum-cell">{index}</td>
+                <tr
+                  key={event.id}
+                  className={selected ? "selected" : undefined}
+                  style={{ display: isHidden(event) ? "none" : undefined }}
+                >
+                  <td className="dnum-cell">
+                    <SelectBadge
+                      index={index}
+                      eventName={event.name}
+                      selected={selected}
+                      onToggle={() => onToggleSelect(event.id)}
+                      numClassName="dnum-num"
+                    />
+                  </td>
                   <td>
                     <span className="catdot" style={{ background: colorOf(event) }} />
                     {groupsOf(event).map((g) => meta.groupLabels[g]).join(" · ")}

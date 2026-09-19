@@ -572,19 +572,6 @@
     "genre": null
   },
   {
-    "id": 45,
-    "name": "European Blockchain Convention",
-    "venue": "Barcelona (venue TBC)",
-    "cat": "TECH",
-    "start": "2026-09-16",
-    "end": "2026-09-17",
-    "cost": "Paid",
-    "desc": "~6,000-attendee blockchain/crypto industry conference.",
-    "link": "https://eblockchainconvention.com/",
-    "approx": false,
-    "genre": null
-  },
-  {
     "id": 46,
     "name": "Architecture Studio Sessions: h3o architects open studio",
     "venue": "h3o studio, Carrer Verdi, Gràcia",
@@ -733,11 +720,11 @@
     "venue": "Hangar",
     "cat": "IND",
     "start": "2026-09-19",
-    "end": "2026-09-20",
+    "end": "2026-09-19",
     "cost": "Likely free",
     "desc": "Hangar's flagship annual open-studios weekend: resident-artist talks, screenings, performances, closing DJ set.",
     "link": "https://hangar.org/en/agenda-hangar/hangar-obert-2026/",
-    "approx": true,
+    "approx": false,
     "genre": null
   },
   {

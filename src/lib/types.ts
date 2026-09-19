@@ -63,6 +63,27 @@ export type NewEventInput = Omit<CalendarEvent, "id" | "approx" | "genre"> & {
 /** Fields a caller may change on an existing event; all optional except the target id. */
 export type EventPatch = Partial<Omit<CalendarEvent, "id">> & { id: number };
 
+/** The subset of an event shown in a proposed-action preview. */
+export type EventSummary = Pick<CalendarEvent, "id" | "name" | "venue" | "start" | "end">;
+
+/**
+ * A single change the assistant proposes but has NOT yet applied. The user
+ * approves each action individually; only the accepted ones are then replayed
+ * server-side (see `applyActions`). `id` is the originating tool-use id, unique
+ * within a proposal, and is what the UI keys its per-action toggles on.
+ */
+export type ProposedAction =
+  | { id: string; kind: "add"; summary: string; input: NewEventInput }
+  | {
+      id: string;
+      kind: "edit";
+      summary: string;
+      targetId: number;
+      patch: Partial<Omit<CalendarEvent, "id">>;
+      target: EventSummary;
+    }
+  | { id: string; kind: "delete"; summary: string; targetId: number; target: EventSummary };
+
 export interface CategoryMeta {
   label: string;
   color: string;
@@ -82,7 +103,8 @@ export interface CalendarMeta {
 
 export interface ChatApiResponse {
   reply: string;
-  changed: boolean;
+  /** Pending changes for the user to approve; empty when the assistant only answered. */
+  proposedActions: ProposedAction[];
   events: CalendarEvent[];
   history: unknown[];
 }
