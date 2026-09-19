@@ -1,4 +1,4 @@
-# Project brief — Barcelona Cultural Calendar
+# Project brief — Bootsing (Culture + Dancing Calendar)
 
 Read this first if you're picking up this project cold (e.g. in Claude Code /
 VS Code). It's the "why" behind the app; `README.md` is the "how" (setup,

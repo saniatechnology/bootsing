@@ -12,12 +12,14 @@ import type { CalendarEvent, IsoDate } from "./types";
 
 export interface WeekRow {
   event: CalendarEvent;
-  /** 1-based row/order index within the week, used for the numbered badge. */
+  /** 1-based number within the week, used for the badge and the detail row. */
   index: number;
   /** 1-based grid column where this event's bar starts. */
   colStart: number;
   /** How many day-columns this event's bar spans. */
   span: number;
+  /** 0-based grid lane: events pack into the lowest free lane so they rise to the top. */
+  lane: number;
   clippedStart: Date;
   clippedEnd: Date;
 }
@@ -29,6 +31,8 @@ export interface WeekLayout {
   dayCount: number;
   days: Date[];
   rows: WeekRow[];
+  /** How many lanes the packed events occupy (grid row count below the header). */
+  laneCount: number;
 }
 
 export function buildWeekLayout(
@@ -62,14 +66,50 @@ export function buildWeekLayout(
       a.clippedStart.getTime() - b.clippedStart.getTime()
   );
 
-  const rows: WeekRow[] = candidates.map((c, i) => ({
-    event: c.event,
-    index: i + 1,
-    colStart: daysBetween(weekStart, c.clippedStart) + 1,
-    span: daysBetween(c.clippedStart, c.clippedEnd) + 1,
-    clippedStart: c.clippedStart,
-    clippedEnd: c.clippedEnd,
-  }));
+  // Pack each bar into the lowest lane whose day-columns are still free, so
+  // events rise to the top of their day instead of each taking its own row.
+  const laneCols: Set<number>[] = [];
+  const rows: WeekRow[] = candidates.map((c, i) => {
+    const colStart = daysBetween(weekStart, c.clippedStart) + 1;
+    const span = daysBetween(c.clippedStart, c.clippedEnd) + 1;
+    const cols: number[] = [];
+    for (let x = colStart; x < colStart + span; x++) cols.push(x);
 
-  return { weekStart, weekEnd, dayCount, days, rows };
+    let lane = 0;
+    for (;;) {
+      if (!laneCols[lane]) laneCols[lane] = new Set();
+      if (!cols.some((x) => laneCols[lane].has(x))) break;
+      lane++;
+    }
+    cols.forEach((x) => laneCols[lane].add(x));
+
+    return {
+      event: c.event,
+      index: i + 1,
+      colStart,
+      span,
+      lane,
+      clippedStart: c.clippedStart,
+      clippedEnd: c.clippedEnd,
+    };
+  });
+
+  return { weekStart, weekEnd, dayCount, days, rows, laneCount: laneCols.length };
+}
+
+/**
+ * Index of the week that contains `iso`. If the date falls before the first
+ * week it clamps to 0, and after the last week it clamps to the last index —
+ * so "This week" always lands on a real, in-range week.
+ */
+export function weekIndexForDate(weeks: [IsoDate, IsoDate][], iso: IsoDate): number {
+  if (weeks.length === 0) return 0;
+  const target = parseIsoDate(iso).getTime();
+  for (let i = 0; i < weeks.length; i++) {
+    const start = parseIsoDate(weeks[i][0]).getTime();
+    const end = parseIsoDate(weeks[i][1]).getTime();
+    if (target >= start && target <= end) return i;
+  }
+  if (target < parseIsoDate(weeks[0][0]).getTime()) return 0;
+  return weeks.length - 1;
 }

@@ -1,60 +1,34 @@
 "use client";
 
-import type { CalendarMeta, CategoryKey, GenreKey } from "@/lib/types";
+import { GROUP_KEYS } from "@/lib/types";
+import type { CalendarMeta, GroupKey } from "@/lib/types";
 
 interface FilterBarProps {
   meta: CalendarMeta;
-  hiddenCats: ReadonlySet<CategoryKey>;
-  hiddenGenres: ReadonlySet<GenreKey>;
-  onToggleCat: (key: CategoryKey) => void;
-  onToggleGenre: (key: GenreKey) => void;
-  onResetCats: () => void;
+  activeGroup: GroupKey | "all";
+  onSelectGroup: (group: GroupKey | "all") => void;
 }
 
-export function FilterBar({
-  meta,
-  hiddenCats,
-  hiddenGenres,
-  onToggleCat,
-  onToggleGenre,
-  onResetCats,
-}: FilterBarProps) {
+export function FilterBar({ meta, activeGroup, onSelectGroup }: FilterBarProps) {
+  const options: { key: GroupKey | "all"; label: string; color?: string }[] = [
+    { key: "all", label: "All" },
+    ...GROUP_KEYS.map((key) => ({ key, label: meta.groupLabels[key], color: meta.groupColors[key] })),
+  ];
+
   return (
-    <div className="filters">
-      <div className="filter-row">
-        <span className="filter-label">Categories</span>
-        {(Object.entries(meta.cats) as [CategoryKey, CalendarMeta["cats"][CategoryKey]][]).map(
-          ([key, { label, color }]) => (
-            <button
-              key={key}
-              type="button"
-              className={`chip cat-chip${hiddenCats.has(key) ? " off" : ""}`}
-              aria-pressed={!hiddenCats.has(key)}
-              onClick={() => onToggleCat(key)}
-            >
-              <span className="catdot" style={{ background: color }} />
-              {label}
-            </button>
-          )
-        )}
-        <button type="button" className="chip chip-reset" onClick={onResetCats}>
-          Show all
+    <div className="group-filter" role="group" aria-label="Filter events by group">
+      {options.map(({ key, label, color }) => (
+        <button
+          key={key}
+          type="button"
+          className={`group-chip${activeGroup === key ? " on" : ""}`}
+          aria-pressed={activeGroup === key}
+          onClick={() => onSelectGroup(key)}
+        >
+          {color && <span className="catdot" style={{ background: color }} />}
+          {label}
         </button>
-      </div>
-      <div className="filter-row">
-        <span className="filter-label">Music genre</span>
-        {(Object.entries(meta.genreLabels) as [GenreKey, string][]).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            className={`chip genre-chip${hiddenGenres.has(key) ? " off" : ""}`}
-            aria-pressed={!hiddenGenres.has(key)}
-            onClick={() => onToggleGenre(key)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      ))}
     </div>
   );
 }

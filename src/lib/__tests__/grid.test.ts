@@ -13,7 +13,6 @@ function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
     cost: "Free",
     desc: "",
     link: "https://example.com",
-    flags: [],
     approx: false,
     genre: null,
     ...overrides,
@@ -50,5 +49,21 @@ describe("buildWeekLayout", () => {
     const layout = buildWeekLayout([], ["2026-08-28", "2026-08-30"]);
     expect(layout.dayCount).toBe(3);
     expect(layout.days).toHaveLength(3);
+  });
+
+  it("packs events on different days into the same top lane", () => {
+    const mon = makeEvent({ id: 1, start: "2026-08-31", end: "2026-08-31" });
+    const tue = makeEvent({ id: 2, start: "2026-09-01", end: "2026-09-01" });
+    const layout = buildWeekLayout([mon, tue], WEEK);
+    expect(layout.rows.every((r) => r.lane === 0)).toBe(true);
+    expect(layout.laneCount).toBe(1);
+  });
+
+  it("pushes an overlapping event down to the next lane", () => {
+    const a = makeEvent({ id: 1, start: "2026-08-31", end: "2026-08-31" });
+    const b = makeEvent({ id: 2, start: "2026-08-31", end: "2026-08-31" });
+    const layout = buildWeekLayout([a, b], WEEK);
+    expect(layout.rows.map((r) => r.lane).sort()).toEqual([0, 1]);
+    expect(layout.laneCount).toBe(2);
   });
 });

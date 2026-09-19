@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Barcelona Cultural Calendar",
-  description: "A personal calendar of independent and emerging cultural events in Barcelona.",
+  title: "Bootsing — Culture + Dancing Calendar",
+  description:
+    "Explore and save the events that matter to you — for the pleasure of having fun, meeting people, and learning things.",
 };
 
 // Loaded via a plain <link>, not next/font/google: next/font fetches font
@@ -22,6 +23,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             layout is the documented place for a global font <link> like this. */}
         <link
           href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+          rel="stylesheet"
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font -- see note above. */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
       </head>

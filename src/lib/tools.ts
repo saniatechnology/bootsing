@@ -1,8 +1,8 @@
 import "server-only";
 
 import type Anthropic from "@anthropic-ai/sdk";
-import { CATEGORY_KEYS, FLAG_KEYS, GENRE_KEYS } from "./types";
-import type { CalendarEvent, EventPatch, FlagKey, NewEventInput } from "./types";
+import { CATEGORY_KEYS, GENRE_KEYS } from "./types";
+import type { CalendarEvent, EventPatch, NewEventInput } from "./types";
 import { nextEventId } from "./store";
 
 /**
@@ -21,11 +21,6 @@ const eventFieldProperties = {
   cost: { type: "string", description: 'e.g. "Free", "Paid", "€15"' },
   desc: { type: "string", description: "One or two sentence description" },
   link: { type: "string", description: "URL for more info" },
-  flags: {
-    type: "array",
-    items: { type: "string", enum: FLAG_KEYS },
-    description: "Optional badges: closing (last chance), rare (one-off), finale",
-  },
   approx: { type: "boolean", description: "True if the date is approximate/unconfirmed" },
   genre: {
     type: "string",
@@ -38,7 +33,7 @@ export const CALENDAR_TOOLS: Anthropic.Messages.Tool[] = [
   {
     name: "add_event",
     description:
-      "Add a new event to the Barcelona cultural calendar. Dates are ISO yyyy-mm-dd; " +
+      "Add a new event to the Bootsing calendar. Dates are ISO yyyy-mm-dd; " +
       "use the same date for start and end for a single-day event.",
     input_schema: {
       type: "object",
@@ -103,7 +98,6 @@ function toNewEventInput(input: Record<string, unknown>): NewEventInput | { erro
     cost: input.cost as string,
     desc: input.desc as string,
     link: input.link as string,
-    flags: Array.isArray(input.flags) ? (input.flags as FlagKey[]) : undefined,
     approx: typeof input.approx === "boolean" ? input.approx : undefined,
     genre: typeof input.genre === "string" ? (input.genre as NewEventInput["genre"]) : undefined,
   };
@@ -121,7 +115,6 @@ export function executeTool(
       const event: CalendarEvent = {
         id: nextEventId(events),
         ...parsed,
-        flags: parsed.flags ?? [],
         approx: parsed.approx ?? false,
         genre: parsed.cat === "MUS" ? parsed.genre ?? "other" : null,
       };
@@ -143,7 +136,6 @@ export function executeTool(
       if (patch.cost !== undefined) event.cost = patch.cost;
       if (patch.desc !== undefined) event.desc = patch.desc;
       if (patch.link !== undefined) event.link = patch.link;
-      if (patch.flags !== undefined) event.flags = patch.flags;
       if (patch.approx !== undefined) event.approx = patch.approx;
       if (patch.genre !== undefined) event.genre = patch.genre;
       return { ok: true, event };

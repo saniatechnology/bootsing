@@ -9,7 +9,6 @@
     "cost": "Paid",
     "desc": "Electronic club night at Barcelona's flagship late-night room.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "electronic"
   },
@@ -23,7 +22,6 @@
     "cost": "Free/low cover",
     "desc": "Funk/soul/jazz club night in the small basement club near Plaça Reial.",
     "link": "https://marulacafe.com/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -37,7 +35,6 @@
     "cost": "Free",
     "desc": "Final days of Sants' patron-saint festival — decorated streets, concerts, correfocs.",
     "link": "https://www.elnacional.cat/es/fem-pais/fiestas-sants-2026-fechas-programa-calles-engalanadas-conciertos-actividades_1681195_102.html",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -51,9 +48,6 @@
     "cost": "Competition ticketed; Fan Fest free",
     "desc": "Europe's top Valorant esports final in Greater Barcelona, with a free fan zone alongside the paid match.",
     "link": "https://valorantesports.com/en-GB/news/vct-emea-barcelona-fan-fest",
-    "flags": [
-      "rare"
-    ],
     "approx": false,
     "genre": null
   },
@@ -67,7 +61,6 @@
     "cost": "Paid",
     "desc": "Electronic/live-act lineup leaning towards emerging names.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "electronic"
   },
@@ -81,7 +74,6 @@
     "cost": "€16 adv / €18 door",
     "desc": "Weekly Saturday gay circuit party — pop/hits room plus house room, 18+.",
     "link": "https://yassparty.com/barcelona/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -95,9 +87,6 @@
     "cost": "Free",
     "desc": "Water-themed painting show by Marcel R. Juliana — final days.",
     "link": "https://www.berlinwalk.art/barcelona-artwalk/blog/barcelona-events-september-2026-week-36",
-    "flags": [
-      "closing"
-    ],
     "approx": false,
     "genre": null
   },
@@ -111,7 +100,6 @@
     "cost": "Paid",
     "desc": "Screening on the Spanish/Catalan electronic subculture “maquina.”",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -125,9 +113,6 @@
     "cost": "From €16",
     "desc": "~150 photojournalism images spanning four decades (India, Afghanistan, Japan).",
     "link": "https://www.berlinwalk.art/barcelona-artwalk/blog/barcelona-events-september-2026-week-36",
-    "flags": [
-      "closing"
-    ],
     "approx": true,
     "genre": null
   },
@@ -141,7 +126,6 @@
     "cost": "Free/low cost",
     "desc": "Outdoor family film screening as CCCB's summer wind-down.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -155,7 +139,6 @@
     "cost": "Free/low cost",
     "desc": "Outdoor family film screening as CCCB's summer wind-down.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -169,7 +152,6 @@
     "cost": "€7-8/film",
     "desc": "Park Chan-wook retrospective plus recent Korean cinema.",
     "link": "https://www.berlinwalk.art/barcelona-artwalk/blog/barcelona-events-september-2026-week-36",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -183,7 +165,6 @@
     "cost": "Paid",
     "desc": "Popular Spanish party-brand club night, pop/reggaeton/indie crossover.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "pop"
   },
@@ -197,7 +178,6 @@
     "cost": "Paid",
     "desc": "Tribute/theme night with a queer-friendly crowd.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -211,7 +191,6 @@
     "cost": "Paid",
     "desc": "Indie/pop club night.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "pop"
   },
@@ -225,7 +204,6 @@
     "cost": "Paid (indie theatre pricing)",
     "desc": "Multilingual performance from a queer-centered collective on identity and cultural representation.",
     "link": "https://www.anticteatre.com/programacio/?lang=en",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -239,7 +217,6 @@
     "cost": "Paid",
     "desc": "Electronic night with a strong alt/queer crowd crossover historically.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "electronic"
   },
@@ -253,7 +230,6 @@
     "cost": "Paid",
     "desc": "Smaller-room electronic/discovery lineup.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "electronic"
   },
@@ -267,7 +243,6 @@
     "cost": "Free/low cover",
     "desc": "Balkan-fusion live set at the small Gaixample club.",
     "link": "https://marulacafe.com/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "latin"
   },
@@ -281,7 +256,6 @@
     "cost": "Paid",
     "desc": "Mid-size concert.",
     "link": "https://www.salarazzmatazz.com/en/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -295,7 +269,6 @@
     "cost": "Free/low cover",
     "desc": "Small-club Latin/soul night.",
     "link": "https://marulacafe.com/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "latin"
   },
@@ -309,9 +282,6 @@
     "cost": "Paid",
     "desc": "Closing concert of the six-month, six-venue MASiMAS festival — burlesque/blues/swing.",
     "link": "https://beatburguer.com/festival-masimas-2026-6-meses-6-salas-y-una-programacion-historica/",
-    "flags": [
-      "finale"
-    ],
     "approx": false,
     "genre": "other"
   },
@@ -325,7 +295,6 @@
     "cost": "Paid",
     "desc": "Early-evening concert slot.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -339,7 +308,6 @@
     "cost": "Free/low cost",
     "desc": "Guided rooftop viewpoint visit (repeats Sep 24).",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -353,9 +321,6 @@
     "cost": "Free",
     "desc": "Previously undiscovered negatives from the hand-painted-photography pioneer's Movida-era period.",
     "link": "https://www.berlinwalk.art/barcelona-artwalk/blog/barcelona-events-september-2026-week-36",
-    "flags": [
-      "closing"
-    ],
     "approx": true,
     "genre": null
   },
@@ -369,7 +334,6 @@
     "cost": "Paid",
     "desc": "Internet-native musician, mid-size room.",
     "link": "https://www.salarazzmatazz.com/en/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -383,7 +347,6 @@
     "cost": "Free/low cost",
     "desc": "Philosophy lecture opening CCCB's autumn program.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -397,7 +360,6 @@
     "cost": "Free",
     "desc": "11-day neighborhood festival: giants, correfocs, castellers, Dragon Mile race, Palo Market Fest.",
     "link": "https://www.catacultural.com/festa-major-del-poblenou-del-6-al-15-de-septiembre/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -411,7 +373,6 @@
     "cost": "Free",
     "desc": "Opening night, pregó, correfocs, sardanas, indie/jazz/swing/electronic concerts, closing fireworks.",
     "link": "https://beteve.cat/agenda/festa-major-horta-programa/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -425,7 +386,6 @@
     "cost": "Paid",
     "desc": "Recurring pop/reggaeton club night.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "pop"
   },
@@ -439,7 +399,6 @@
     "cost": "Free",
     "desc": "Early-evening emerging-artist showcase.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "latin"
   },
@@ -453,7 +412,6 @@
     "cost": "Paid",
     "desc": "Club night tied to the Catalan National Day lead-up.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "pop"
   },
@@ -467,7 +425,6 @@
     "cost": "Separate registration",
     "desc": "Developer hackathon alongside the Media Party conference (13:00-20:00).",
     "link": "https://mediaparty.org/2026/08/13/why-join-media-party-barcelona-hackathon/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -481,7 +438,6 @@
     "cost": "Free/low cost",
     "desc": "Ongoing autumn lecture series.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -495,7 +451,6 @@
     "cost": "Paid",
     "desc": "Techno-leaning club night.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "electronic"
   },
@@ -509,7 +464,6 @@
     "cost": "Paid",
     "desc": "Discovery-oriented electronic lineup in the smaller room.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "electronic"
   },
@@ -523,7 +477,6 @@
     "cost": "Paid",
     "desc": "Industrial/EBM double bill.",
     "link": "https://sala-upload.com/en/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "electronic"
   },
@@ -537,7 +490,6 @@
     "cost": "Paid",
     "desc": "Small-venue concert.",
     "link": "https://wolfbarcelona.com/conciertos/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -551,7 +503,6 @@
     "cost": "Paid",
     "desc": "Mexican alt-rock/electronic act, mid-size room.",
     "link": "https://bikinibcn.com/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -565,7 +516,6 @@
     "cost": "Likely free",
     "desc": "Workshop under Barcelona World Capital of Architecture 2026's 600-workshop program (exact date approximate).",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/en/programme",
-    "flags": [],
     "approx": true,
     "genre": null
   },
@@ -579,7 +529,6 @@
     "cost": "Free/low cost",
     "desc": "Debate tied to the “Cult of Beauty” exhibition.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -593,7 +542,6 @@
     "cost": "Paid",
     "desc": "Business/tech summit organized by Foment del Treball.",
     "link": "https://www.techbarcelona.com/en/events/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -607,7 +555,6 @@
     "cost": "Free/low cost",
     "desc": "Tour adapted for blind/partially sighted visitors.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -621,7 +568,6 @@
     "cost": "Free/low cost",
     "desc": "Guided tour of “The Assault of Illusion” (repeats Sep 26).",
     "link": "https://www.santamonica.cat/en/exposicions-i-activitats",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -635,7 +581,6 @@
     "cost": "Paid",
     "desc": "~6,000-attendee blockchain/crypto industry conference.",
     "link": "https://eblockchainconvention.com/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -649,9 +594,6 @@
     "cost": "Free (registration)",
     "desc": "One of 10 Barcelona firms opening its studio this year — guided tour, talk, DJ set.",
     "link": "https://tectonica.archi/articles/barcelona-capital-mundial-de-la-arquitectura-2026-estudios-abiertos/",
-    "flags": [
-      "rare"
-    ],
     "approx": false,
     "genre": null
   },
@@ -665,9 +607,6 @@
     "cost": "Free",
     "desc": "Barcelona's biggest coordinated gallery event: simultaneous openings, guided routes, talks, studio visits.",
     "link": "https://www.barcelonagalleryweekend.com/calendar.php?lang=esp",
-    "flags": [
-      "rare"
-    ],
     "approx": false,
     "genre": null
   },
@@ -681,7 +620,6 @@
     "cost": "Free",
     "desc": "Confirmed group-show vernissage as part of Gallery Weekend.",
     "link": "https://www.coolturemag.com/barcelona-gallery-weekend-2026/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -695,7 +633,6 @@
     "cost": "Free/low cost",
     "desc": "Talk tied to the main exhibition.",
     "link": "https://www.santamonica.cat/en/exposicions-i-activitats",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -709,7 +646,6 @@
     "cost": "Free/low cost",
     "desc": "Community demo night for AI builders.",
     "link": "https://www.techbarcelona.com/en/events/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -723,7 +659,6 @@
     "cost": "Paid",
     "desc": "Conference spotlighting women in tech.",
     "link": "https://www.techbarcelona.com/en/events/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -737,7 +672,6 @@
     "cost": "Free/low cost",
     "desc": "Ongoing philosophy reading group.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -751,7 +685,6 @@
     "cost": "Free/low cost",
     "desc": "Talks on instrument-making materials plus a hands-on experimental luthier workshop.",
     "link": "https://www.santamonica.cat/en/exposicions-i-activitats",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -765,7 +698,6 @@
     "cost": "Free/low cost",
     "desc": "With Edurne Portela & Antonio Monegal.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -779,7 +711,6 @@
     "cost": "Paid",
     "desc": "Small-venue concert.",
     "link": "https://wolfbarcelona.com/conciertos/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -793,7 +724,6 @@
     "cost": "Paid",
     "desc": "Rockabilly/swing act, mid-size room.",
     "link": "https://www.sala-apolo.com/en/schedule",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -807,9 +737,6 @@
     "cost": "Likely free",
     "desc": "Hangar's flagship annual open-studios weekend: resident-artist talks, screenings, performances, closing DJ set.",
     "link": "https://hangar.org/en/agenda-hangar/hangar-obert-2026/",
-    "flags": [
-      "rare"
-    ],
     "approx": true,
     "genre": null
   },
@@ -823,9 +750,6 @@
     "cost": "Included with admission",
     "desc": "Live performance as part of MACBA's Year Thirty program.",
     "link": "https://www.macba.cat/en/whats-on/",
-    "flags": [
-      "rare"
-    ],
     "approx": false,
     "genre": null
   },
@@ -839,7 +763,6 @@
     "cost": "Free/low cost",
     "desc": "“Minstrels of the 21st Century” spoken-word event.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -853,7 +776,6 @@
     "cost": "Free/low cost",
     "desc": "Morning academic seminar.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -867,9 +789,6 @@
     "cost": "Free/low cost",
     "desc": "Notable literary pairing — a standout single talk for the month.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [
-      "rare"
-    ],
     "approx": false,
     "genre": null
   },
@@ -883,7 +802,6 @@
     "cost": "Included with admission",
     "desc": "Tour of Richard Meier's building.",
     "link": "https://www.macba.cat/en/whats-on/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -897,7 +815,6 @@
     "cost": "Paid",
     "desc": "Tiered-ticket AI conference plus an associated hackathon, part of “AI Week.”",
     "link": "https://aisummitbarcelona.com/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -911,9 +828,6 @@
     "cost": "Free (capacity-limited)",
     "desc": "Barcelona's biggest annual festival: correfocs, castellers, giants, Piromusical fireworks finale.",
     "link": "https://www.barcelona.cat/lamerce/en",
-    "flags": [
-      "finale"
-    ],
     "approx": false,
     "genre": null
   },
@@ -927,9 +841,6 @@
     "cost": "Free",
     "desc": "La Mercè's dedicated music program — 39 free concerts incl. Bia Ferreira, Nacho Vegas, La Pegatina, Queer Falafel x Mad Monkey.",
     "link": "https://www.barcelona.cat/lamerce/en/bam-barcelona-accio-musical",
-    "flags": [
-      "finale"
-    ],
     "approx": false,
     "genre": "mixed"
   },
@@ -943,7 +854,6 @@
     "cost": "Free/low cost",
     "desc": "Second rooftop-viewpoint session.",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -957,7 +867,6 @@
     "cost": "Free/included",
     "desc": "Family open day tied to La Mercè.",
     "link": "https://www.macba.cat/en/whats-on/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -971,7 +880,6 @@
     "cost": "Paid",
     "desc": "Mid-size concerts, both rooms same night.",
     "link": "https://www.salarazzmatazz.com/en/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -985,7 +893,6 @@
     "cost": "Paid/invite-leaning",
     "desc": "Awards-night format for the local AI/startup scene.",
     "link": "https://www.techbarcelona.com/en/events/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -999,7 +906,6 @@
     "cost": "Free/low cost",
     "desc": "Second and final scheduled session of this tour.",
     "link": "https://www.santamonica.cat/en/exposicions-i-activitats",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1013,7 +919,6 @@
     "cost": "Free/low cost",
     "desc": "“Literature, intimacy and occupation.”",
     "link": "https://www.cccb.org/en/calendar",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1027,7 +932,6 @@
     "cost": "Paid",
     "desc": "Two-night run from the New Zealand dub/soul outfit.",
     "link": "https://www.salarazzmatazz.com/en/agenda/",
-    "flags": [],
     "approx": false,
     "genre": "other"
   },
@@ -1041,9 +945,6 @@
     "cost": "Free/low cost",
     "desc": "Main exhibition ends on the last day of this window.",
     "link": "https://www.santamonica.cat/en/exposicions-i-activitats",
-    "flags": [
-      "closing"
-    ],
     "approx": false,
     "genre": null
   },
@@ -1057,9 +958,6 @@
     "cost": "Included with admission",
     "desc": "Closes Sep 28 — effectively last-chance within this period.",
     "link": "https://www.macba.cat/en/whats-on/",
-    "flags": [
-      "closing"
-    ],
     "approx": false,
     "genre": null
   },
@@ -1073,9 +971,6 @@
     "cost": "Included with admission",
     "desc": "Closes Sep 28 — same last-chance timing.",
     "link": "https://www.macba.cat/en/whats-on/",
-    "flags": [
-      "closing"
-    ],
     "approx": false,
     "genre": null
   },
@@ -1089,9 +984,6 @@
     "cost": "Paid",
     "desc": "MUHBA-led walking tour on Cerdà's Eixample plan and the tensions between urban planning, architecture, and real-estate interests.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/5559",
-    "flags": [
-      "closing"
-    ],
     "approx": false,
     "genre": null
   },
@@ -1105,7 +997,6 @@
     "cost": "Free (registration)",
     "desc": "Guided visit to Josep Maria Sostres's 1957 rationalist house, with the exhibition on its seven lives.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/visita-la-casa-moratiel-y-exposicion-les-set-vides-de-la-casa-moratiel",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1119,7 +1010,6 @@
     "cost": "Free (registration)",
     "desc": "Guided visit to Josep Maria Sostres's 1957 rationalist house, with the exhibition on its seven lives.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/visita-la-casa-moratiel-y-exposicion-les-set-vides-de-la-casa-moratiel",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1133,9 +1023,6 @@
     "cost": "Paid",
     "desc": "MUHBA tour of the medieval counts-kings' palace — Saló del Tinell, Capella de Santa Àgata, and the Roman wall walk.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/el-palau-major",
-    "flags": [
-      "closing"
-    ],
     "approx": false,
     "genre": null
   },
@@ -1149,7 +1036,6 @@
     "cost": "Free (registration)",
     "desc": "Urban walk revisiting FAD Award-winning projects in Poblenou (Catalan session; repeats Sep 12 in Spanish, Sep 19 in English).",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/revisitando-los-premios-fad-ruta-urbana-por-el-poblenou",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1163,7 +1049,6 @@
     "cost": "Free (registration)",
     "desc": "Spanish-language repeat of the FAD-award urban walk through Poblenou.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/revisitando-los-premios-fad-ruta-urbana-por-el-poblenou",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1177,7 +1062,6 @@
     "cost": "Free (registration)",
     "desc": "English-language repeat of the FAD-award urban walk through Poblenou.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/revisitando-los-premios-fad-ruta-urbana-por-el-poblenou",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1191,9 +1075,6 @@
     "cost": "Mostly free (registration)",
     "desc": "European Association for Urban History congress opens to the public with ~15 simultaneous Saturday-morning walks (9:00-13:45): water history at MUHBA's Cases de l'Aigua, the Hospital de Sant Pau archive, Valldaura's monastery-to-architecture-school story, Fabra i Coats' labor history, the Roman forum, and more.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa?tipus_format=Rutas",
-    "flags": [
-      "rare"
-    ],
     "approx": false,
     "genre": null
   },
@@ -1207,7 +1088,6 @@
     "cost": "Free (registration)",
     "desc": "Archaeological walk down La Rambla from Plaça de Catalunya to Port Vell, tied to the ongoing works uncovering the street's history.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/5490",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1221,7 +1101,6 @@
     "cost": "Free (registration)",
     "desc": "Archaeological walk down La Rambla from Plaça de Catalunya to Port Vell, tied to the ongoing works uncovering the street's history.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/5490",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1235,7 +1114,6 @@
     "cost": "Free (registration)",
     "desc": "Guided look at a public-space transformation project in the Eixample.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/arquitecturacoop-conoce-el-espai-rossello-una-transformacion-del-espacio-publico",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1249,7 +1127,6 @@
     "cost": "Free (registration)",
     "desc": "Walking + transit route on Barcelona's green-infrastructure projects: sustainable urban drainage, Glòries park, Superblocks, Can Batlló.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/barcelona-valenta-4-verde-que-te-quiero-verde-hacia-una-ciudad-mas-sostenible",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1263,7 +1140,6 @@
     "cost": "Free (registration)",
     "desc": "Guided visit to the Mundet complex's institutional architecture.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/4343",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1277,7 +1153,6 @@
     "cost": "Free (registration)",
     "desc": "Route on vernacular rural architecture and farming heritage around the Vallès.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/6512",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1291,7 +1166,6 @@
     "cost": "Paid",
     "desc": "Cultural walk to historic farmhouses (masies) in Sant Joan Despí.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/caminata-cultural-las-masias-historicas-de-sant-joan-despi",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1305,7 +1179,6 @@
     "cost": "Paid",
     "desc": "Guided route on Lluís Domènech i Montaner's Eixample buildings.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/domenech-i-montaner",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1319,7 +1192,6 @@
     "cost": "Free (registration)",
     "desc": "Walk through Sarrià's grand private gardens, part of the district's September WCA2026 spotlight.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/los-jardines-senoriales-de-sarria",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1333,7 +1205,6 @@
     "cost": "Free",
     "desc": "Panel with an architect, a historian, a neighborhood association and Hangar revisiting the 2005 fight to save Can Ricart, 20 years on.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/5131",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1347,7 +1218,6 @@
     "cost": "Free (registration)",
     "desc": "Session on sustainable housing retrofits.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/hogar-sostenible",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1361,7 +1231,6 @@
     "cost": "Free (registration)",
     "desc": "Retrofit-focused open house at an architect's live/work studio.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/rehabcn-casaestudio-fernando-poo",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1375,7 +1244,6 @@
     "cost": "Free (registration)",
     "desc": "Architecture-focused tour of the renovated Sant Antoni market.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/explora-barcelona-traves-de-sus-mercados-sant-antoni",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1389,7 +1257,6 @@
     "cost": "Free (registration)",
     "desc": "MUHBA guided walk on the city's hidden/underground infrastructure — the walking-tour companion to MACBA's exhibition of the same name.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/underground-matters-arquitecturas-invisibles-pasado",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1403,7 +1270,6 @@
     "cost": "Free (registration)",
     "desc": "Walk-and-debate inspired by urbanist Jane Jacobs, through September's featured district.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/janes-walk-paseo-debate-inspirado-en-la-mirada-de-jane-jacobs-sarria-sant-gervasi",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1417,7 +1283,6 @@
     "cost": "Free (registration)",
     "desc": "Tour of Antoni Bonet's former greyhound-racing track, now a digital-innovation center.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/la-barcelona-de-bonet-visita-al-canodromo-meridiana",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1431,7 +1296,6 @@
     "cost": "Free (registration)",
     "desc": "Route along the Besòs river basin's green corridor.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/el-manto-verde-infinito-ruta-6",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1445,7 +1309,6 @@
     "cost": "Free (registration)",
     "desc": "A listening-focused walk through Vallvidrera.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/cierra-los-ojos-y-escucha-vallvidrera",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1459,7 +1322,6 @@
     "cost": "Free (registration)",
     "desc": "Object-based history walk, with repeat visits at 11:00, 12:00, 13:00, 16:00 and 17:00.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/programa/barcelona-flashback-la-vida-en-la-ciudad-a-traves-de-los-objetos",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1473,7 +1335,6 @@
     "cost": "Free (registration)",
     "desc": "Retrofit-focused open house at a Ciutat Vella live/work studio.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/4701",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1487,7 +1348,6 @@
     "cost": "Free (registration)",
     "desc": "Route on the social history of the wine trade.",
     "link": "https://www.barcelona.cat/capitalmundialarquitectura/es/node/6511",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1501,9 +1361,6 @@
     "cost": "€15 (€9 concessions)",
     "desc": "Retrospective of Catalan painter Àngel Jové — closes on the very last day of this window.",
     "link": "https://museutapies.org/en/current-exhibitions/",
-    "flags": [
-      "closing"
-    ],
     "approx": false,
     "genre": null
   },
@@ -1517,7 +1374,6 @@
     "cost": "Free",
     "desc": "Barcelona World Capital of Architecture 2026's main visitor hub, with a large-scale interactive city model.",
     "link": "https://www.barcelona.cat/infobarcelona/en/barcelona-world-capital-of-architecture-2026_1377987.html",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1531,7 +1387,6 @@
     "cost": "Mostly free",
     "desc": "Sarrià-Sant Gervasi hosts the World Capital of Architecture 2026 headquarters and programming for the month.",
     "link": "https://ajuntament.barcelona.cat/sarria-santgervasi/es/noticias/el-districte-acollira-la-seu-de-la-capitalitat-mundial-de-larquitectura-durant-el-mes-de-setembre-1590980",
-    "flags": [],
     "approx": true,
     "genre": null
   },
@@ -1545,7 +1400,6 @@
     "cost": "Included with admission",
     "desc": "Workshop/tour series on hidden architectural systems (continues to Nov 14).",
     "link": "https://www.macba.cat/en/whats-on/",
-    "flags": [],
     "approx": false,
     "genre": null
   },
@@ -1559,7 +1413,6 @@
     "cost": "Paid, premium tiers available",
     "desc": "Polished touring big-top show (runs to Oct 12) — a dressed-up “chic” pick outside the gallery scene.",
     "link": "https://www.cirquedusoleil.com/spain/barcelona/kurios/buy-tickets",
-    "flags": [],
     "approx": false,
     "genre": null
   }

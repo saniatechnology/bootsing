@@ -57,6 +57,30 @@
     "mixed": "Mixed lineup",
     "other": "Other (rock, indie, etc.)"
   },
+  "groupLabels": {
+    "culture": "Culture",
+    "dancing": "Dancing",
+    "queer": "Queer"
+  },
+  "groupColors": {
+    "culture": "#6B8F71",
+    "dancing": "#D9704B",
+    "queer": "#C64E8C"
+  },
+  "catGroups": {
+    "IND": ["culture"],
+    "GAL": ["culture"],
+    "QUEER": ["queer", "dancing"],
+    "MUS": ["dancing"],
+    "MUSPROD": ["culture"],
+    "GAME": ["culture"],
+    "ARCH": ["culture"],
+    "FASH": ["culture"],
+    "TECH": ["culture"],
+    "NEIGH": ["culture", "dancing"],
+    "CHIC": ["culture"],
+    "BONUS": ["culture"]
+  },
   "weeks": [
     [
       "2026-08-28",

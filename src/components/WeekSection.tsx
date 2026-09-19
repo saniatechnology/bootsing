@@ -1,43 +1,42 @@
 import { dayOfWeekAbbr, fmtDateRange } from "@/lib/dates";
 import { buildWeekLayout } from "@/lib/grid";
-import type { CalendarEvent, CalendarMeta, CategoryKey, GenreKey, IsoDate } from "@/lib/types";
-
-const FLAG_ICON: Record<string, string> = { closing: "\u{1F534}", rare: "⭐", finale: "\u{1F389}" };
-const FLAG_LABEL: Record<string, string> = {
-  closing: "Last chance",
-  rare: "One-off / rare",
-  finale: "Season finale",
-};
+import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 
 interface WeekSectionProps {
-  weekNumber: number;
   week: [IsoDate, IsoDate];
   events: CalendarEvent[];
   meta: CalendarMeta;
-  hiddenCats: ReadonlySet<CategoryKey>;
-  hiddenGenres: ReadonlySet<GenreKey>;
+  activeGroup: GroupKey | "all";
 }
 
-export function WeekSection({ weekNumber, week, events, meta, hiddenCats, hiddenGenres }: WeekSectionProps) {
+export function WeekSection({ week, events, meta, activeGroup }: WeekSectionProps) {
   const layout = buildWeekLayout(events, week);
 
   function isHidden(event: CalendarEvent): boolean {
-    if (hiddenCats.has(event.cat)) return true;
-    if (event.genre && hiddenGenres.has(event.genre)) return true;
-    return false;
+    if (activeGroup === "all") return false;
+    return !meta.catGroups[event.cat]?.includes(activeGroup);
+  }
+
+  /** An event's groups, and the color of its first (primary) group. */
+  function groupsOf(event: CalendarEvent): GroupKey[] {
+    return meta.catGroups[event.cat] ?? [];
+  }
+  function colorOf(event: CalendarEvent): string {
+    const primary = groupsOf(event)[0];
+    return primary ? meta.groupColors[primary] : "var(--text-muted)";
   }
 
   return (
     <section className="week">
       <h2 className="week-title">
-        Week {weekNumber} <span className="week-range">{fmtDateRange(layout.weekStart, layout.weekEnd)}</span>
+        <span className="week-range">{fmtDateRange(layout.weekStart, layout.weekEnd)}</span>
       </h2>
 
       <div
         className="grid"
         style={{
           gridTemplateColumns: `repeat(${layout.dayCount}, 1fr)`,
-          gridTemplateRows: `auto repeat(${layout.rows.length}, auto)`,
+          gridTemplateRows: `auto repeat(${layout.laneCount}, auto)`,
         }}
       >
         {layout.days.map((day) => (
@@ -48,27 +47,21 @@ export function WeekSection({ weekNumber, week, events, meta, hiddenCats, hidden
         ))}
 
         {layout.rows.map((row) => {
-          const { event, index, colStart, span } = row;
-          const catMeta = meta.cats[event.cat];
+          const { event, index, colStart, span, lane } = row;
           return (
             <div
               key={event.id}
               className="ev-row"
               style={{
-                gridRow: index + 1,
+                gridRow: lane + 2,
                 gridColumn: `${colStart} / span ${span}`,
-                ["--cat" as string]: catMeta.color,
+                ["--cat" as string]: colorOf(event),
                 display: isHidden(event) ? "none" : undefined,
               }}
             >
               <span className="ev-badge">{index}</span>
               <span className="ev-name">{event.name}</span>
               <span className="ev-venue">{event.venue}</span>
-              {event.flags.map((flag) => (
-                <span className="flagchip" title={FLAG_LABEL[flag]} key={flag}>
-                  {FLAG_ICON[flag]}
-                </span>
-              ))}
               {event.approx && <span className="approx">approx.</span>}
             </div>
           );
@@ -80,7 +73,7 @@ export function WeekSection({ weekNumber, week, events, meta, hiddenCats, hidden
           <thead>
             <tr>
               <th>#</th>
-              <th>Category</th>
+              <th>Group</th>
               <th>Event</th>
               <th>Venue</th>
               <th>Date</th>
@@ -92,14 +85,12 @@ export function WeekSection({ weekNumber, week, events, meta, hiddenCats, hidden
           <tbody>
             {layout.rows.map((row) => {
               const { event, index, clippedStart, clippedEnd } = row;
-              const catMeta = meta.cats[event.cat];
               return (
                 <tr key={event.id} style={{ display: isHidden(event) ? "none" : undefined }}>
                   <td className="dnum-cell">{index}</td>
                   <td>
-                    <span className="catdot" style={{ background: catMeta.color }} />
-                    {catMeta.label}
-                    {event.genre && <span className="genrechip">{meta.genreLabels[event.genre]}</span>}
+                    <span className="catdot" style={{ background: colorOf(event) }} />
+                    {groupsOf(event).map((g) => meta.groupLabels[g]).join(" · ")}
                   </td>
                   <td className="evn">
                     {event.name}

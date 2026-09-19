@@ -1,4 +1,4 @@
-# Barcelona Cultural Calendar (Next.js)
+# Bootsing — Culture + Dancing Calendar (Next.js)
 
 > **Picking this up fresh (e.g. in Claude Code)?** Read `CONTEXT.md` first —
 > it covers what this app is for, the category/genre preferences the data

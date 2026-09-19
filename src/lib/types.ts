@@ -1,5 +1,5 @@
 /**
- * Domain model for the Barcelona Cultural Calendar.
+ * Domain model for Bootsing — the Culture + Dancing Calendar.
  *
  * The category and genre keys are a fixed, small vocabulary (see
  * CONTEXT.md for what each one means and why), so they're modeled as
@@ -27,8 +27,14 @@ export type CategoryKey = (typeof CATEGORY_KEYS)[number];
 export const GENRE_KEYS = ["latin", "hiphop", "pop", "electronic", "mixed", "other"] as const;
 export type GenreKey = (typeof GENRE_KEYS)[number];
 
-export const FLAG_KEYS = ["closing", "rare", "finale"] as const;
-export type FlagKey = (typeof FLAG_KEYS)[number];
+/**
+ * The three high-level groups shown as filters in the UI. A category can
+ * belong to more than one group (see `catGroups` in meta.json), so an event
+ * can appear under multiple filters — e.g. a queer club night is both
+ * "dancing" and "queer".
+ */
+export const GROUP_KEYS = ["culture", "dancing", "queer"] as const;
+export type GroupKey = (typeof GROUP_KEYS)[number];
 
 /** An ISO 8601 calendar date string, e.g. "2026-09-17". */
 export type IsoDate = string;
@@ -43,15 +49,13 @@ export interface CalendarEvent {
   cost: string;
   desc: string;
   link: string;
-  flags: FlagKey[];
   approx: boolean;
   /** Only set when `cat === "MUS"`; `null` for every other category. */
   genre: GenreKey | null;
 }
 
 /** Fields a caller may set when creating a new event; `id` is assigned by the store. */
-export type NewEventInput = Omit<CalendarEvent, "id" | "flags" | "approx" | "genre"> & {
-  flags?: FlagKey[];
+export type NewEventInput = Omit<CalendarEvent, "id" | "approx" | "genre"> & {
   approx?: boolean;
   genre?: GenreKey;
 };
@@ -67,6 +71,11 @@ export interface CategoryMeta {
 export interface CalendarMeta {
   cats: Record<CategoryKey, CategoryMeta>;
   genreLabels: Record<GenreKey, string>;
+  /** Which of the three filter groups each category belongs to; overlap is allowed. */
+  catGroups: Record<CategoryKey, GroupKey[]>;
+  groupLabels: Record<GroupKey, string>;
+  /** Bar/dot color for each of the three groups. */
+  groupColors: Record<GroupKey, string>;
   /** Each tuple is [weekStart, weekEnd], both ISO dates, inclusive. */
   weeks: [IsoDate, IsoDate][];
 }
