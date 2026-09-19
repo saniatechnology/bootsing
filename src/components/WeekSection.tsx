@@ -1,3 +1,6 @@
+"use client";
+
+import { Fragment, useState } from "react";
 import { dayOfWeekAbbr, fmtDateRange } from "@/lib/dates";
 import { buildWeekLayout } from "@/lib/grid";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
@@ -31,7 +34,7 @@ function SelectBadge({
   numClassName: string;
 }) {
   return (
-    <span className="ev-select">
+    <span className="ev-select" onClick={(e) => e.stopPropagation()}>
       <span className={numClassName} aria-hidden="true">
         {index}
       </span>
@@ -55,10 +58,15 @@ export function WeekSection({
   onToggleSelect,
 }: WeekSectionProps) {
   const layout = buildWeekLayout(events, week);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
   function isHidden(event: CalendarEvent): boolean {
     if (activeGroup === "all") return false;
     return !meta.catGroups[event.cat]?.includes(activeGroup);
+  }
+
+  function toggleExpanded(id: number) {
+    setExpandedId((prev) => (prev === id ? null : id));
   }
 
   /** An event's groups, and the color of its first (primary) group. */
@@ -70,13 +78,21 @@ export function WeekSection({
     return primary ? meta.groupColors[primary] : "var(--text-muted)";
   }
 
+  // The expanded event's detail row is injected as a full-width grid row right
+  // below its lane; lanes beneath it shift down one row to make space.
+  const expandedRow =
+    expandedId != null
+      ? layout.rows.find((r) => r.event.id === expandedId && !isHidden(r.event))
+      : undefined;
+  const expandedLane = expandedRow ? expandedRow.lane : -1;
+
   return (
     <section className="week">
       <div
         className="grid"
         style={{
           gridTemplateColumns: `repeat(${layout.dayCount}, 1fr)`,
-          gridTemplateRows: `auto repeat(${layout.laneCount}, auto)`,
+          gridTemplateRows: `auto repeat(${layout.laneCount + (expandedRow ? 1 : 0)}, auto)`,
         }}
       >
         {layout.days.map((day) => (
@@ -87,30 +103,85 @@ export function WeekSection({
         ))}
 
         {layout.rows.map((row) => {
-          const { event, index, colStart, span, lane } = row;
+          const { event, index, colStart, span, lane, clippedStart, clippedEnd } = row;
           const selected = selectedIds.has(event.id);
+          const hidden = isHidden(event);
+          const expanded = expandedRow?.event.id === event.id;
+          const gridRow = lane + 2 + (expandedLane >= 0 && lane > expandedLane ? 1 : 0);
           return (
-            <div
-              key={event.id}
-              className={`ev-row${selected ? " selected" : ""}`}
-              style={{
-                gridRow: lane + 2,
-                gridColumn: `${colStart} / span ${span}`,
-                ["--cat" as string]: colorOf(event),
-                display: isHidden(event) ? "none" : undefined,
-              }}
-            >
-              <SelectBadge
-                index={index}
-                eventName={event.name}
-                selected={selected}
-                onToggle={() => onToggleSelect(event.id)}
-                numClassName="ev-badge"
-              />
-              <span className="ev-name">{event.name}</span>
-              {/* <span className="ev-venue">{event.venue}</span> */}
-              {event.approx && <span className="approx">approx.</span>}
-            </div>
+            <Fragment key={event.id}>
+              <div
+                className={`ev-row${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
+                style={{
+                  gridRow,
+                  gridColumn: `${colStart} / span ${span}`,
+                  ["--cat" as string]: colorOf(event),
+                  display: hidden ? "none" : undefined,
+                }}
+                role="button"
+                tabIndex={hidden ? -1 : 0}
+                aria-expanded={expanded}
+                onClick={() => toggleExpanded(event.id)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleExpanded(event.id);
+                  }
+                }}
+              >
+                <SelectBadge
+                  index={index}
+                  eventName={event.name}
+                  selected={selected}
+                  onToggle={() => onToggleSelect(event.id)}
+                  numClassName="ev-badge"
+                />
+                <span className="ev-name">{event.name}</span>
+                {/* <span className="ev-venue">{event.venue}</span> */}
+                {event.approx && <span className="approx">approx.</span>}
+              </div>
+
+              {expanded && (
+                <div className="ev-detail" style={{ gridRow: expandedLane + 3, gridColumn: "1 / -1" }}>
+                  <div className="ev-detail-inner">
+                    <div className="ev-detail-head">
+                      <span className="catdot" style={{ background: colorOf(event) }} />
+                      <span className="ev-detail-groups">
+                        {groupsOf(event).map((g) => meta.groupLabels[g]).join(" · ")}
+                      </span>
+                      <span className="ev-detail-title">{event.name}</span>
+                      {event.approx && <span className="approx">approx.</span>}
+                    </div>
+                    <dl className="ev-detail-grid">
+                      <div>
+                        <dt>Venue</dt>
+                        <dd>{event.venue}</dd>
+                      </div>
+                      <div>
+                        <dt>Date</dt>
+                        <dd className="mono">{fmtDateRange(clippedStart, clippedEnd)}</dd>
+                      </div>
+                      <div>
+                        <dt>Cost</dt>
+                        <dd>{event.cost}</dd>
+                      </div>
+                      <div className="ev-detail-desc">
+                        <dt>Description</dt>
+                        <dd>{event.desc}</dd>
+                      </div>
+                    </dl>
+                    <a
+                      className="ev-detail-link"
+                      href={event.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      More info &#8599;
+                    </a>
+                  </div>
+                </div>
+              )}
+            </Fragment>
           );
         })}
       </div>

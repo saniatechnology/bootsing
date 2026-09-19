@@ -1402,5 +1402,18 @@
     "link": "https://www.cirquedusoleil.com/spain/barcelona/kurios/buy-tickets",
     "approx": false,
     "genre": null
+  },
+  {
+    "id": 110,
+    "name": "Inauguració de Virus Llibreria",
+    "venue": "Plaça del Pou de la Figuera (Forat de la Vergonya), Barcelona",
+    "cat": "NEIGH",
+    "start": "2026-09-19",
+    "end": "2026-09-19",
+    "cost": "Unknown",
+    "desc": "Opening party for the new Virus Llibreria bookshop: an afternoon in the square for talks, debate, food, reading and dancing, with contributions from Biblioteques en Lluita, Regularización Ya!, and publishers Banda Propia (Chile) and Tinta Limón (Argentina).",
+    "link": "https://do.basspistol.org/event/inauguracio-de-virus-llibreria",
+    "approx": false,
+    "genre": null
   }
 ]
