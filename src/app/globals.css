@@ -494,6 +494,111 @@ footer.note {
   box-shadow: none;
   z-index: 40;
 }
+
+/* ---- Bulk selection actions (slide up to the left of the chat button) ---- */
+.bulk-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  width: 3.2rem;
+  height: 3.2rem;
+  border: 1px solid var(--text);
+  background: #fff;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 40;
+  opacity: 0;
+  transform: translateY(150%);
+  pointer-events: none;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+.bulk-fab.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.bulk-fab .material-symbols-outlined {
+  font-size: 1.5rem;
+}
+.bulk-delete-fab {
+  left: calc(1.5rem + 3.2rem + 0.6rem);
+}
+.bulk-clear-fab {
+  left: 1.5rem;
+}
+
+.bulk-delete-body {
+  padding: 1rem 0.9rem;
+}
+.bulk-delete-lead {
+  margin: 0 0 0.7rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+.bulk-delete-list {
+  list-style: none;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.bulk-delete-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.bulk-delete-name {
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+.bulk-delete-meta {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.bulk-delete-error {
+  margin: 0 0 0.7rem;
+  color: #ff5c5c;
+  font-size: 0.8rem;
+}
+.bulk-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.bulk-delete-actions button {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+}
+.bulk-delete-actions .bd-cancel:hover {
+  border-color: var(--text);
+}
+.bulk-delete-actions .bd-confirm {
+  border-color: #ff5c5c;
+  background: #ff5c5c;
+  color: #fff;
+}
+.bulk-delete-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 #chat-panel {
   position: fixed;
   bottom: 1.5rem;
@@ -632,6 +737,16 @@ footer.note {
 .detail-table tr.selected {
   background: rgba(255, 77, 23, 0.08);
 }
+.detail-table tr.ev-list-row {
+  cursor: pointer;
+}
+.detail-table tr.ev-list-row:hover {
+  background: var(--surface-2);
+}
+.detail-table tr.ev-list-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
 
 /* --- Chat: selected-events chip --- */
 .selection-chip {
@@ -740,4 +855,312 @@ footer.note {
 }
 .proposal-cancel:hover {
   border-color: var(--text);
+}
+
+/* ---- Direct-edit: add/edit/delete controls + modal form ---- */
+.daycell.head {
+  position: relative;
+  cursor: pointer;
+}
+.daycell.head:hover,
+.daycell.head:focus-visible {
+  background: var(--surface);
+  outline: none;
+}
+.day-add {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--bg);
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.daycell.head:hover .day-add,
+.daycell.head:focus-visible .day-add {
+  opacity: 1;
+}
+
+.ev-detail-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.row-actions {
+  white-space: nowrap;
+}
+.row-actions .ev-action-btn + .ev-action-btn {
+  margin-left: 0.4rem;
+}
+.ev-action-btn {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+}
+.ev-action-btn:hover {
+  border-color: var(--text);
+}
+.ev-action-btn:focus-visible {
+  outline: 2px solid var(--accent);
+}
+.ev-action-delete {
+  color: #ff5c5c;
+}
+.ev-action-delete:hover {
+  border-color: #ff5c5c;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4vh 1rem;
+  overflow-y: auto;
+}
+.modal {
+  width: 100%;
+  max-width: 540px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.modal-head button {
+  font: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.modal-head button:hover {
+  color: var(--text);
+}
+
+.event-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  padding: 1rem 0.9rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.field-wide {
+  grid-column: 1 / -1;
+}
+.field > span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-size: 0.86rem;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.55rem;
+}
+.field textarea {
+  resize: vertical;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.field-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  align-self: end;
+}
+.field-check span {
+  font-family: "Archivo", sans-serif;
+  font-size: 0.82rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+}
+.event-form-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #ff5c5c;
+  font-size: 0.8rem;
+}
+.event-form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+.event-form-actions button {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+}
+.ef-cancel:hover {
+  border-color: var(--text);
+}
+.ef-save {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.event-form-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@media (max-width: 560px) {
+  .event-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Configuration editor ---- */
+.config-intro-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+}
+.config-intro-field > span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.config-card-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.config-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.config-title-input {
+  flex: 1;
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+}
+.config-edit-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+.config-edit-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+.config-item-remove {
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 1.9rem;
+  height: 1.9rem;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.config-item-remove:hover {
+  color: #ff5c5c;
+  border-color: #ff5c5c;
+}
+.config-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
+}
+.config-save-group {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.config-save-msg {
+  color: #3ddc84;
+  font-size: 0.82rem;
+}
+.config-save-err {
+  color: #ff5c5c;
+  font-size: 0.82rem;
+}
+.config-save-btn {
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+}
+.config-intro-field textarea,
+.config-note-input,
+.config-title-input,
+.config-edit-item input {
+  font: inherit;
+  font-size: 0.86rem;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.55rem;
+}
+.config-intro-field textarea {
+  resize: vertical;
+  font-family: "Archivo", sans-serif;
+}
+.config-intro-field textarea:focus,
+.config-note-input:focus,
+.config-title-input:focus,
+.config-edit-item input:focus {
+  outline: none;
+  border-color: var(--accent);
 }

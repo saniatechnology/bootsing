@@ -148,7 +148,6 @@ export function ChatPanel({ onEventsChanged, selectedEvents, onClearSelection }:
   return (
     <>
       <button id="chat-toggle" aria-label="Open chat" onClick={() => setOpen((v) => !v)}>
-        &#x1F4AC;
       </button>
 
       {open && (

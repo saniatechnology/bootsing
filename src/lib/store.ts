@@ -1,43 +1,261 @@
 import "server-only";
 
-import { readFile, writeFile } from "node:fs/promises";
-import path from "node:path";
-import type { CalendarEvent, CalendarMeta } from "./types";
+import { getSupabaseClient, getCurrentUserId } from "./supabase";
+import { materializeNewEvent } from "./tools";
+import type { Preferences, PreferenceSection } from "./preferences";
+import type {
+  CalendarEvent,
+  CalendarMeta,
+  CategoryKey,
+  CategoryMeta,
+  GenreKey,
+  GroupKey,
+  IsoDate,
+  NewEventInput,
+} from "./types";
 
 /**
- * The whole persistence layer for this app: two JSON files on disk.
- * That's a deliberate, honest choice for a single-user personal tool —
- * see CONTEXT.md / README.md for what to swap in if this ever needs to
- * survive a serverless/ephemeral-filesystem host.
+ * The persistence layer for Bootsing, backed by Supabase (Postgres). Every
+ * read/write scopes to the current user id, so this module is the single place
+ * that would change to support real multi-user auth later.
  *
- * Every read/write goes through this module so that's the *only* place
- * that would need to change to move to a real database later.
+ * Postgres reserved words forced a column rename (start->starts, end->ends,
+ * desc->description); the mapping to and from the domain model lives here.
  */
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const EVENTS_PATH = path.join(DATA_DIR, "events.json");
-const META_PATH = path.join(DATA_DIR, "meta.json");
+interface EventRow {
+  id: number;
+  name: string;
+  venue: string;
+  cat: string;
+  starts: string;
+  ends: string;
+  cost: string;
+  description: string;
+  link: string;
+  approx: boolean;
+  genre: string | null;
+}
+
+const EVENT_COLUMNS = "id,name,venue,cat,starts,ends,cost,description,link,approx,genre";
+
+function rowToEvent(row: EventRow): CalendarEvent {
+  return {
+    id: row.id,
+    name: row.name,
+    venue: row.venue,
+    cat: row.cat as CategoryKey,
+    start: row.starts,
+    end: row.ends,
+    cost: row.cost,
+    desc: row.description,
+    link: row.link,
+    approx: row.approx,
+    genre: row.genre as GenreKey | null,
+  };
+}
 
 export async function readEvents(): Promise<CalendarEvent[]> {
-  const raw = await readFile(EVENTS_PATH, "utf8");
-  return JSON.parse(raw) as CalendarEvent[];
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("events")
+    .select(EVENT_COLUMNS)
+    .eq("user_id", getCurrentUserId())
+    .order("starts", { ascending: true })
+    .order("id", { ascending: true });
+  if (error) throw new Error(`Failed to read events: ${error.message}`);
+  return (data as EventRow[]).map(rowToEvent);
 }
 
-export async function writeEvents(events: CalendarEvent[]): Promise<void> {
-  await writeFile(EVENTS_PATH, JSON.stringify(events, null, 2) + "\n", "utf8");
+export async function insertEvent(input: NewEventInput): Promise<CalendarEvent> {
+  const supabase = getSupabaseClient();
+  const e = materializeNewEvent(input);
+  const { data, error } = await supabase
+    .from("events")
+    .insert({
+      user_id: getCurrentUserId(),
+      name: e.name,
+      venue: e.venue,
+      cat: e.cat,
+      starts: e.start,
+      ends: e.end,
+      cost: e.cost,
+      description: e.desc,
+      link: e.link,
+      approx: e.approx,
+      genre: e.genre,
+    })
+    .select(EVENT_COLUMNS)
+    .single();
+  if (error) throw new Error(`Failed to add event: ${error.message}`);
+  return rowToEvent(data as EventRow);
 }
 
-let metaCache: CalendarMeta | null = null;
+/** Map a domain patch to DB columns; returns {} when nothing recognised is set. */
+function patchToRow(patch: Partial<Omit<CalendarEvent, "id">>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (patch.name !== undefined) row.name = patch.name;
+  if (patch.venue !== undefined) row.venue = patch.venue;
+  if (patch.cat !== undefined) row.cat = patch.cat;
+  if (patch.start !== undefined) row.starts = patch.start;
+  if (patch.end !== undefined) row.ends = patch.end;
+  if (patch.cost !== undefined) row.cost = patch.cost;
+  if (patch.desc !== undefined) row.description = patch.desc;
+  if (patch.link !== undefined) row.link = patch.link;
+  if (patch.approx !== undefined) row.approx = patch.approx;
+  if (patch.genre !== undefined) row.genre = patch.genre;
+  return row;
+}
 
-/** Category/genre/week metadata is static config, not user data — safe to cache in memory. */
-export async function readMeta(): Promise<CalendarMeta> {
-  if (!metaCache) {
-    const raw = await readFile(META_PATH, "utf8");
-    metaCache = JSON.parse(raw) as CalendarMeta;
+/** Update an event in place. Returns null when no such event exists for this user. */
+export async function updateEvent(
+  id: number,
+  patch: Partial<Omit<CalendarEvent, "id">>
+): Promise<CalendarEvent | null> {
+  const supabase = getSupabaseClient();
+  const userId = getCurrentUserId();
+  const columns = patchToRow(patch);
+
+  // Nothing recognised to change: just return the current row (or null if gone).
+  if (Object.keys(columns).length === 0) {
+    const { data, error } = await supabase
+      .from("events")
+      .select(EVENT_COLUMNS)
+      .eq("user_id", userId)
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw new Error(`Failed to load event: ${error.message}`);
+    return data ? rowToEvent(data as EventRow) : null;
   }
-  return metaCache;
+
+  const { data, error } = await supabase
+    .from("events")
+    .update(columns)
+    .eq("user_id", userId)
+    .eq("id", id)
+    .select(EVENT_COLUMNS)
+    .maybeSingle();
+  if (error) throw new Error(`Failed to edit event: ${error.message}`);
+  return data ? rowToEvent(data as EventRow) : null;
 }
 
-export function nextEventId(events: CalendarEvent[]): number {
-  return events.reduce((max, e) => Math.max(max, e.id), 0) + 1;
+/** Delete an event. Returns the removed event, or null when it didn't exist. */
+export async function deleteEvent(id: number): Promise<CalendarEvent | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("events")
+    .delete()
+    .eq("user_id", getCurrentUserId())
+    .eq("id", id)
+    .select(EVENT_COLUMNS)
+    .maybeSingle();
+  if (error) throw new Error(`Failed to delete event: ${error.message}`);
+  return data ? rowToEvent(data as EventRow) : null;
+}
+
+// ---- Meta (categories, weeks, shared vocabulary) ----
+
+interface CategoryRow {
+  key: string;
+  label: string;
+  color: string;
+  groups: string[];
+  position: number;
+}
+
+interface WeekRow {
+  position: number;
+  week_start: string;
+  week_end: string;
+}
+
+interface AppSettingsRow {
+  genre_labels: Record<string, string>;
+  group_labels: Record<string, string>;
+  group_colors: Record<string, string>;
+}
+
+/** Assembles CalendarMeta from the categories, weeks, and app_settings tables. */
+export async function readMeta(): Promise<CalendarMeta> {
+  const supabase = getSupabaseClient();
+  const userId = getCurrentUserId();
+
+  const [categoriesRes, weeksRes, settingsRes] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("key,label,color,groups,position")
+      .eq("user_id", userId)
+      .order("position", { ascending: true }),
+    supabase
+      .from("weeks")
+      .select("position,week_start,week_end")
+      .eq("user_id", userId)
+      .order("position", { ascending: true }),
+    supabase
+      .from("app_settings")
+      .select("genre_labels,group_labels,group_colors")
+      .eq("user_id", userId)
+      .single(),
+  ]);
+
+  if (categoriesRes.error) throw new Error(`Failed to read categories: ${categoriesRes.error.message}`);
+  if (weeksRes.error) throw new Error(`Failed to read weeks: ${weeksRes.error.message}`);
+  if (settingsRes.error) throw new Error(`Failed to read app settings: ${settingsRes.error.message}`);
+
+  const cats = {} as Record<CategoryKey, CategoryMeta>;
+  const catGroups = {} as Record<CategoryKey, GroupKey[]>;
+  for (const row of categoriesRes.data as CategoryRow[]) {
+    const key = row.key as CategoryKey;
+    cats[key] = { label: row.label, color: row.color };
+    catGroups[key] = row.groups as GroupKey[];
+  }
+
+  const weeks = (weeksRes.data as WeekRow[]).map(
+    (w) => [w.week_start, w.week_end] as [IsoDate, IsoDate]
+  );
+
+  const settings = settingsRes.data as AppSettingsRow;
+
+  return {
+    cats,
+    genreLabels: settings.genre_labels as Record<GenreKey, string>,
+    catGroups,
+    groupLabels: settings.group_labels as Record<GroupKey, string>,
+    groupColors: settings.group_colors as Record<GroupKey, string>,
+    weeks,
+  };
+}
+
+// ---- Preferences (the editable Configuration page) ----
+
+interface PreferencesRow {
+  intro: string;
+  sections: PreferenceSection[];
+}
+
+export async function readPreferences(): Promise<Preferences> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("preferences")
+    .select("intro,sections")
+    .eq("user_id", getCurrentUserId())
+    .single();
+  if (error) throw new Error(`Failed to read preferences: ${error.message}`);
+  const row = data as PreferencesRow;
+  return { intro: row.intro, sections: row.sections };
+}
+
+export async function writePreferences(prefs: Preferences): Promise<Preferences> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("preferences")
+    .upsert(
+      { user_id: getCurrentUserId(), intro: prefs.intro, sections: prefs.sections },
+      { onConflict: "user_id" }
+    )
+    .select("intro,sections")
+    .single();
+  if (error) throw new Error(`Failed to save preferences: ${error.message}`);
+  const row = data as PreferencesRow;
+  return { intro: row.intro, sections: row.sections };
 }

@@ -10,13 +10,14 @@ import type {
   GroupKey,
   NewEventInput,
 } from "./types";
-import { nextEventId } from "./store";
 
 /**
- * Tool definitions Claude can call from the chat box, plus the code that
- * actually executes them against the in-memory event list. `web_search`
- * is a server-side tool the Anthropic API runs and resolves itself, so it
- * never reaches `executeTool` below — see the loop in `app/api/chat/route.ts`.
+ * Tool definitions Claude can call from the chat box, plus the read-only
+ * `find_events` executor. Mutating tools (add/edit/delete) are never executed
+ * here — the chat loop turns them into proposals the user approves, which
+ * `applyActions` then persists via the store. `web_search` is a server-side
+ * tool the Anthropic API runs and resolves itself, so it never reaches
+ * `executeTool` below — see the loop in `app/api/chat/route.ts`.
  */
 
 const eventFieldProperties = {
@@ -114,10 +115,29 @@ export type EventMatch = Pick<
 >;
 
 export type ToolResult =
-  | { ok: true; event: CalendarEvent }
-  | { ok: true; removed: CalendarEvent }
   | { ok: true; count: number; matches: EventMatch[] }
   | { ok: false; error: string };
+
+/**
+ * Materialize a validated NewEventInput into the full event shape (minus the
+ * id, which the store/DB assigns): defaults `approx`, and applies the rule that
+ * `genre` is only meaningful for the MUS category (defaulting to "other" there
+ * and forced to null everywhere else).
+ */
+export function materializeNewEvent(input: NewEventInput): Omit<CalendarEvent, "id"> {
+  return {
+    name: input.name,
+    venue: input.venue,
+    cat: input.cat,
+    start: input.start,
+    end: input.end,
+    cost: input.cost,
+    desc: input.desc,
+    link: input.link,
+    approx: input.approx ?? false,
+    genre: input.cat === "MUS" ? input.genre ?? "other" : null,
+  };
+}
 
 /** Narrow + validate a loosely-typed tool_use input before trusting it as a NewEventInput. */
 export function toNewEventInput(input: Record<string, unknown>): NewEventInput | { error: string } {
@@ -203,46 +223,19 @@ function findEvents(
     }));
 }
 
+/**
+ * Runs a read-only tool call inline for the chat agent. Only `find_events` is
+ * executed here; mutating tools become proposals and are applied elsewhere.
+ */
 export function executeTool(
   name: string,
   rawInput: Record<string, unknown>,
   events: CalendarEvent[],
   meta: CalendarMeta
 ): ToolResult {
-  switch (name) {
-    case FIND_EVENTS_TOOL_NAME: {
-      const matches = findEvents(rawInput, events, meta);
-      return { ok: true, count: matches.length, matches };
-    }
-    case "add_event": {
-      const parsed = toNewEventInput(rawInput);
-      if ("error" in parsed) return { ok: false, error: parsed.error };
-      const event: CalendarEvent = {
-        id: nextEventId(events),
-        ...parsed,
-        approx: parsed.approx ?? false,
-        genre: parsed.cat === "MUS" ? parsed.genre ?? "other" : null,
-      };
-      events.push(event);
-      return { ok: true, event };
-    }
-    case "edit_event": {
-      const id = Number(rawInput.id);
-      const event = events.find((e) => e.id === id);
-      if (!event) return { ok: false, error: `No event with id ${String(rawInput.id)}` };
-      // extractEventPatch returns only well-typed, recognised fields, so this
-      // assignment is safe against CalendarEvent's field types.
-      Object.assign(event, extractEventPatch(rawInput));
-      return { ok: true, event };
-    }
-    case "delete_event": {
-      const id = Number(rawInput.id);
-      const idx = events.findIndex((e) => e.id === id);
-      if (idx === -1) return { ok: false, error: `No event with id ${String(rawInput.id)}` };
-      const [removed] = events.splice(idx, 1);
-      return { ok: true, removed };
-    }
-    default:
-      return { ok: false, error: `Unknown tool "${name}"` };
+  if (name === FIND_EVENTS_TOOL_NAME) {
+    const matches = findEvents(rawInput, events, meta);
+    return { ok: true, count: matches.length, matches };
   }
+  return { ok: false, error: `Unknown tool "${name}"` };
 }

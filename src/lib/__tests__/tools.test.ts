@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { executeTool, extractEventPatch } from "../tools";
+import { executeTool, extractEventPatch, materializeNewEvent } from "../tools";
 import type { ToolResult } from "../tools";
 import { CATEGORY_KEYS } from "../types";
-import type { CalendarEvent, CalendarMeta } from "../types";
+import type { CalendarEvent, CalendarMeta, NewEventInput } from "../types";
 
 function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
   return {
@@ -71,52 +71,36 @@ describe("executeTool: find_events", () => {
   });
 });
 
-describe("executeTool: mutations", () => {
-  it("adds an event with the next id and a null genre for non-music categories", () => {
-    const events = sampleEvents();
-    const result = executeTool(
-      "add_event",
-      { name: "Talk", venue: "Hall", cat: "TECH", start: "2026-09-08", end: "2026-09-08", cost: "Free", desc: "d", link: "https://x.dev" },
-      events,
-      meta
-    );
-    expect(result.ok).toBe(true);
-    if (!("event" in result)) throw new Error("expected an event");
-    expect(result.event.id).toBe(5);
-    expect(result.event.genre).toBeNull();
-    expect(events).toHaveLength(5);
+describe("materializeNewEvent", () => {
+  function baseInput(overrides: Partial<NewEventInput>): NewEventInput {
+    return {
+      name: "Talk",
+      venue: "Hall",
+      cat: "TECH",
+      start: "2026-09-08",
+      end: "2026-09-08",
+      cost: "Free",
+      desc: "d",
+      link: "https://x.dev",
+      ...overrides,
+    };
+  }
+
+  it("defaults approx to false and forces a null genre for non-music categories", () => {
+    const event = materializeNewEvent(baseInput({ cat: "TECH", genre: "electronic" }));
+    expect(event.approx).toBe(false);
+    expect(event.genre).toBeNull();
   });
 
   it("defaults a music event's genre to 'other' when none is given", () => {
-    const events = sampleEvents();
-    const result = executeTool(
-      "add_event",
-      { name: "Gig", venue: "Club", cat: "MUS", start: "2026-09-08", end: "2026-09-08", cost: "Free", desc: "d", link: "https://x.dev" },
-      events,
-      meta
-    );
-    if (!("event" in result)) throw new Error("expected an event");
-    expect(result.event.genre).toBe("other");
+    const event = materializeNewEvent(baseInput({ cat: "MUS" }));
+    expect(event.genre).toBe("other");
   });
 
-  it("edits an existing event and rejects an unknown id", () => {
-    const events = sampleEvents();
-    const ok = executeTool("edit_event", { id: 1, name: "Renamed" }, events, meta);
-    expect(ok.ok).toBe(true);
-    expect(events.find((e) => e.id === 1)?.name).toBe("Renamed");
-
-    const missing = executeTool("edit_event", { id: 999, name: "x" }, events, meta);
-    expect(missing).toEqual({ ok: false, error: "No event with id 999" });
-  });
-
-  it("deletes an existing event and rejects an unknown id", () => {
-    const events = sampleEvents();
-    const removed = executeTool("delete_event", { id: 2 }, events, meta);
-    expect(removed.ok).toBe(true);
-    expect(events.find((e) => e.id === 2)).toBeUndefined();
-
-    const missing = executeTool("delete_event", { id: 999 }, events, meta);
-    expect(missing).toEqual({ ok: false, error: "No event with id 999" });
+  it("keeps an explicit music genre and approx flag", () => {
+    const event = materializeNewEvent(baseInput({ cat: "MUS", genre: "latin", approx: true }));
+    expect(event.genre).toBe("latin");
+    expect(event.approx).toBe(true);
   });
 });
 

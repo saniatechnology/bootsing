@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChatPanel } from "./ChatPanel";
+import { BulkActionsBar } from "./BulkActionsBar";
+import { EventForm } from "./EventForm";
 import { FilterBar } from "./FilterBar";
 import { WeekSection } from "./WeekSection";
 import { toIsoDate } from "@/lib/dates";
@@ -24,6 +26,10 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
   const lastWeek = meta.weeks.length - 1;
   const week = meta.weeks[weekIndex];
 
+  // null = form closed; { newOn } = adding on that date; a CalendarEvent = editing it.
+  const [formTarget, setFormTarget] = useState<CalendarEvent | { newOn: string } | null>(null);
+  const addingOn = formTarget !== null && "newOn" in formTarget ? formTarget.newOn : null;
+
   function toggleSelected(id: number) {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -38,6 +44,26 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
   }
 
   const selectedEvents = events.filter((e) => selectedIds.has(e.id));
+
+  async function handleDelete(event: CalendarEvent) {
+    if (!window.confirm(`Delete “${event.name}”? This can't be undone.`)) return;
+    try {
+      const res = await fetch(`/api/events/${event.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        window.alert(`Couldn't delete: ${data.error ?? "something went wrong"}`);
+        return;
+      }
+      setEvents(data.events as CalendarEvent[]);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(event.id);
+        return next;
+      });
+    } catch (err) {
+      window.alert(`Couldn't delete: ${err instanceof Error ? err.message : "network error"}`);
+    }
+  }
 
   return (
     <div className="wrap">
@@ -75,15 +101,37 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
         activeGroup={activeGroup}
         selectedIds={selectedIds}
         onToggleSelect={toggleSelected}
+        onEdit={(event) => setFormTarget(event)}
+        onDelete={handleDelete}
+        onAddOnDate={(date) => setFormTarget({ newOn: date })}
       />
 
-      <footer className="note">Ask the chat box (bottom right) to add, edit, or remove events &mdash; it edits this calendar&rsquo;s data directly, and can search the web first when you ask it to look something up.</footer>
+      <footer className="note">Click a day&rsquo;s header to add an event on that date, or edit and remove events with the controls on each row &mdash; or ask the chat box (bottom right), which edits this calendar&rsquo;s data and can search the web first when you ask it to look something up.</footer>
 
       <ChatPanel
         onEventsChanged={setEvents}
         selectedEvents={selectedEvents}
         onClearSelection={clearSelected}
       />
+
+      <BulkActionsBar
+        selectedEvents={selectedEvents}
+        onEventsChanged={setEvents}
+        onClearSelection={clearSelected}
+      />
+
+      {formTarget !== null && (
+        <EventForm
+          meta={meta}
+          event={addingOn !== null ? null : (formTarget as CalendarEvent)}
+          defaultDate={addingOn ?? (week ? week[0] : toIsoDate(new Date()))}
+          onSaved={(next) => {
+            setEvents(next);
+            setFormTarget(null);
+          }}
+          onCancel={() => setFormTarget(null)}
+        />
+      )}
     </div>
   );
 }

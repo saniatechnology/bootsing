@@ -1,8 +1,7 @@
 import "server-only";
 
-import { readEvents, readMeta, writeEvents } from "./store";
-import { executeTool } from "./tools";
-import type { CalendarEvent, CalendarMeta, ProposedAction } from "./types";
+import { readEvents, insertEvent, updateEvent, deleteEvent } from "./store";
+import type { CalendarEvent, ProposedAction } from "./types";
 
 export interface AppliedResult {
   actionId: string;
@@ -19,41 +18,46 @@ export interface ApplyResult {
 
 /**
  * Applies the actions the user approved from a proposal. This is deterministic
- * and model-free: it re-reads the events, replays each action through the same
- * `executeTool` mutation code the chat loop would have used, and writes once at
- * the end. Because state may have moved on since the proposal was built, each
- * action can fail independently (e.g. its target no longer exists); those
- * failures are reported per-action rather than aborting the whole batch.
+ * and model-free: it replays each approved action as a row-level write against
+ * the store, then re-reads the full event list to return to the client. Because
+ * state may have moved on since the proposal was built, each action can fail
+ * independently (e.g. its target no longer exists); those failures are reported
+ * per-action rather than aborting the whole batch.
  */
 export async function applyActions(actions: ProposedAction[]): Promise<ApplyResult> {
-  const [events, meta] = await Promise.all([readEvents(), readMeta()]);
   const applied: AppliedResult[] = [];
-  let changed = false;
 
   for (const action of actions) {
-    const result = runAction(action, events, meta);
-    if (result.ok) changed = true;
+    let ok = false;
+    let error: string | undefined;
+    try {
+      switch (action.kind) {
+        case "add":
+          await insertEvent(action.input);
+          ok = true;
+          break;
+        case "edit":
+          ok = (await updateEvent(action.targetId, action.patch)) !== null;
+          if (!ok) error = `No event with id ${action.targetId}`;
+          break;
+        case "delete":
+          ok = (await deleteEvent(action.targetId)) !== null;
+          if (!ok) error = `No event with id ${action.targetId}`;
+          break;
+      }
+    } catch (err) {
+      error = err instanceof Error ? err.message : "unknown error";
+    }
     applied.push({
       actionId: action.id,
-      ok: result.ok,
+      ok,
       summary: action.summary,
-      error: result.ok ? undefined : result.error,
+      error: ok ? undefined : error,
     });
   }
 
-  if (changed) await writeEvents(events);
+  const events = await readEvents();
   return { events, applied, reply: buildReply(applied) };
-}
-
-function runAction(action: ProposedAction, events: CalendarEvent[], meta: CalendarMeta) {
-  switch (action.kind) {
-    case "add":
-      return executeTool("add_event", action.input as unknown as Record<string, unknown>, events, meta);
-    case "edit":
-      return executeTool("edit_event", { id: action.targetId, ...action.patch }, events, meta);
-    case "delete":
-      return executeTool("delete_event", { id: action.targetId }, events, meta);
-  }
 }
 
 function buildReply(applied: AppliedResult[]): string {

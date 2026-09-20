@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
-import { dayOfWeekAbbr, fmtDateRange } from "@/lib/dates";
+import { dayOfWeekAbbr, fmtDateRange, toIsoDate } from "@/lib/dates";
 import { buildWeekLayout } from "@/lib/grid";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 
@@ -12,6 +12,9 @@ interface WeekSectionProps {
   activeGroup: GroupKey | "all";
   selectedIds: Set<number>;
   onToggleSelect: (id: number) => void;
+  onEdit: (event: CalendarEvent) => void;
+  onDelete: (event: CalendarEvent) => void;
+  onAddOnDate: (date: IsoDate) => void;
 }
 
 /**
@@ -56,6 +59,9 @@ export function WeekSection({
   activeGroup,
   selectedIds,
   onToggleSelect,
+  onEdit,
+  onDelete,
+  onAddOnDate,
 }: WeekSectionProps) {
   const layout = buildWeekLayout(events, week);
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -95,12 +101,33 @@ export function WeekSection({
           gridTemplateRows: `auto repeat(${layout.laneCount + (expandedRow ? 1 : 0)}, auto)`,
         }}
       >
-        {layout.days.map((day) => (
-          <div className="daycell head" key={day.toISOString()} style={{ gridRow: 1 }}>
-            <span className="dow">{dayOfWeekAbbr(day)}</span>
-            <span className="dnum">{day.getUTCDate()}</span>
-          </div>
-        ))}
+        {layout.days.map((day) => {
+          const iso = toIsoDate(day);
+          return (
+            <div
+              className="daycell head"
+              key={day.toISOString()}
+              style={{ gridRow: 1 }}
+              role="button"
+              tabIndex={0}
+              aria-label={`Add event on ${iso}`}
+              title="Add an event on this day"
+              onClick={() => onAddOnDate(iso)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onAddOnDate(iso);
+                }
+              }}
+            >
+              <span className="dow">{dayOfWeekAbbr(day)}</span>
+              <span className="dnum">{day.getUTCDate()}</span>
+              <span className="day-add" aria-hidden="true">
+                +
+              </span>
+            </div>
+          );
+        })}
 
         {layout.rows.map((row) => {
           const { event, index, colStart, span, lane, clippedStart, clippedEnd } = row;
@@ -178,6 +205,28 @@ export function WeekSection({
                     >
                       More info &#8599;
                     </a>
+                    <div className="ev-detail-actions">
+                      <button
+                        type="button"
+                        className="ev-action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(event);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="ev-action-btn ev-action-delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(event);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -207,8 +256,18 @@ export function WeekSection({
               return (
                 <tr
                   key={event.id}
-                  className={selected ? "selected" : undefined}
+                  className={`ev-list-row${selected ? " selected" : ""}`}
                   style={{ display: isHidden(event) ? "none" : undefined }}
+                  role="button"
+                  tabIndex={isHidden(event) ? -1 : 0}
+                  aria-label={`Edit ${event.name}`}
+                  onClick={() => onEdit(event)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onEdit(event);
+                    }
+                  }}
                 >
                   <td className="dnum-cell">
                     <SelectBadge
@@ -232,7 +291,7 @@ export function WeekSection({
                   <td>{event.cost}</td>
                   <td>{event.desc}</td>
                   <td>
-                    <a href={event.link} target="_blank" rel="noopener noreferrer">
+                    <a href={event.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                       More info &#8599;
                     </a>
                   </td>
