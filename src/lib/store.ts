@@ -153,6 +153,23 @@ export async function deleteEvent(id: number): Promise<CalendarEvent | null> {
   return data ? rowToEvent(data as EventRow) : null;
 }
 
+/** Delete every event whose start date falls within [weekStart, weekEnd]. Returns how many were removed. */
+export async function deleteEventsStartingInWeek(
+  weekStart: IsoDate,
+  weekEnd: IsoDate
+): Promise<number> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("events")
+    .delete()
+    .eq("user_id", getCurrentUserId())
+    .gte("starts", weekStart)
+    .lte("starts", weekEnd)
+    .select("id");
+  if (error) throw new Error(`Failed to clear week events: ${error.message}`);
+  return (data as { id: number }[]).length;
+}
+
 // ---- Meta (categories, weeks, shared vocabulary) ----
 
 interface CategoryRow {

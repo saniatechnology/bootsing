@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { runChatTurn } from "@/lib/chat";
+import { ndjsonResponse } from "@/lib/progress";
 
 const chatRequestSchema = z.object({
   message: z.string().min(1, "message is required"),
@@ -27,12 +28,14 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await runChatTurn(
-      parsed.data.message,
-      parsed.data.history as Parameters<typeof runChatTurn>[1],
-      parsed.data.selectedIds
+    return ndjsonResponse((emit) =>
+      runChatTurn(
+        parsed.data.message,
+        parsed.data.history as Parameters<typeof runChatTurn>[1],
+        parsed.data.selectedIds,
+        emit
+      )
     );
-    return NextResponse.json(result);
   } catch (err) {
     console.error("[/api/chat]", err);
     const message = err instanceof Error ? err.message : "Something went wrong";

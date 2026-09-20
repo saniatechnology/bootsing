@@ -2,7 +2,7 @@ import "server-only";
 
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
-import { getAnthropicClient, CHAT_MODEL } from "./anthropic-client";
+import { CHAT_MODEL, streamTurn, cachedSystem, cachedTools } from "./anthropic-client";
 import { buildSystemPrompt } from "./system-prompt";
 import {
   ALL_TOOLS,
@@ -16,6 +16,7 @@ import { readEvents, readMeta } from "./store";
 import { toIsoDate } from "./dates";
 import { weekIndexForDate } from "./grid";
 import type { CalendarEvent, EventSummary, ProposedAction } from "./types";
+import type { ProgressEmit } from "./progress";
 
 export interface ChatTurnResult {
   reply: string;
@@ -38,9 +39,9 @@ const MAX_AGENT_LOOPS = 6;
 export async function runChatTurn(
   message: string,
   history: MessageParam[],
-  selectedIds: number[] = []
+  selectedIds: number[] = [],
+  emit?: ProgressEmit
 ): Promise<ChatTurnResult> {
-  const anthropic = getAnthropicClient();
   const [events, meta] = await Promise.all([readEvents(), readMeta()]);
 
   const todayIso = toIsoDate(new Date());
@@ -55,14 +56,21 @@ export async function runChatTurn(
   const proposedActions: ProposedAction[] = [];
   let finalText = "";
 
+  emit?.({ type: "stage", label: "Thinking\u2026" });
+
   for (let turn = 0; turn < MAX_AGENT_LOOPS; turn++) {
-    const response = await anthropic.messages.create({
-      model: CHAT_MODEL,
-      max_tokens: 1536,
-      system,
-      tools: ALL_TOOLS,
-      messages,
-    });
+    const response = await streamTurn(
+      {
+        model: CHAT_MODEL,
+        max_tokens: 2048,
+        thinking: { type: "adaptive", display: "summarized" },
+        output_config: { effort: "medium" },
+        system: cachedSystem(system),
+        tools: cachedTools(ALL_TOOLS),
+        messages,
+      },
+      emit
+    );
 
     const textBlocks = response.content.filter(
       (b): b is Anthropic.Messages.TextBlock => b.type === "text"

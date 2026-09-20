@@ -158,6 +158,188 @@ header.page {
   color: var(--text-muted);
   font-size: 0.9rem;
 }
+.research-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.research-btn:hover:not(:disabled) {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.research-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.research-btn:disabled {
+  cursor: default;
+  color: var(--text-muted);
+}
+.material-symbols-outlined.spinning {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.busy-indicator {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  animation: pulse-opacity 1s ease-in-out infinite;
+}
+.busy-indicator:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@keyframes pulse-opacity {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.research-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.research-modal-actions button {
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+}
+.research-modal-actions .rm-cancel:hover:not(:disabled) {
+  border-color: var(--text);
+}
+.research-modal-actions .rm-confirm {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.research-modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.week-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  text-align: center;
+  background: var(--border);;
+  padding: 6rem 1.5rem 8rem;
+}
+/* Re-research banner shown above a week that already has events. */
+.week-progress {
+  display: flex;
+  justify-content: center;
+  background: var(--border);
+  padding: 2rem 1.5rem;
+  margin-bottom: 1px;
+}
+.week-empty-title {
+  margin: 0;
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+.week-empty-note {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.week-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 0.6rem;
+}
+.research-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  max-width: 60ch;
+}
+/* Live update column: oldest at top (small/dim), newest at bottom (large/bright). */
+.progress-stack {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  max-height: 14rem;
+  overflow-y: auto;
+  text-align: center;
+}
+.progress-line {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  opacity: 0.35;
+  white-space: pre-wrap;
+  transition: opacity 0.2s ease, font-size 0.2s ease;
+}
+.progress-line.search {
+  font-family: "IBM Plex Mono", monospace;
+}
+.progress-line.result {
+  font-style: italic;
+}
+.progress-line.result::before {
+  content: "\2192  ";
+  font-style: normal;
+}
+.progress-stack > .progress-line:nth-last-child(3) {
+  opacity: 0.55;
+}
+.progress-stack > .progress-line:nth-last-child(2) {
+  opacity: 0.75;
+  font-size: 0.9rem;
+}
+.progress-stack > .progress-line:last-child {
+  opacity: 1;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+.nav-btn.nav-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.nav-btn.nav-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
 h1 {
   font-family: "Archivo", sans-serif;
   font-weight: 900;
@@ -211,6 +393,10 @@ h1 {
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.12s ease, color 0.12s ease, opacity 0.12s ease;
 }
 .nav-btn:hover:not(:disabled) {
@@ -276,10 +462,6 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 0;
   padding: 0.1rem 0.4rem;
-}
-
-.week {
-  margin-bottom:3.2rem;
 }
 
 .grid {
@@ -733,6 +915,27 @@ footer.note {
   font-style: italic;
   font-size: 0.78rem;
 }
+.msg.streaming {
+  width: 90%;
+}
+.msg.streaming .progress-stack {
+  text-align: left;
+}
+.msg.streaming .progress-line:last-child {
+  font-size: 0.95rem;
+}
+.chat-cancel {
+  border: none;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0 1rem;
+  cursor: pointer;
+  font: inherit;
+}
+.chat-cancel:hover {
+  background: var(--text);
+  color: var(--bg);
+}
 #chat-form {
   display: flex;
   border-top: 1px solid var(--border);
@@ -945,17 +1148,22 @@ footer.note {
   justify-content: center;
   width: 1.15rem;
   height: 1.15rem;
+  padding: 0;
+  border: none;
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.95rem;
   line-height: 1;
   color: var(--bg);
   background: var(--accent);
+  cursor: pointer;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.12s ease;
 }
 .daycell.head:hover .day-add,
 .daycell.head:focus-visible .day-add {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .ev-detail-actions {

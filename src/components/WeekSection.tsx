@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import { dayOfWeekAbbr, fmtDateRange, toIsoDate } from "@/lib/dates";
 import { buildWeekLayout } from "@/lib/grid";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
@@ -12,9 +12,11 @@ interface WeekSectionProps {
   activeGroup: GroupKey | "all";
   selectedIds: Set<number>;
   onToggleSelect: (id: number) => void;
+  onSelectDay: (ids: number[]) => void;
   onEdit: (event: CalendarEvent) => void;
   onDelete: (event: CalendarEvent) => void;
   onAddOnDate: (date: IsoDate) => void;
+  emptyContent?: ReactNode;
 }
 
 /**
@@ -59,9 +61,11 @@ export function WeekSection({
   activeGroup,
   selectedIds,
   onToggleSelect,
+  onSelectDay,
   onEdit,
   onDelete,
   onAddOnDate,
+  emptyContent,
 }: WeekSectionProps) {
   const layout = buildWeekLayout(events, week);
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -70,7 +74,6 @@ export function WeekSection({
     if (activeGroup === "all") return false;
     return !meta.catGroups[event.cat]?.includes(activeGroup);
   }
-
   function toggleExpanded(id: number) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
@@ -92,8 +95,10 @@ export function WeekSection({
       : undefined;
   const expandedLane = expandedRow ? expandedRow.lane : -1;
 
+  const visibleRowCount = layout.rows.filter((r) => !isHidden(r.event)).length;
+
   return (
-    <section className="week">
+    <section>
       <div
         className="grid"
         style={{
@@ -103,6 +108,11 @@ export function WeekSection({
       >
         {layout.days.map((day) => {
           const iso = toIsoDate(day);
+          // Single-day, visible events on this date; multi-day events are left untouched.
+          const dayEventIds = events
+            .filter((e) => e.start === iso && e.end === iso && !isHidden(e))
+            .map((e) => e.id);
+          const hasEvents = dayEventIds.length > 0;
           return (
             <div
               className="daycell head"
@@ -110,24 +120,39 @@ export function WeekSection({
               style={{ gridRow: 1 }}
               role="button"
               tabIndex={0}
-              aria-label={`Add event on ${iso}`}
-              title="Add an event on this day"
-              onClick={() => onAddOnDate(iso)}
+              aria-label={`Select all events on ${iso}`}
+              title="Select all events on this day"
+              onClick={() => hasEvents && onSelectDay(dayEventIds)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  onAddOnDate(iso);
+                  if (hasEvents) onSelectDay(dayEventIds);
                 }
               }}
             >
               <span className="dow">{dayOfWeekAbbr(day)}</span>
               <span className="dnum">{day.getUTCDate()}</span>
-              <span className="day-add" aria-hidden="true">
+              <button
+                type="button"
+                className="day-add"
+                aria-label={`Add event on ${iso}`}
+                title="Add an event on this day"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddOnDate(iso);
+                }}
+              >
                 +
-              </span>
+              </button>
             </div>
           );
         })}
+
+        {visibleRowCount === 0 && emptyContent && (
+          <div className="week-empty-cell" style={{ gridColumn: "1 / -1" }}>
+            {emptyContent}
+          </div>
+        )}
 
         {layout.rows.map((row) => {
           const { event, index, colStart, span, lane, clippedStart, clippedEnd } = row;
@@ -235,8 +260,9 @@ export function WeekSection({
         })}
       </div>
 
-      <div className="detail-wrap">
-        <table className="detail-table">
+      {visibleRowCount > 0 && (
+        <div className="detail-wrap">
+          <table className="detail-table">
           <thead>
             <tr>
               <th>#</th>
@@ -300,7 +326,8 @@ export function WeekSection({
             })}
           </tbody>
         </table>
-      </div>
+        </div>
+      )}
     </section>
   );
 }
