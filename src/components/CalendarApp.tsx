@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChatPanel } from "./ChatPanel";
 import { BulkActionsBar } from "./BulkActionsBar";
 import { EventForm } from "./EventForm";
@@ -10,6 +11,88 @@ import { WeekSection } from "./WeekSection";
 import { toIsoDate } from "@/lib/dates";
 import { weekIndexForDate } from "@/lib/grid";
 import type { CalendarEvent, CalendarMeta, GroupKey } from "@/lib/types";
+
+const OFFLINE_TITLE = "Diva down :/"
+const OFFLINE_MESSAGE = "You appear to be offline. Check your internet connection and try again.";
+
+/** Track the browser's online/offline state. */
+function useOffline(): boolean {
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    const update = () => setOffline(!navigator.onLine);
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
+  return offline;
+}
+
+/** Topbar icon shown only on a connection/request problem; opens a modal with the detail. */
+function StatusIndicator({
+  error,
+  offline,
+  onDismiss,
+}: {
+  error: string | null;
+  offline: boolean;
+  onDismiss: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  if (!offline && error === null) return null;
+
+  const message = offline ? OFFLINE_MESSAGE : error;
+  const title = offline ? OFFLINE_TITLE : "Something went wrong";
+
+  return (
+    <>
+      <button
+        type="button"
+        className="status-indicator"
+        aria-label={offline ? OFFLINE_TITLE : "Connection problem — view details"}
+        title={offline ? OFFLINE_TITLE : "Connection problem"}
+        onClick={() => setOpen(true)}
+      >
+        <span className="material-symbols-outlined" aria-hidden="true">
+          {offline ? "cloud_off" : "error"}
+        </span>
+      </button>
+
+      {open && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Connection status" onClick={() => setOpen(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-head">
+              <span>{title}</span>
+              <button type="button" aria-label="Close" onClick={() => setOpen(false)}>
+                &times;
+              </button>
+            </div>
+            <div className="status-modal-body">
+              <p className="status-modal-message">{message}</p>
+              {!offline && error !== null && (
+                <div className="status-modal-actions">
+                  <button
+                    type="button"
+                    className="status-dismiss"
+                    onClick={() => {
+                      onDismiss();
+                      setOpen(false);
+                    }}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 interface CalendarAppProps {
   initialEvents: CalendarEvent[];
@@ -29,6 +112,11 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
   // null = form closed; { newOn } = adding on that date; a CalendarEvent = editing it.
   const [formTarget, setFormTarget] = useState<CalendarEvent | { newOn: string } | null>(null);
   const addingOn = formTarget !== null && "newOn" in formTarget ? formTarget.newOn : null;
+
+  const [connError, setConnError] = useState<string | null>(null);
+  const offline = useOffline();
+  const reportError = (message: string) => setConnError(message);
+  const clearError = () => setConnError(null);
 
   function toggleSelected(id: number) {
     setSelectedIds((prev) => {
@@ -51,9 +139,10 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
       const res = await fetch(`/api/events/${event.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) {
-        window.alert(`Couldn't delete: ${data.error ?? "something went wrong"}`);
+        reportError(data.error ?? "Couldn't delete the event.");
         return;
       }
+      clearError();
       setEvents(data.events as CalendarEvent[]);
       setSelectedIds((prev) => {
         const next = new Set(prev);
@@ -61,7 +150,7 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
         return next;
       });
     } catch (err) {
-      window.alert(`Couldn't delete: ${err instanceof Error ? err.message : "network error"}`);
+      reportError(err instanceof Error ? err.message : "Network error.");
     }
   }
 
@@ -70,11 +159,14 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
       <header className="page">
         <div className="topbar">
           <h1>Bootsing</h1>
-          <Link href="/configuration" className="settings-btn" aria-label="Open configuration" title="Configuration">
-            <span className="material-symbols-outlined" aria-hidden="true">
-              settings
-            </span>
-          </Link>
+          <div className="topbar-actions">
+            <StatusIndicator error={connError} offline={offline} onDismiss={clearError} />
+            <Link href="/configuration" className="settings-btn" aria-label="Open configuration" title="Configuration">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                settings
+              </span>
+            </Link>
+          </div>
         </div>
 
         <div className="controls">
@@ -112,12 +204,16 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
         onEventsChanged={setEvents}
         selectedEvents={selectedEvents}
         onClearSelection={clearSelected}
+        reportError={reportError}
+        clearError={clearError}
       />
 
       <BulkActionsBar
         selectedEvents={selectedEvents}
         onEventsChanged={setEvents}
         onClearSelection={clearSelected}
+        reportError={reportError}
+        clearError={clearError}
       />
 
       {formTarget !== null && (
@@ -130,8 +226,41 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
             setFormTarget(null);
           }}
           onCancel={() => setFormTarget(null)}
+          reportError={reportError}
+          clearError={clearError}
         />
       )}
+    </div>
+  );
+}
+
+/** Full-page fallback when the initial server-side data load fails. */
+export function LoadErrorScreen({ message }: { message: string }) {
+  const router = useRouter();
+  const offline = useOffline();
+  const [error, setError] = useState<string | null>(message);
+  return (
+    <div className="wrap">
+      <header className="page">
+        <div className="topbar">
+          <h1>Bootsing</h1>
+          <div className="topbar-actions">
+            <StatusIndicator error={error} offline={offline} onDismiss={() => setError(null)} />
+            <Link href="/configuration" className="settings-btn" aria-label="Open configuration" title="Configuration">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                settings
+              </span>
+            </Link>
+          </div>
+        </div>
+      </header>
+      <div className="load-error">
+        <p className="load-error-title">We couldn&rsquo;t load your calendar.</p>
+        <p className="load-error-note">Open the status icon above for details, then try again.</p>
+        <button type="button" className="nav-btn" onClick={() => router.refresh()}>
+          Try again
+        </button>
+      </div>
     </div>
   );
 }

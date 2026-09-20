@@ -18,6 +18,8 @@ interface ChatPanelProps {
   onEventsChanged: (events: CalendarEvent[]) => void;
   selectedEvents: CalendarEvent[];
   onClearSelection: () => void;
+  reportError: (message: string) => void;
+  clearError: () => void;
 }
 
 const ACTION_LABEL: Record<ProposedAction["kind"], string> = {
@@ -26,7 +28,7 @@ const ACTION_LABEL: Record<ProposedAction["kind"], string> = {
   delete: "Delete",
 };
 
-export function ChatPanel({ onEventsChanged, selectedEvents, onClearSelection }: ChatPanelProps) {
+export function ChatPanel({ onEventsChanged, selectedEvents, onClearSelection, reportError, clearError }: ChatPanelProps) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -71,9 +73,11 @@ export function ChatPanel({ onEventsChanged, selectedEvents, onClearSelection }:
 
       if (!res.ok) {
         appendMessage({ role: "system", text: `Error: ${data.error ?? "something went wrong"}` });
+        reportError(data.error ?? "The chat request failed.");
         return;
       }
 
+      clearError();
       historyRef.current = data.history;
       const actions = (data.proposedActions ?? []) as ProposedAction[];
       if (data.reply) appendMessage({ role: "assistant", text: data.reply });
@@ -85,6 +89,7 @@ export function ChatPanel({ onEventsChanged, selectedEvents, onClearSelection }:
         appendMessage({ role: "system", text: "No changes — nothing matched your request." });
       }
     } catch (err) {
+      reportError(err instanceof Error ? err.message : "Network error.");
       appendMessage({
         role: "system",
         text: `Error: ${err instanceof Error ? err.message : "network error"}`,
@@ -124,13 +129,16 @@ export function ChatPanel({ onEventsChanged, selectedEvents, onClearSelection }:
 
       if (!res.ok) {
         appendMessage({ role: "system", text: `Error: ${data.error ?? "something went wrong"}` });
+        reportError(data.error ?? "Couldn't apply the changes.");
         return;
       }
 
+      clearError();
       onEventsChanged(data.events as CalendarEvent[]);
       appendMessage({ role: "assistant", text: data.reply });
       onClearSelection();
     } catch (err) {
+      reportError(err instanceof Error ? err.message : "Network error.");
       appendMessage({
         role: "system",
         text: `Error: ${err instanceof Error ? err.message : "network error"}`,

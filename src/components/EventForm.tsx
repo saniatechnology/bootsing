@@ -12,6 +12,8 @@ interface EventFormProps {
   defaultDate: string;
   onSaved: (events: CalendarEvent[]) => void;
   onCancel: () => void;
+  reportError: (message: string) => void;
+  clearError: () => void;
 }
 
 interface FormState {
@@ -42,7 +44,7 @@ function initialState(event: CalendarEvent | null, defaultDate: string): FormSta
   };
 }
 
-export function EventForm({ meta, event, defaultDate, onSaved, onCancel }: EventFormProps) {
+export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportError, clearError }: EventFormProps) {
   const [form, setForm] = useState<FormState>(() => initialState(event, defaultDate));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,11 +98,15 @@ export function EventForm({ meta, event, defaultDate, onSaved, onCancel }: Event
       const data = await res.json();
       if (!res.ok) {
         setError(data.error ?? "Something went wrong.");
+        reportError(data.error ?? "Couldn't save the event.");
         return;
       }
+      clearError();
       onSaved(data.events as CalendarEvent[]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error.");
+      const message = err instanceof Error ? err.message : "Network error.";
+      setError(message);
+      reportError(message);
     } finally {
       setSaving(false);
     }

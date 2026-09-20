@@ -7,9 +7,11 @@ interface BulkActionsBarProps {
   selectedEvents: CalendarEvent[];
   onEventsChanged: (events: CalendarEvent[]) => void;
   onClearSelection: () => void;
+  reportError: (message: string) => void;
+  clearError: () => void;
 }
 
-export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelection }: BulkActionsBarProps) {
+export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelection, reportError, clearError }: BulkActionsBarProps) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +38,13 @@ export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelecti
         latest = data.events as CalendarEvent[];
       }
       if (latest) onEventsChanged(latest);
+      clearError();
       onClearSelection();
       setConfirming(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "network error");
+      const message = err instanceof Error ? err.message : "network error";
+      setError(message);
+      reportError(message);
     } finally {
       setDeleting(false);
     }
