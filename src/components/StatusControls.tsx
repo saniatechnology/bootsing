@@ -5,7 +5,7 @@ import type { CalendarEvent, EventStatus } from "@/lib/types";
 /** Shared label + emoji for each saved-event status, reused by filters. */
 export const STATUS_META: Record<EventStatus, { label: string; emoji: string; title: string }> = {
   boots: { label: "Boots", emoji: "👢", title: "I'm going for sure" },
-  maybe: { label: "Maybe", emoji: "🤷‍♀️", title: "Maybe" },
+  maybe: { label: "Maybe", emoji: "💅", title: "Maybe" },
   interesting: { label: "Interesting", emoji: "👀", title: "Interesting" },
 };
 

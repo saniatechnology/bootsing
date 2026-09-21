@@ -642,7 +642,7 @@ h1 {
 }
 .ev-venue {
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1784,7 +1784,7 @@ table.detail-table.home-list {
   text-overflow: ellipsis;
 }
 .hourly-item:hover {
-  border-color: var(--text);
+  background: var(--surface-2);
 }
 .hourly-body {
   display: flex;
@@ -1819,7 +1819,7 @@ table.detail-table.home-list {
 .hourly-block {
   position: absolute;
   overflow: hidden;
-  padding: 0.3rem 0.45rem;
+  padding: 0.35rem 0.55rem;
   border: 1px solid var(--border);
   border-left: 4px solid var(--cat);
   background: var(--surface);
@@ -1828,41 +1828,30 @@ table.detail-table.home-list {
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.5rem;
   line-height: 1.15;
 }
 .hourly-block:hover {
-  border-color: var(--text);
   z-index: 5;
 }
-.hourly-block-name {
-  font-size: 0.78rem;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* Match the Explore row: reveal the checkbox (and hide the badge) on hover. */
+.hourly-block:hover .ev-select-box {
+  opacity: 1;
+  pointer-events: auto;
 }
-.hourly-block-meta {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  min-width: 0;
+.hourly-block:hover .ev-badge {
+  visibility: hidden;
 }
-.hourly-block-venue {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-size: 0.68rem;
-  color: var(--text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.hourly-block.selected {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
 }
-.hourly-block-time {
-  margin-left: auto;
-  flex: none;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.62rem;
-  color: var(--text-muted);
+.hourly-block.expanded {
+  background: var(--surface-2);
+}
+/* The click-to-expand info bar under the Home week grid. */
+.hourly-detail {
+  margin-top: 0.6rem;
 }
 .hourly-empty {
   position: absolute;

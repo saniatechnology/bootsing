@@ -101,13 +101,7 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
     }
   }
 
-  // Clicking an event in the week view opens its row's options panel below.
-  function revealInList(event: CalendarEvent) {
-    setExpandedId(event.id);
-    if (typeof document !== "undefined") {
-      document.getElementById(`ev-list-row-${event.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }
+  // Clicking an event in the week view opens its detail bar there.
 
   return (
     <div className="wrap">
@@ -179,7 +173,15 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
       ) : (
         week && (
           <>
-            <HourlyWeekSection week={week} events={visible} meta={meta} onSelect={revealInList} />
+            <HourlyWeekSection
+              week={week}
+              events={visible}
+              meta={meta}
+              selectedIds={selectedIds}
+              onToggleSelect={toggleSelected}
+              onEdit={(event) => setFormTarget(event)}
+              onSetStatus={handleSetStatus}
+            />
             <EventList
               week={week}
               events={visible}
