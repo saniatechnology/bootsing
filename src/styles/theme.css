@@ -1,0 +1,31 @@
+/*
+ * Design tokens. Every colour in the app reads from these, so re-theming (or
+ * adding a light mode) means changing this file only.
+ */
+:root {
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #0d0d0d;
+  /* Form fields and inset panels: a touch darker than --surface-2. */
+  --surface-3: #0a0a0a;
+  --text: #ffffff;
+  --text-muted: #a0a0a0;
+  --border: #333333;
+
+  --accent: #ff4d17;
+  --accent-tint: rgba(255, 77, 23, 0.08);
+  /* Text on accent- or danger-coloured controls. */
+  --on-accent: #ffffff;
+  /* Text on category colours and status chips (the light status colours need dark text). */
+  --on-color: #000000;
+
+  --danger: #ff5c5c;
+  --success: #3ddc84;
+  --status-boots: #d8ff85;
+  --status-maybe: #d8a600;
+
+  --overlay: rgba(0, 0, 0, 0.7);
+}
+html {
+  color-scheme: dark;
+}

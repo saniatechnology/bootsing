@@ -1,0 +1,182 @@
+/* Explore's week: the day-column grid of event bars, plus the empty-week / research states. */
+.grid {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  overflow: hidden;
+}
+.daycell {
+  background: var(--surface-2);
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.dow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.dnum {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+/* Day headers select the day's events; the "+" adds an event on that date. */
+.daycell.head {
+  position: relative;
+  cursor: pointer;
+}
+.daycell.head:hover,
+.daycell.head:focus-visible {
+  background: var(--surface);
+  outline: none;
+}
+.day-add {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  border: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--bg);
+  background: var(--accent);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.daycell.head:hover .day-add,
+.daycell.head:focus-visible .day-add {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* One event bar. `--cat` is set inline to the event's group colour. */
+.ev-row {
+  background: var(--surface);
+  border-left: 4px solid var(--cat);
+  padding: 0.35rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 2.1rem;
+  overflow: hidden;
+  cursor: pointer;
+}
+.ev-row-line1,
+.ev-row-line2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+.ev-row-line1 .ev-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ev-row-line2 .ev-venue {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ev-row-line2 .ev-time {
+  margin-left: auto;
+}
+.ev-row.expanded {
+  background: var(--surface-2);
+}
+.ev-badge {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 0;
+  background: var(--cat);
+  color: var(--on-color);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.ev-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ev-venue {
+  font-size: 0.78rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ev-time {
+  flex: none;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+.approx {
+  flex: none;
+  font-size: 0.68rem;
+  color: var(--accent);
+  font-style: italic;
+}
+
+/* A week with no events: the research call to action. */
+.week-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  text-align: center;
+  background: var(--border);
+  padding: 6rem 1.5rem 8rem;
+}
+/* Re-research banner shown above a week that already has events. */
+.week-progress {
+  display: flex;
+  justify-content: center;
+  background: var(--border);
+  padding: 2rem 1.5rem;
+  margin-bottom: 1px;
+}
+.week-empty-title {
+  margin: 0;
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+.week-empty-note {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.week-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 0.6rem;
+}
+.research-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  max-width: 60ch;
+}

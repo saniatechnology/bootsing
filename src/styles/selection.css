@@ -1,0 +1,54 @@
+/*
+ * Manual event selection: the number badge swaps for a checkbox on hover (or
+ * whenever it's ticked), and selected rows get an accent outline. Shared by the
+ * Explore grid, the Home hourly grid and the list table.
+ */
+.ev-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 1.15rem;
+  min-height: 1.15rem;
+}
+.dnum-num {
+  font-family: "IBM Plex Mono", monospace;
+}
+.ev-select-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 0.95rem;
+  height: 0.95rem;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  accent-color: var(--accent);
+}
+/* Reveal the checkbox on row hover, or whenever it's already ticked. */
+.ev-row:hover .ev-select-box,
+.hourly-block:hover .ev-select-box,
+.detail-table tr:hover .ev-select-box,
+.ev-select-box:checked {
+  opacity: 1;
+  pointer-events: auto;
+}
+/* Hide the number while the checkbox is showing so they don't overlap. */
+.ev-row:hover .ev-badge,
+.hourly-block:hover .ev-badge,
+.detail-table tr:hover .dnum-num,
+.ev-select:has(.ev-select-box:checked) .ev-badge,
+.ev-select:has(.ev-select-box:checked) .dnum-num {
+  visibility: hidden;
+}
+.ev-row.selected,
+.hourly-block.selected {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}
+.detail-table tr.selected {
+  background: var(--accent-tint);
+}

@@ -1,0 +1,124 @@
+/* Home's hourly week grid: an all-day band plus timed blocks on a vertical minute axis. */
+.hourly {
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.hourly-head,
+.hourly-band {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+}
+.hourly-dayhead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--surface-2);
+  font-family: "IBM Plex Mono", monospace;
+}
+.hourly-dow {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.hourly-dnum {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.hourly-band {
+  border-top: 1px solid var(--border);
+}
+.hourly-item {
+  margin: 2px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cat);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.hourly-item:hover {
+  background: var(--surface-2);
+}
+.hourly-body {
+  display: flex;
+  position: relative;
+}
+.hourly-cols {
+  display: grid;
+  flex: 1;
+  gap: 1px;
+  background: var(--border);
+}
+/* Hour lines are drawn with a repeating gradient sized inline to the hour height. */
+.hourly-col {
+  position: relative;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(100% - 1px),
+    var(--border) calc(100% - 1px),
+    var(--border) 100%
+  );
+}
+.hourly-block {
+  position: absolute;
+  overflow: hidden;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cat);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  line-height: 1.15;
+}
+.hourly-block:hover {
+  z-index: 5;
+}
+.hourly-block.expanded {
+  background: var(--surface-2);
+}
+/* The click-to-expand info bar under the Home week grid. */
+.hourly-detail {
+  margin-top: 0.6rem;
+}
+.hourly-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.4rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  pointer-events: none;
+}
+
+/* Home with nothing saved yet. */
+.home-empty {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.home-empty-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.home-empty-link:hover {
+  text-decoration: underline;
+}

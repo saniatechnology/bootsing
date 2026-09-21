@@ -185,7 +185,7 @@ export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
           {save.status === "error" && <span className="config-save-err">{save.message}</span>}
           <button
             type="button"
-            className="ef-save config-save-btn"
+            className="btn btn-primary config-save-btn"
             onClick={handleSave}
             disabled={save.status === "saving"}
           >

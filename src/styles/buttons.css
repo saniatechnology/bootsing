@@ -1,0 +1,128 @@
+/*
+ * Button families. `.btn` is the dialog/action button (Cancel / Save / Delete);
+ * `.nav-btn` the uppercase toolbar button; `.ev-action-btn` the compact
+ * per-event control.
+ */
+
+.btn {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.45rem 1rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--text);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-primary:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.btn-danger {
+  border-color: var(--danger);
+  background: var(--danger);
+  color: var(--on-accent);
+}
+.btn-danger:hover:not(:disabled) {
+  border-color: var(--danger);
+}
+
+.nav-btn {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    opacity 0.12s ease;
+}
+.nav-btn:hover:not(:disabled) {
+  background: var(--text);
+  color: var(--bg);
+}
+.nav-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.nav-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.nav-btn.nav-today {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.nav-btn.nav-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.nav-btn.nav-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ev-action-btn {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.7rem;
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+}
+.ev-action-btn:hover {
+  border-color: var(--text);
+}
+.ev-action-btn:focus-visible {
+  outline: 2px solid var(--accent);
+}
+.ev-action-delete {
+  color: var(--danger);
+}
+.ev-action-delete:hover {
+  border-color: var(--danger);
+}
+/* The Explore "Interesting" / "Saved" toggle. */
+.ev-action-btn.ev-action-star {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ev-action-emoji {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.ev-action-star.is-saved {
+  border-color: var(--accent);
+  color: var(--accent);
+}

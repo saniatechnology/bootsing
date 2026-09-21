@@ -1,0 +1,80 @@
+/* The shared event table under the week views. */
+.detail-wrap {
+  margin-top: 0.9rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0;
+  background: var(--surface);
+}
+table.detail-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.86rem;
+  min-width: 920px;
+}
+table.detail-table th {
+  text-align: left;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+table.detail-table td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+table.detail-table tr:last-child td {
+  border-bottom: none;
+}
+.dnum-cell {
+  font-family: "IBM Plex Mono", monospace;
+  color: var(--text-muted);
+}
+.evn {
+  font-weight: 600;
+  min-width: 220px;
+}
+table.detail-table a {
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+table.detail-table a:hover {
+  text-decoration: underline;
+}
+
+/* Rows expand to show an options panel. */
+.detail-table tr.ev-list-row {
+  cursor: pointer;
+}
+.detail-table tr.ev-list-row:hover {
+  background: var(--surface-2);
+}
+.detail-table tr.ev-list-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.detail-table tr.ev-list-row.expanded {
+  background: var(--surface-2);
+}
+.ev-list-edit-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+.detail-table tr.ev-list-detail td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-3);
+}
+.ev-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 0.9rem;
+}

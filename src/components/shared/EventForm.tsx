@@ -242,11 +242,11 @@ export function EventForm({
 
         {error && <p className="event-form-error">{error}</p>}
 
-        <div className="event-form-actions">
-          <button type="button" className="ef-cancel" onClick={onCancel} disabled={saving}>
+        <div className="modal-actions modal-actions--form">
+          <button type="button" className="btn" onClick={onCancel} disabled={saving}>
             Cancel
           </button>
-          <button type="submit" className="ef-save" disabled={saving}>
+          <button type="submit" className="btn btn-primary" disabled={saving}>
             {saving ? "Saving…" : isEdit ? "Save changes" : "Add event"}
           </button>
         </div>

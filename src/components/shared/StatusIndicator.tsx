@@ -41,10 +41,10 @@ export function StatusIndicator({
           <div className="status-modal-body">
             <p className="status-modal-message">{message}</p>
             {!offline && error !== null && (
-              <div className="status-modal-actions">
+              <div className="modal-actions modal-actions--spaced">
                 <button
                   type="button"
-                  className="status-dismiss"
+                  className="btn"
                   onClick={() => {
                     onDismiss();
                     setOpen(false);

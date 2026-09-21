@@ -140,13 +140,13 @@ export function BulkActionsBar({
               ))}
             </ul>
             {error && <p className="bulk-delete-error">{error}</p>}
-            <div className="bulk-delete-actions">
-              <button type="button" className="bd-cancel" onClick={closeModal} disabled={deleting}>
+            <div className="modal-actions">
+              <button type="button" className="btn" onClick={closeModal} disabled={deleting}>
                 Cancel
               </button>
               <button
                 type="button"
-                className="bd-confirm"
+                className="btn btn-danger"
                 onClick={handleConfirmDelete}
                 disabled={deleting}
               >

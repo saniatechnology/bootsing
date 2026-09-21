@@ -1,0 +1,107 @@
+/* Home: the saved-event status filter chips and the per-event triage controls. */
+.status-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
+}
+.filter-chip {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.8rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.filter-chip:hover {
+  border-color: var(--text);
+}
+.filter-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.filter-chip.is-active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.filter-count {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  opacity: 0.8;
+}
+
+.status-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.status-chip:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+.status-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.status-chip-emoji,
+.filter-chip-emoji {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.status-chip-label {
+  line-height: 1;
+}
+.status-chip.status-remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* Each status has a colour; the active chip and the matching filter chip wear it. */
+.status-chip.status-boots.is-active,
+.filter-chip.status-boots.is-active {
+  background: var(--status-boots);
+  border-color: var(--status-boots);
+  color: var(--on-color);
+}
+.status-chip.status-maybe.is-active,
+.filter-chip.status-maybe.is-active {
+  background: var(--status-maybe);
+  border-color: var(--status-maybe);
+  color: var(--on-color);
+}
+.status-chip.status-interesting.is-active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}

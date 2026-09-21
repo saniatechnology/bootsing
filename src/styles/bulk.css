@@ -1,0 +1,43 @@
+/* Floating bulk-action buttons that slide up from the bottom-left when events are selected. */
+.bulk-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  width: 3.2rem;
+  height: 3.2rem;
+  border: 1px solid var(--text);
+  background: var(--text);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 40;
+  opacity: 0;
+  transform: translateY(150%);
+  pointer-events: none;
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease;
+}
+.bulk-fab.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.bulk-fab .material-symbols-outlined {
+  font-size: 1.5rem;
+}
+.bulk-fab-emoji {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+/* Slots from the left edge: clear, delete/remove, mark interesting. */
+.bulk-clear-fab {
+  left: 1.5rem;
+}
+.bulk-delete-fab {
+  left: calc(1.5rem + 3.2rem + 0.6rem);
+}
+.bulk-interesting-fab {
+  left: calc(1.5rem + 2 * (3.2rem + 0.6rem));
+}

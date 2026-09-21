@@ -159,20 +159,20 @@ export function ChatPanel({
     <>
       <button
         type="button"
-        id="chat-toggle"
+        className="chat-toggle"
         aria-label="Open chat"
         onClick={() => onOpenChange(!open)}
       />
 
       {open && (
-        <div id="chat-panel">
+        <div className="chat-panel">
           <div className="chat-head">
             <span>Edit this calendar</span>
             <button type="button" aria-label="Close chat" onClick={() => onOpenChange(false)}>
               &times;
             </button>
           </div>
-          <div id="chat-log" ref={logRef}>
+          <div className="chat-log" ref={logRef}>
             {messages.map((m, i) => (
               <div className={`msg ${m.role}`} key={i}>
                 {m.text}
@@ -204,7 +204,7 @@ export function ChatPanel({
             </div>
           )}
 
-          <form id="chat-form" onSubmit={handleSubmit}>
+          <form className="chat-form" onSubmit={handleSubmit}>
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}

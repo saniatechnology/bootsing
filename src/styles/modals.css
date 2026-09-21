@@ -1,0 +1,172 @@
+/* Dialog shell, the event form, and the bodies of the status / research / bulk-delete dialogs. */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--overlay);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4vh 1rem;
+  overflow-y: auto;
+}
+.modal {
+  width: 100%;
+  max-width: 540px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  font-family: "Archivo", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.modal-head button {
+  font: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.modal-head button:hover {
+  color: var(--text);
+}
+/* Right-aligned row of `.btn`s at the bottom of a dialog body. */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.modal-actions--spaced {
+  margin-top: 0.9rem;
+}
+.modal-actions--form {
+  grid-column: 1 / -1;
+  margin-top: 0.2rem;
+}
+
+/* Plain message dialogs (connection status, research confirmation). */
+.status-modal-body {
+  padding: 1rem 0.9rem;
+}
+.status-modal-message {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Add / edit event form. */
+.event-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  padding: 1rem 0.9rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.field-wide {
+  grid-column: 1 / -1;
+}
+.field > span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-size: 0.86rem;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.55rem;
+}
+.field textarea {
+  resize: vertical;
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.field-check {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.45rem;
+  align-self: end;
+}
+.field-check span {
+  font-family: "Archivo", sans-serif;
+  font-size: 0.82rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+}
+.event-form-error {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+@media (max-width: 560px) {
+  .event-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Bulk delete confirmation. */
+.bulk-delete-body {
+  padding: 1rem 0.9rem;
+}
+.bulk-delete-lead {
+  margin: 0 0 0.7rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+.bulk-delete-list {
+  list-style: none;
+  margin: 0 0 0.9rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.bulk-delete-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.bulk-delete-name {
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.86rem;
+}
+.bulk-delete-meta {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.bulk-delete-error {
+  margin: 0 0 0.7rem;
+  color: var(--danger);
+  font-size: 0.8rem;
+}

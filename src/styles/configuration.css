@@ -1,0 +1,117 @@
+/* The Configuration page: editable preference sections. */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin-top: 1rem;
+}
+.config-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  padding: 1.2rem 1.3rem;
+}
+.config-card-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.config-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.config-intro-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+}
+.config-intro-field > span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.config-title-input {
+  flex: 1;
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+}
+.config-edit-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+}
+.config-edit-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+.config-item-remove {
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 1.9rem;
+  height: 1.9rem;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.config-item-remove:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.config-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
+}
+.config-save-group {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.config-save-msg {
+  color: var(--success);
+  font-size: 0.82rem;
+}
+.config-save-err {
+  color: var(--danger);
+  font-size: 0.82rem;
+}
+.config-save-btn {
+  padding: 0.5rem 1.2rem;
+}
+.config-intro-field textarea,
+.config-note-input,
+.config-title-input,
+.config-edit-item input {
+  font: inherit;
+  font-size: 0.86rem;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.55rem;
+}
+.config-intro-field textarea {
+  resize: vertical;
+  font-family: "Archivo", sans-serif;
+}
+.config-intro-field textarea:focus,
+.config-note-input:focus,
+.config-title-input:focus,
+.config-edit-item input:focus {
+  outline: none;
+  border-color: var(--accent);
+}

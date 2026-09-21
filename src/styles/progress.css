@@ -1,0 +1,49 @@
+/*
+ * Live progress column for a running AI request (chat or research): oldest
+ * line at the top, small and dim; newest at the bottom, large and bright.
+ */
+.progress-stack {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  max-height: 14rem;
+  overflow-y: auto;
+  text-align: center;
+}
+.progress-line {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  opacity: 0.35;
+  white-space: pre-wrap;
+  transition:
+    opacity 0.2s ease,
+    font-size 0.2s ease;
+}
+.progress-line.search {
+  font-family: "IBM Plex Mono", monospace;
+}
+.progress-line.result {
+  font-style: italic;
+}
+.progress-line.result::before {
+  content: "\2192  ";
+  font-style: normal;
+}
+.progress-stack > .progress-line:nth-last-child(3) {
+  opacity: 0.55;
+}
+.progress-stack > .progress-line:nth-last-child(2) {
+  opacity: 0.75;
+  font-size: 0.9rem;
+}
+.progress-stack > .progress-line:last-child {
+  opacity: 1;
+  font-size: 1.05rem;
+  color: var(--text);
+}

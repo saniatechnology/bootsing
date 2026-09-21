@@ -20,11 +20,11 @@ export function ResearchConfirmDialog({
           A fresh research run will replace this week&rsquo;s events with the newly gathered
           results. Some events currently shown may not appear again.
         </p>
-        <div className="research-modal-actions">
-          <button type="button" className="rm-cancel" onClick={onClose}>
+        <div className="modal-actions modal-actions--spaced">
+          <button type="button" className="btn" onClick={onClose}>
             Cancel
           </button>
-          <button type="button" className="rm-confirm" onClick={onConfirm} disabled={disabled}>
+          <button type="button" className="btn btn-primary" onClick={onConfirm} disabled={disabled}>
             Research
           </button>
         </div>
