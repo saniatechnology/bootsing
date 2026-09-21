@@ -3,6 +3,8 @@
 import { Fragment, useState, type ReactNode } from "react";
 import { dayOfWeekAbbr, fmtDateRange, fmtTimeRange, toIsoDate } from "@/lib/dates";
 import { buildWeekLayout } from "@/lib/grid";
+import { EventList, SelectBadge } from "./EventList";
+import { STATUS_META } from "./StatusControls";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 
 interface WeekSectionProps {
@@ -15,43 +17,9 @@ interface WeekSectionProps {
   onSelectDay: (ids: number[]) => void;
   onEdit: (event: CalendarEvent) => void;
   onDelete: (event: CalendarEvent) => void;
+  onToggleInteresting: (event: CalendarEvent) => void;
   onAddOnDate: (date: IsoDate) => void;
   emptyContent?: ReactNode;
-}
-
-/**
- * The number badge that, on row hover or when the event is selected, becomes a
- * checkbox for manual selection. The checkbox overlays the number and toggles
- * visibility via CSS (see `.ev-select` in globals.css), so the number stays the
- * default resting state and selection persists across week navigation.
- */
-function SelectBadge({
-  index,
-  eventName,
-  selected,
-  onToggle,
-  numClassName,
-}: {
-  index: number;
-  eventName: string;
-  selected: boolean;
-  onToggle: () => void;
-  numClassName: string;
-}) {
-  return (
-    <span className="ev-select" onClick={(e) => e.stopPropagation()}>
-      <span className={numClassName} aria-hidden="true">
-        {index}
-      </span>
-      <input
-        type="checkbox"
-        className="ev-select-box"
-        checked={selected}
-        onChange={onToggle}
-        aria-label={`Select ${eventName}`}
-      />
-    </span>
-  );
 }
 
 export function WeekSection({
@@ -64,6 +32,7 @@ export function WeekSection({
   onSelectDay,
   onEdit,
   onDelete,
+  onToggleInteresting,
   onAddOnDate,
   emptyContent,
 }: WeekSectionProps) {
@@ -181,17 +150,22 @@ export function WeekSection({
                   }
                 }}
               >
-                <SelectBadge
-                  index={index}
-                  eventName={event.name}
-                  selected={selected}
-                  onToggle={() => onToggleSelect(event.id)}
-                  numClassName="ev-badge"
-                />
-                <span className="ev-name">{event.name}</span>
-                {event.startTime && <span className="ev-time">{event.startTime}</span>}
-                {/* <span className="ev-venue">{event.venue}</span> */}
-                {event.approx && <span className="approx">approx.</span>}
+                <div className="ev-row-line1">
+                  <SelectBadge
+                    index={index}
+                    eventName={event.name}
+                    selected={selected}
+                    onToggle={() => onToggleSelect(event.id)}
+                    numClassName="ev-badge"
+                    statusEmoji={event.status ? STATUS_META[event.status].emoji : undefined}
+                  />
+                  <span className="ev-name">{event.name}</span>
+                  {event.approx && <span className="approx">approx.</span>}
+                </div>
+                <div className="ev-row-line2">
+                  <span className="ev-venue">{event.venue}</span>
+                  {event.startTime && <span className="ev-time">{event.startTime}</span>}
+                </div>
               </div>
 
               {expanded && (
@@ -240,6 +214,19 @@ export function WeekSection({
                     <div className="ev-detail-actions">
                       <button
                         type="button"
+                        className={`ev-action-btn ev-action-star${event.status ? " is-saved" : ""}`}
+                        aria-pressed={event.status !== null}
+                        title={event.status ? "Saved to Home — click to remove" : "Mark as interesting"}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggleInteresting(event);
+                        }}
+                      >
+                        <span className="ev-action-emoji" aria-hidden="true">👀</span>
+                        {event.status ? "Saved" : "Interesting"}
+                      </button>
+                      <button
+                        type="button"
                         className="ev-action-btn"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -267,74 +254,36 @@ export function WeekSection({
         })}
       </div>
 
-      {visibleRowCount > 0 && (
-        <div className="detail-wrap">
-          <table className="detail-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Group</th>
-              <th>Event</th>
-              <th>Venue</th>
-              <th>Date</th>
-              <th>Cost</th>
-              <th>Description</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {layout.rows.map((row) => {
-              const { event, index, clippedStart, clippedEnd } = row;
-              const selected = selectedIds.has(event.id);
-              return (
-                <tr
-                  key={event.id}
-                  className={`ev-list-row${selected ? " selected" : ""}`}
-                  style={{ display: isHidden(event) ? "none" : undefined }}
-                  role="button"
-                  tabIndex={isHidden(event) ? -1 : 0}
-                  aria-label={`Edit ${event.name}`}
-                  onClick={() => onEdit(event)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      onEdit(event);
-                    }
-                  }}
-                >
-                  <td className="dnum-cell">
-                    <SelectBadge
-                      index={index}
-                      eventName={event.name}
-                      selected={selected}
-                      onToggle={() => onToggleSelect(event.id)}
-                      numClassName="dnum-num"
-                    />
-                  </td>
-                  <td>
-                    <span className="catdot" style={{ background: colorOf(event) }} />
-                    {groupsOf(event).map((g) => meta.groupLabels[g]).join(" · ")}
-                  </td>
-                  <td className="evn">
-                    {event.name}
-                    {event.approx && <span className="approx"> approx.</span>}
-                  </td>
-                  <td>{event.venue}</td>
-                  <td className="mono">{fmtDateRange(clippedStart, clippedEnd)}</td>
-                  <td>{event.cost}</td>
-                  <td>{event.desc}</td>
-                  <td>
-                    <a href={event.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                      More info &#8599;
-                    </a>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        </div>
-      )}
+      <EventList
+        week={week}
+        events={events}
+        meta={meta}
+        activeGroup={activeGroup}
+        selectedIds={selectedIds}
+        onToggleSelect={onToggleSelect}
+        onEdit={onEdit}
+        renderActions={(event) => (
+          <>
+            <button
+              type="button"
+              className={`ev-action-btn ev-action-star${event.status ? " is-saved" : ""}`}
+              aria-pressed={event.status !== null}
+              title={event.status ? "Saved to Home — click to remove" : "Mark as interesting"}
+              onClick={() => onToggleInteresting(event)}
+            >
+              <span className="ev-action-emoji" aria-hidden="true">👀</span>
+              {event.status ? "Saved" : "Interesting"}
+            </button>
+            <button
+              type="button"
+              className="ev-action-btn ev-action-delete"
+              onClick={() => onDelete(event)}
+            >
+              Delete
+            </button>
+          </>
+        )}
+      />
     </section>
   );
 }

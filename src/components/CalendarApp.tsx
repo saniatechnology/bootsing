@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChatPanel } from "./ChatPanel";
@@ -8,6 +8,8 @@ import { BulkActionsBar } from "./BulkActionsBar";
 import { EventForm } from "./EventForm";
 import { FilterBar } from "./FilterBar";
 import { WeekSection } from "./WeekSection";
+import { StatusIndicator } from "./StatusIndicator";
+import { useOffline } from "@/lib/useOffline";
 import { toIsoDate, addDays, parseIsoDate, daysBetween } from "@/lib/dates";
 import { weekIndexForDate } from "@/lib/grid";
 import { readProgressStream, reduceProgress } from "@/lib/progress";
@@ -17,91 +19,10 @@ import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types
 /** The AI operation currently running, if any; only one may run at a time. */
 type ActiveRequest = { kind: "research"; weekIndex: number } | { kind: "chat" } | null;
 
-const OFFLINE_TITLE = "Diva down :/"
-const OFFLINE_MESSAGE = "You appear to be offline. Check your internet connection and try again.";
-
-/** Track the browser's online/offline state. */
-function useOffline(): boolean {
-  const [offline, setOffline] = useState(false);
-  useEffect(() => {
-    const update = () => setOffline(!navigator.onLine);
-    update();
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
-    return () => {
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
-    };
-  }, []);
-  return offline;
-}
-
-/** Topbar icon shown only on a connection/request problem; opens a modal with the detail. */
-function StatusIndicator({
-  error,
-  offline,
-  onDismiss,
-}: {
-  error: string | null;
-  offline: boolean;
-  onDismiss: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  if (!offline && error === null) return null;
-
-  const message = offline ? OFFLINE_MESSAGE : error;
-  const title = offline ? OFFLINE_TITLE : "Something went wrong";
-
-  return (
-    <>
-      <button
-        type="button"
-        className="status-indicator"
-        aria-label={offline ? OFFLINE_TITLE : "Connection problem — view details"}
-        title={offline ? OFFLINE_TITLE : "Connection problem"}
-        onClick={() => setOpen(true)}
-      >
-        <span className="material-symbols-outlined" aria-hidden="true">
-          {offline ? "cloud_off" : "error"}
-        </span>
-      </button>
-
-      {open && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Connection status" onClick={() => setOpen(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-head">
-              <span>{title}</span>
-              <button type="button" aria-label="Close" onClick={() => setOpen(false)}>
-                &times;
-              </button>
-            </div>
-            <div className="status-modal-body">
-              <p className="status-modal-message">{message}</p>
-              {!offline && error !== null && (
-                <div className="status-modal-actions">
-                  <button
-                    type="button"
-                    className="status-dismiss"
-                    onClick={() => {
-                      onDismiss();
-                      setOpen(false);
-                    }}
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
 interface CalendarAppProps {
   initialEvents: CalendarEvent[];
   meta: CalendarMeta;
+  initialWeekIndex: number;
 }
 
 /**
@@ -134,12 +55,12 @@ function indexForDate(weeks: [IsoDate, IsoDate][], iso: IsoDate): number {
   return days <= 0 ? weeks.length - 1 : weeks.length - 1 + Math.ceil(days / 7);
 }
 
-export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
+export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarAppProps) {
   const [events, setEvents] = useState(initialEvents);
   const [activeGroup, setActiveGroup] = useState<GroupKey | "all">("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const thisWeekIndex = weekIndexForDate(meta.weeks, toIsoDate(new Date()));
-  const [weekIndex, setWeekIndex] = useState(thisWeekIndex);
+  const [weekIndex, setWeekIndex] = useState(initialWeekIndex);
 
   const week = weekForIndex(meta.weeks, weekIndex);
 
@@ -204,6 +125,27 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
   }
 
   const selectedEvents = events.filter((e) => selectedIds.has(e.id));
+
+  // Explore's star: unsaved -> "interesting"; already saved (any status) -> back to Explore-only.
+  async function handleToggleInteresting(event: CalendarEvent) {
+    const next = event.status ? null : "interesting";
+    try {
+      const res = await fetch(`/api/events/${event.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        reportError(data.error ?? "Couldn't update the event.");
+        return;
+      }
+      clearError();
+      setEvents(data.events as CalendarEvent[]);
+    } catch (err) {
+      reportError(err instanceof Error ? err.message : "Network error.");
+    }
+  }
 
   async function handleDelete(event: CalendarEvent) {
     if (!window.confirm(`Delete “${event.name}”? This can't be undone.`)) return;
@@ -286,7 +228,16 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
     <div className="wrap">
       <header className="page">
         <div className="topbar">
-          <h1>Bootsing</h1>
+          <div className="topbar-title">
+            <h1>
+              <Link href={`/?w=${weekIndex}`} className="title-link">
+                Bootsing
+              </Link>
+            </h1>
+            <Link href="/explore" className="area-link">
+              Explore
+            </Link>
+          </div>
           <div className="topbar-actions">
             <StatusIndicator error={connError} offline={offline} onDismiss={clearError} />
             {activeRequest ? (
@@ -373,6 +324,7 @@ export function CalendarApp({ initialEvents, meta }: CalendarAppProps) {
           onSelectDay={selectDay}
           onEdit={(event) => setFormTarget(event)}
           onDelete={handleDelete}
+          onToggleInteresting={handleToggleInteresting}
           onAddOnDate={(date) => setFormTarget({ newOn: date })}
         />
       )}

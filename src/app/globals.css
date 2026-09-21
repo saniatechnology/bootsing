@@ -28,7 +28,11 @@ body {
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: "Archivo", -apple-system, "Segoe UI", sans-serif;
+  font-family:
+    "Archivo",
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
   padding: 0 0 5rem 0;
   -webkit-font-smoothing: antialiased;
 }
@@ -51,7 +55,11 @@ body {
   white-space: nowrap;
   direction: ltr;
   -webkit-font-smoothing: antialiased;
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
 
 header.page {
@@ -76,7 +84,10 @@ header.page {
   color: var(--text);
   text-decoration: none;
   font-size: 1.1rem;
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
 }
 .settings-btn:hover {
   background: var(--text);
@@ -104,7 +115,9 @@ header.page {
   background: transparent;
   color: var(--accent);
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
 }
 .status-indicator:hover {
   background: var(--accent);
@@ -169,7 +182,10 @@ header.page {
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
 }
 .research-btn:hover:not(:disabled) {
   background: var(--text);
@@ -249,7 +265,7 @@ header.page {
   justify-content: center;
   gap: 1.2rem;
   text-align: center;
-  background: var(--border);;
+  background: var(--border);
   padding: 6rem 1.5rem 8rem;
 }
 /* Re-research banner shown above a week that already has events. */
@@ -307,7 +323,9 @@ header.page {
   color: var(--text-muted);
   opacity: 0.35;
   white-space: pre-wrap;
-  transition: opacity 0.2s ease, font-size 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    font-size 0.2s ease;
 }
 .progress-line.search {
   font-family: "IBM Plex Mono", monospace;
@@ -397,7 +415,10 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.12s ease, color 0.12s ease, opacity 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    opacity 0.12s ease;
 }
 .nav-btn:hover:not(:disabled) {
   background: var(--text);
@@ -438,7 +459,10 @@ h1 {
   background: transparent;
   color: var(--text);
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
 }
 .group-chip:hover {
   border-color: var(--text);
@@ -496,14 +520,32 @@ h1 {
 .ev-row {
   background: var(--surface);
   border-left: 4px solid var(--cat);
-  padding: 0.4rem 0.6rem;
+  padding: 0.35rem 0.55rem;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
   min-height: 2.1rem;
   overflow: hidden;
-  white-space: nowrap;
   cursor: pointer;
+}
+.ev-row-line1,
+.ev-row-line2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+.ev-row-line1 .ev-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ev-row-line2 .ev-venue {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ev-row-line2 .ev-time {
+  margin-left: auto;
 }
 .ev-row.expanded {
   background: var(--surface-2);
@@ -771,7 +813,9 @@ footer.note {
   opacity: 0;
   transform: translateY(150%);
   pointer-events: none;
-  transition: transform 0.22s ease, opacity 0.22s ease;
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease;
 }
 .bulk-fab.is-visible {
   opacity: 1;
@@ -780,6 +824,10 @@ footer.note {
 }
 .bulk-fab .material-symbols-outlined {
   font-size: 1.5rem;
+}
+.bulk-fab-emoji {
+  font-size: 1.3rem;
+  line-height: 1;
 }
 .bulk-delete-fab {
   left: calc(1.5rem + 3.2rem + 0.6rem);
@@ -1448,4 +1496,437 @@ footer.note {
 .config-edit-item input:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+/* ---- Header area nav (Home <-> Explore) ---- */
+.topbar-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  min-width: 0;
+}
+.area-link {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.area-link:hover {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.area-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.area-link .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+/* ---- Explore star toggles (single-event) ---- */
+.ev-action-btn.ev-action-star {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.ev-action-emoji {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.ev-action-star .material-symbols-outlined {
+  font-size: 1rem;
+}
+.ev-action-star.is-saved {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.list-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.55rem;
+  padding: 0.15rem;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  vertical-align: middle;
+}
+.list-star:hover {
+  color: var(--text);
+}
+.list-star:focus-visible {
+  outline: 2px solid var(--accent);
+}
+.list-star.is-saved {
+  color: var(--accent);
+}
+.list-star .material-symbols-outlined {
+  font-size: 1.1rem;
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+/* ---- Bulk "mark interesting" FAB (third slot) ---- */
+.bulk-interesting-fab {
+  left: calc(1.5rem + 2 * (3.2rem + 0.6rem));
+}
+
+/* ---- Home: status filter chips ---- */
+.status-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
+}
+.filter-chip {
+  font: inherit;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.8rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.filter-chip:hover {
+  border-color: var(--text);
+}
+.filter-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.filter-chip.is-active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.filter-count {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  opacity: 0.8;
+}
+
+/* ---- Home: status triage controls (Boots / Maybe / Interesting / Remove) ---- */
+.status-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: "Archivo", sans-serif;
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.status-chip .material-symbols-outlined {
+  font-size: 0.95rem;
+}
+.status-chip:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+.status-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.status-chip-emoji,
+.filter-chip-emoji {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+.status-chip-label {
+  line-height: 1;
+}
+.status-chip.status-boots.is-active {
+  background: #d8ff85;
+  border-color: #d8ff85;
+  color: #000;
+}
+.status-chip.status-maybe.is-active {
+  background: #d8a600;
+  border-color: #d8a600;
+  color: #000;
+}
+.status-chip.status-interesting.is-active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.status-chip.status-remove:hover {
+  border-color: #ff5c5c;
+  color: #ff5c5c;
+}
+
+/* ---- Home: list overrides ---- */
+.home-list-wrap {
+  margin-top: 0.9rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+table.detail-table.home-list {
+  min-width: 760px;
+}
+
+.home-empty {
+  margin-top: 3rem;
+  text-align: center;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.home-empty-link,
+.home-empty p a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.home-empty-link:hover {
+  text-decoration: underline;
+}
+
+/* ---- Home: hourly week grid ---- */
+.hourly {
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.hourly-head,
+.hourly-band {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+}
+.hourly-dayhead {
+  background: var(--surface-2);
+}
+.hourly-dayhead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  font-family: "IBM Plex Mono", monospace;
+}
+.hourly-dow {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.hourly-dnum {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.hourly-band {
+  border-top: 1px solid var(--border);
+}
+.hourly-band-label {
+  grid-column: 1;
+  background: var(--surface-2);
+  padding: 0.4rem 0.6rem;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.hourly-item {
+  margin: 2px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cat);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.hourly-item:hover {
+  border-color: var(--text);
+}
+.hourly-body {
+  display: flex;
+  position: relative;
+}
+.hourly-axis {
+  position: relative;
+  flex: 0 0 4rem;
+  border-right: 1px solid var(--border);
+}
+.hourly-hour {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  padding-right: 0.4rem;
+  transform: translateY(-0.5em);
+  text-align: right;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  color: var(--text-muted);
+}
+.hourly-cols {
+  display: grid;
+  flex: 1;
+  gap: 1px;
+  background: var(--border);
+}
+.hourly-col {
+  position: relative;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(100% - 1px), var(--border) calc(100% - 1px), var(--border) 100%);
+}
+.hourly-block {
+  position: absolute;
+  overflow: hidden;
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--cat);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  line-height: 1.15;
+}
+.hourly-block:hover {
+  border-color: var(--text);
+  z-index: 5;
+}
+.hourly-block-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hourly-block-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.hourly-block-venue {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.68rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hourly-block-time {
+  margin-left: auto;
+  flex: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+.hourly-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.4rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+  pointer-events: none;
+}
+
+/* ---- Header: title link + Explore link ---- */
+.title-link {
+  color: inherit;
+  text-decoration: none;
+}
+header h1:hover {
+  background: var(--accent);
+}
+
+/* ---- Shared list: expandable options row + edit button ---- */
+.ev-list-edit-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+.detail-table tr.ev-list-row.expanded {
+  background: var(--surface-2);
+}
+.detail-table tr.ev-list-detail td {
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  background: #0a0a0a;
+}
+.ev-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.8rem 0.9rem;
+}
+
+/* Boots-rated events stand out wherever they're listed. */
+.detail-table tr.ev-list-row.status-boots,
+.detail-table tr.ev-list-row.status-boots:hover {
+  background: #d8ff85;
+  color: #000;
+}
+.detail-table tr.ev-list-row.status-boots a {
+  color: #1a2b00;
+}
+.detail-table tr.ev-list-row.status-boots .approx {
+  color: #5a3d00;
+}
+/* Boots filter chip matches the events it selects. */
+.filter-chip.status-boots.is-active {
+  background: #d8ff85;
+  border-color: #d8ff85;
+  color: #000;
+}
+.filter-chip.status-maybe.is-active {
+  background: #d8a600;
+  border-color: #d8a600;
+  color: #000;
 }

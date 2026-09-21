@@ -14,6 +14,7 @@ interface BulkActionsBarProps {
 export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelection, reportError, clearError }: BulkActionsBarProps) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [marking, setMarking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const count = selectedEvents.length;
@@ -23,6 +24,33 @@ export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelecti
     if (deleting) return;
     setConfirming(false);
     setError(null);
+  }
+
+  // Mark every selected event as "interesting" so it shows up on Home.
+  async function handleMarkInteresting() {
+    if (marking || count === 0) return;
+    setMarking(true);
+    try {
+      let latest: CalendarEvent[] | null = null;
+      for (const ev of selectedEvents) {
+        const res = await fetch(`/api/events/${ev.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "interesting" }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `Couldn't save “${ev.name}”`);
+        latest = data.events as CalendarEvent[];
+      }
+      if (latest) onEventsChanged(latest);
+      clearError();
+      onClearSelection();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "network error";
+      reportError(message);
+    } finally {
+      setMarking(false);
+    }
   }
 
   async function handleConfirmDelete() {
@@ -64,6 +92,27 @@ export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelecti
         <span className="material-symbols-outlined" aria-hidden="true">
           close
         </span>
+      </button>
+
+      <button
+        type="button"
+        className={`bulk-fab bulk-interesting-fab${active ? " is-visible" : ""}`}
+        aria-label={`Mark ${count} selected event${count === 1 ? "" : "s"} as interesting`}
+        title="Mark selected as interesting (adds to Home)"
+        tabIndex={active ? 0 : -1}
+        aria-hidden={!active}
+        onClick={() => active && handleMarkInteresting()}
+        disabled={marking}
+      >
+        {marking ? (
+          <span className="material-symbols-outlined" aria-hidden="true">
+            hourglass_top
+          </span>
+        ) : (
+          <span className="bulk-fab-emoji" aria-hidden="true">
+            👀
+          </span>
+        )}
       </button>
 
       <button

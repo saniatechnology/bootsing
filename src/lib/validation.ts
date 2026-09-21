@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CATEGORY_KEYS, GENRE_KEYS } from "./types";
+import { CATEGORY_KEYS, EVENT_STATUS_KEYS, GENRE_KEYS } from "./types";
 
 /** Shared Zod schemas for validating event payloads at API boundaries. */
 
@@ -7,6 +7,7 @@ export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be ISO
 export const timeOfDay = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "time must be 24h HH:MM");
 export const category = z.enum(CATEGORY_KEYS);
 export const genre = z.enum(GENRE_KEYS);
+export const eventStatus = z.enum(EVENT_STATUS_KEYS);
 
 /** A brand-new event; `id` is assigned by the store, `approx`/`genre` are optional. */
 export const newEventInputSchema = z.object({
@@ -38,6 +39,7 @@ export const eventPatchSchema = z.object({
   link: z.string().optional(),
   approx: z.boolean().optional(),
   genre: genre.nullable().optional(),
+  status: eventStatus.nullable().optional(),
 });
 
 /** The editable Configuration-page preferences. */

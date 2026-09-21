@@ -37,10 +37,11 @@ interface EventRow {
   link: string;
   approx: boolean;
   genre: string | null;
+  status: string | null;
 }
 
 const EVENT_COLUMNS =
-  "id,name,venue,cat,starts,ends,start_time,end_time,cost,description,link,approx,genre";
+  "id,name,venue,cat,starts,ends,start_time,end_time,cost,description,link,approx,genre,status";
 
 function rowToEvent(row: EventRow): CalendarEvent {
   return {
@@ -57,6 +58,7 @@ function rowToEvent(row: EventRow): CalendarEvent {
     link: row.link,
     approx: row.approx,
     genre: row.genre as GenreKey | null,
+    status: row.status as CalendarEvent["status"],
   };
 }
 
@@ -91,6 +93,7 @@ export async function insertEvent(input: NewEventInput): Promise<CalendarEvent> 
       link: e.link,
       approx: e.approx,
       genre: e.genre,
+      status: e.status,
     })
     .select(EVENT_COLUMNS)
     .single();
@@ -113,6 +116,7 @@ function patchToRow(patch: Partial<Omit<CalendarEvent, "id">>): Record<string, u
   if (patch.link !== undefined) row.link = patch.link;
   if (patch.approx !== undefined) row.approx = patch.approx;
   if (patch.genre !== undefined) row.genre = patch.genre;
+  if (patch.status !== undefined) row.status = patch.status;
   return row;
 }
 

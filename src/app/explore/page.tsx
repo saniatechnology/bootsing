@@ -1,14 +1,17 @@
-import { HomeApp } from "@/components/HomeApp";
-import { LoadErrorScreen } from "@/components/CalendarApp";
+import type { Metadata } from "next";
+import { CalendarApp, LoadErrorScreen } from "@/components/CalendarApp";
 import { readEvents, readMeta } from "@/lib/store";
 import { weekIndexForDate } from "@/lib/grid";
 import { toIsoDate } from "@/lib/dates";
 
-// Always read the current file on the server at request time — this is a
-// living, chat-editable dataset, not something to statically freeze at build time.
+export const metadata: Metadata = {
+  title: "Explore — Bootsing",
+};
+
+// Always read fresh on the server: this is a living, chat-editable dataset.
 export const dynamic = "force-dynamic";
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ w?: string }> }) {
+export default async function ExplorePage({ searchParams }: { searchParams: Promise<{ w?: string }> }) {
   let events: Awaited<ReturnType<typeof readEvents>>;
   let meta: Awaited<ReturnType<typeof readMeta>>;
   try {
@@ -20,5 +23,5 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ w
   const w = Number((await searchParams).w);
   const initialWeekIndex =
     Number.isInteger(w) && w >= 0 ? w : weekIndexForDate(meta.weeks, toIsoDate(new Date()));
-  return <HomeApp initialEvents={events} meta={meta} initialWeekIndex={initialWeekIndex} />;
+  return <CalendarApp initialEvents={events} meta={meta} initialWeekIndex={initialWeekIndex} />;
 }

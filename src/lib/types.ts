@@ -28,6 +28,14 @@ export const GENRE_KEYS = ["latin", "hiphop", "pop", "electronic", "mixed", "oth
 export type GenreKey = (typeof GENRE_KEYS)[number];
 
 /**
+ * The user's personal triage of a saved event, shown on the Home page.
+ * `null` means the event is not saved and lives only on the Explore page.
+ * This is orthogonal to `cat`/`genre` (the shared taxonomy).
+ */
+export const EVENT_STATUS_KEYS = ["boots", "maybe", "interesting"] as const;
+export type EventStatus = (typeof EVENT_STATUS_KEYS)[number];
+
+/**
  * The three high-level groups shown as filters in the UI. A category can
  * belong to more than one group (see `catGroups` in meta.json), so an event
  * can appear under multiple filters — e.g. a queer club night is both
@@ -55,17 +63,20 @@ export interface CalendarEvent {
   approx: boolean;
   /** Only set when `cat === "MUS"`; `null` for every other category. */
   genre: GenreKey | null;
+  /** The user's saved-event triage; `null` when the event isn't saved (Explore-only). */
+  status: EventStatus | null;
 }
 
 /** Fields a caller may set when creating a new event; `id` is assigned by the store. */
 export type NewEventInput = Omit<
   CalendarEvent,
-  "id" | "approx" | "genre" | "startTime" | "endTime"
+  "id" | "approx" | "genre" | "startTime" | "endTime" | "status"
 > & {
   approx?: boolean;
   genre?: GenreKey;
   startTime?: string | null;
   endTime?: string | null;
+  status?: EventStatus | null;
 };
 
 /** Fields a caller may change on an existing event; all optional except the target id. */

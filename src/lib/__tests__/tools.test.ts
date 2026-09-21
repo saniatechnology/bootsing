@@ -19,6 +19,7 @@ function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
     link: "https://example.com",
     approx: false,
     genre: null,
+    status: null,
     ...overrides,
   };
 }

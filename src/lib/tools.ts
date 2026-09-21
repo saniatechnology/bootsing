@@ -140,6 +140,7 @@ export function materializeNewEvent(input: NewEventInput): Omit<CalendarEvent, "
     link: input.link,
     approx: input.approx ?? false,
     genre: input.cat === "MUS" ? input.genre ?? "other" : null,
+    status: input.status ?? null,
   };
 }
 
