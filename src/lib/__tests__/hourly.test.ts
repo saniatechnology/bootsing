@@ -1,29 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { buildHourlyWeekLayout, parseMinutes } from "../hourly";
-import type { CalendarEvent } from "../types";
+import type { WeekRange } from "../weeks";
+import { makeEvent } from "./fixtures";
 
-function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
-  return {
-    id: 1,
-    name: "Test event",
-    venue: "Test venue",
-    cat: "MUS",
-    start: "2026-09-01",
-    end: "2026-09-01",
-    startTime: null,
-    endTime: null,
-    cost: "Free",
-    desc: "",
-    link: "https://example.com",
-    approx: false,
-    genre: null,
-    status: "interesting",
-    ...overrides,
-  };
-}
-
-// Tuesday 09-01 .. Monday 09-07 (matches app week shape closely enough for tests)
-const WEEK: [string, string] = ["2026-08-31", "2026-09-06"];
+// Monday 08-31 .. Sunday 09-06
+const WEEK: WeekRange = ["2026-08-31", "2026-09-06"];
 
 describe("parseMinutes", () => {
   it("parses valid times", () => {

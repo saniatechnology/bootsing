@@ -2,9 +2,10 @@
 
 import { Fragment, useState, type ReactNode } from "react";
 import { dayOfWeekAbbr, fmtDateRange, fmtTimeRange, toIsoDate } from "@/lib/dates";
+import { groupLabelsOf, matchesGroup, primaryGroupColor } from "@/lib/event-meta";
 import { buildWeekLayout } from "@/lib/grid";
+import { STATUS_META } from "@/lib/status-meta";
 import { EventList, SelectBadge } from "./EventList";
-import { STATUS_META } from "./StatusControls";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 
 interface WeekSectionProps {
@@ -39,21 +40,11 @@ export function WeekSection({
   const layout = buildWeekLayout(events, week);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  function isHidden(event: CalendarEvent): boolean {
-    if (activeGroup === "all") return false;
-    return !meta.catGroups[event.cat]?.includes(activeGroup);
-  }
+  const isHidden = (event: CalendarEvent) => !matchesGroup(meta, event, activeGroup);
+  const colorOf = (event: CalendarEvent) => primaryGroupColor(meta, event);
+
   function toggleExpanded(id: number) {
     setExpandedId((prev) => (prev === id ? null : id));
-  }
-
-  /** An event's groups, and the color of its first (primary) group. */
-  function groupsOf(event: CalendarEvent): GroupKey[] {
-    return meta.catGroups[event.cat] ?? [];
-  }
-  function colorOf(event: CalendarEvent): string {
-    const primary = groupsOf(event)[0];
-    return primary ? meta.groupColors[primary] : "var(--text-muted)";
   }
 
   // The expanded event's detail row is injected as a full-width grid row right
@@ -176,11 +167,7 @@ export function WeekSection({
                   <div className="ev-detail-inner">
                     <div className="ev-detail-head">
                       <span className="catdot" style={{ background: colorOf(event) }} />
-                      <span className="ev-detail-groups">
-                        {groupsOf(event)
-                          .map((g) => meta.groupLabels[g])
-                          .join(" · ")}
-                      </span>
+                      <span className="ev-detail-groups">{groupLabelsOf(meta, event)}</span>
                       <span className="ev-detail-title">{event.name}</span>
                       {event.approx && <span className="approx">approx.</span>}
                     </div>

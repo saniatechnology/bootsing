@@ -15,7 +15,8 @@ import {
   insertEvent,
   deleteEventsStartingInWeek,
 } from "./store";
-import { toIsoDate, parseIsoDate, addDays, daysBetween } from "./dates";
+import { toIsoDate } from "./dates";
+import { isResearchableWeek as isResearchableWeekIn } from "./weeks";
 
 const MAX_RESEARCH_LOOPS = 8;
 const SUBMIT_TOOL_NAME = "submit_week_events";
@@ -230,20 +231,8 @@ export async function researchAndReplaceWeek(
   return { events, added: found.length, removed, reply };
 }
 
-/** Guard: a week is researchable if it's a configured week or an aligned 7-day window after the last one. */
+/** Guard for the research endpoint: only weeks the calendar can actually display may be researched. */
 export async function isResearchableWeek(weekStart: IsoDate, weekEnd: IsoDate): Promise<boolean> {
   const meta = await readMeta();
-  if (meta.weeks.length === 0) return false;
-  if (meta.weeks.some(([s, e]) => s === weekStart && e === weekEnd)) return true;
-
-  const start = parseIsoDate(weekStart);
-  const end = parseIsoDate(weekEnd);
-  if (daysBetween(start, end) !== 6) return false; // must be a full 7-day window
-
-  const lastEnd = parseIsoDate(meta.weeks[meta.weeks.length - 1][1]);
-  if (start.getTime() <= lastEnd.getTime()) return false; // must be in the future
-
-  // Aligned to the weekly grid extending from the last configured week.
-  const diff = daysBetween(addDays(lastEnd, 1), start);
-  return diff % 7 === 0;
+  return isResearchableWeekIn(meta.weeks, [weekStart, weekEnd]);
 }

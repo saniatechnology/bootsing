@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getSupabaseClient, getCurrentUserId } from "./supabase";
-import { materializeNewEvent } from "./tools";
+import { materializeNewEvent } from "./events";
 import type { Preferences, PreferenceSection } from "./preferences";
 import type {
   CalendarEvent,

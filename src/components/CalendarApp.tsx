@@ -9,12 +9,12 @@ import { EventForm } from "./EventForm";
 import { FilterBar } from "./FilterBar";
 import { WeekSection } from "./WeekSection";
 import { StatusIndicator } from "./StatusIndicator";
-import { useOffline } from "@/lib/useOffline";
-import { toIsoDate, addDays, parseIsoDate, daysBetween } from "@/lib/dates";
-import { weekIndexForDate } from "@/lib/grid";
+import { useOffline } from "@/hooks/useOffline";
+import { toIsoDate } from "@/lib/dates";
+import { browseHorizon, configuredWeekIndexForDate, latestStart, weekForIndex } from "@/lib/weeks";
 import { readProgressStream, reduceProgress } from "@/lib/progress";
 import type { ProgressLine } from "@/lib/progress";
-import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
+import type { CalendarEvent, CalendarMeta, GroupKey } from "@/lib/types";
 
 /** The AI operation currently running, if any; only one may run at a time. */
 type ActiveRequest = { kind: "research"; weekIndex: number } | { kind: "chat" } | null;
@@ -25,52 +25,21 @@ interface CalendarAppProps {
   initialWeekIndex: number;
 }
 
-/**
- * The week at a given index. Indexes within the configured list return that
- * week; indexes past the end return successive empty 7-day windows, so the user
- * can navigate forward into future weeks and research them.
- */
-function weekForIndex(weeks: [IsoDate, IsoDate][], index: number): [IsoDate, IsoDate] | undefined {
-  if (weeks.length === 0) return undefined;
-  if (index < weeks.length) return weeks[index];
-  const lastEnd = parseIsoDate(weeks[weeks.length - 1][1]);
-  const offset = index - (weeks.length - 1); // 1 = first synthetic week
-  const start = addDays(lastEnd, 1 + (offset - 1) * 7);
-  return [toIsoDate(start), toIsoDate(addDays(start, 6))];
-}
-
-/** Week index containing `iso`, extending past the configured list into synthetic future weeks. */
-function indexForDate(weeks: [IsoDate, IsoDate][], iso: IsoDate): number {
-  if (weeks.length === 0) return 0;
-  const t = parseIsoDate(iso).getTime();
-  for (let i = 0; i < weeks.length; i++) {
-    if (t >= parseIsoDate(weeks[i][0]).getTime() && t <= parseIsoDate(weeks[i][1]).getTime())
-      return i;
-  }
-  if (t < parseIsoDate(weeks[0][0]).getTime()) return 0;
-  const lastEnd = parseIsoDate(weeks[weeks.length - 1][1]);
-  const days = daysBetween(lastEnd, parseIsoDate(iso));
-  return days <= 0 ? weeks.length - 1 : weeks.length - 1 + Math.ceil(days / 7);
-}
-
 export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarAppProps) {
   const [events, setEvents] = useState(initialEvents);
   const [activeGroup, setActiveGroup] = useState<GroupKey | "all">("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const thisWeekIndex = weekIndexForDate(meta.weeks, toIsoDate(new Date()));
+  const thisWeekIndex = configuredWeekIndexForDate(meta.weeks, toIsoDate(new Date()));
   const [weekIndex, setWeekIndex] = useState(initialWeekIndex);
 
   const week = weekForIndex(meta.weeks, weekIndex);
 
-  // Let the user browse up to ~2 months (8 weeks) beyond the last week that has events.
-  const lastEventIso =
-    events.length > 0
-      ? events.reduce((max, e) => (e.start > max ? e.start : max), events[0].start)
-      : null;
-  const lastEventIndex = lastEventIso
-    ? indexForDate(meta.weeks, lastEventIso)
-    : Math.max(thisWeekIndex, meta.weeks.length - 1);
-  const maxWeekIndex = Math.max(meta.weeks.length - 1, lastEventIndex + 8);
+  // Let the user browse a couple of months beyond the last week that has events.
+  const maxWeekIndex = browseHorizon(
+    meta.weeks,
+    latestStart(events),
+    Math.max(thisWeekIndex, meta.weeks.length - 1)
+  );
 
   // null = form closed; { newOn } = adding on that date; a CalendarEvent = editing it.
   const [formTarget, setFormTarget] = useState<CalendarEvent | { newOn: string } | null>(null);

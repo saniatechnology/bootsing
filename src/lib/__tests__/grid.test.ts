@@ -1,28 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { buildWeekLayout } from "../grid";
-import type { CalendarEvent } from "../types";
+import type { WeekRange } from "../weeks";
+import { makeEvent } from "./fixtures";
 
-function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
-  return {
-    id: 1,
-    name: "Test event",
-    venue: "Test venue",
-    cat: "MUS",
-    start: "2026-09-01",
-    end: "2026-09-01",
-    startTime: null,
-    endTime: null,
-    cost: "Free",
-    desc: "",
-    link: "https://example.com",
-    approx: false,
-    genre: null,
-    status: null,
-    ...overrides,
-  };
-}
-
-const WEEK: [string, string] = ["2026-08-31", "2026-09-06"];
+const WEEK: WeekRange = ["2026-08-31", "2026-09-06"];
 
 describe("buildWeekLayout", () => {
   it("excludes events entirely outside the week", () => {

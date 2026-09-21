@@ -108,7 +108,8 @@ export function buildHourlyWeekLayout(
   for (const [dayIndex, items] of byDay) {
     items.sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
     const laneEnds: number[] = [];
-    const placed: (HourlyTimedItem & { _tmp?: never })[] = [];
+    // laneCount isn't known until the whole day is packed, so fill it in afterwards.
+    const placed: HourlyTimedItem[] = [];
     for (const it of items) {
       let lane = 0;
       while (lane < laneEnds.length && laneEnds[lane] > it.startMin) lane++;

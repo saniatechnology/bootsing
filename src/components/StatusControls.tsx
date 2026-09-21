@@ -1,15 +1,8 @@
 "use client";
 
+import { STATUS_META } from "@/lib/status-meta";
+import { EVENT_STATUS_KEYS } from "@/lib/types";
 import type { CalendarEvent, EventStatus } from "@/lib/types";
-
-/** Shared label + emoji for each saved-event status, reused by filters. */
-export const STATUS_META: Record<EventStatus, { label: string; emoji: string; title: string }> = {
-  boots: { label: "Boots", emoji: "👢", title: "I'm going for sure" },
-  maybe: { label: "Maybe", emoji: "💅", title: "Maybe" },
-  interesting: { label: "Interesting", emoji: "👀", title: "Interesting" },
-};
-
-const OPTIONS: EventStatus[] = ["boots", "maybe", "interesting"];
 
 /**
  * The Home triage control: pick Boots / Maybe / Interesting for a saved event,
@@ -24,7 +17,7 @@ export function StatusControls({
 }) {
   return (
     <div className="status-controls" onClick={(e) => e.stopPropagation()}>
-      {OPTIONS.map((value) => {
+      {EVENT_STATUS_KEYS.map((value) => {
         const meta = STATUS_META[value];
         const active = event.status === value;
         return (

@@ -2,8 +2,9 @@
 
 import { Fragment, useState, type ReactNode } from "react";
 import { fmtDateRange } from "@/lib/dates";
+import { groupLabelsOf, matchesGroup, primaryGroupColor } from "@/lib/event-meta";
 import { buildWeekLayout } from "@/lib/grid";
-import { STATUS_META } from "./StatusControls";
+import { STATUS_META } from "@/lib/status-meta";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 
 /**
@@ -94,17 +95,7 @@ export function EventList({
     else setLocalExpanded(next);
   }
 
-  function isHidden(event: CalendarEvent): boolean {
-    if (activeGroup === "all") return false;
-    return !meta.catGroups[event.cat]?.includes(activeGroup);
-  }
-  function groupsOf(event: CalendarEvent): GroupKey[] {
-    return meta.catGroups[event.cat] ?? [];
-  }
-  function colorOf(event: CalendarEvent): string {
-    const primary = groupsOf(event)[0];
-    return primary ? meta.groupColors[primary] : "var(--text-muted)";
-  }
+  const isHidden = (event: CalendarEvent) => !matchesGroup(meta, event, activeGroup);
 
   const visibleRows = layout.rows.filter((r) => !isHidden(r.event));
   if (visibleRows.length === 0) return null;
@@ -161,10 +152,11 @@ export function EventList({
                     />
                   </td>
                   <td>
-                    <span className="catdot" style={{ background: colorOf(event) }} />
-                    {groupsOf(event)
-                      .map((g) => meta.groupLabels[g])
-                      .join(" · ")}
+                    <span
+                      className="catdot"
+                      style={{ background: primaryGroupColor(meta, event) }}
+                    />
+                    {groupLabelsOf(meta, event)}
                   </td>
                   <td className="evn">
                     {event.name}

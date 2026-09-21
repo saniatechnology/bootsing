@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { dayOfWeekAbbr, fmtDateRange, fmtTimeRange, parseIsoDate } from "@/lib/dates";
+import { groupLabelsOf, primaryGroupColor } from "@/lib/event-meta";
 import { buildHourlyWeekLayout } from "@/lib/hourly";
+import { STATUS_META } from "@/lib/status-meta";
 import { SelectBadge } from "./EventList";
-import { StatusControls, STATUS_META } from "./StatusControls";
-import type { CalendarEvent, CalendarMeta, EventStatus, GroupKey, IsoDate } from "@/lib/types";
+import { StatusControls } from "./StatusControls";
+import type { CalendarEvent, CalendarMeta, EventStatus, IsoDate } from "@/lib/types";
 
 /** Pixel height of one hour row on the time axis. */
 const HOUR_H = 56;
@@ -57,11 +59,8 @@ export function HourlyWeekSection({
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
-  // The category colour used for an event's left border, matching Explore.
-  function colorOf(event: CalendarEvent): string {
-    const primary = (meta.catGroups[event.cat] ?? [])[0] as GroupKey | undefined;
-    return primary ? meta.groupColors[primary] : "var(--text-muted)";
-  }
+  // The group colour used for an event's left border, matching Explore.
+  const colorOf = (event: CalendarEvent) => primaryGroupColor(meta, event);
 
   return (
     <section className="hourly">
@@ -177,11 +176,7 @@ export function HourlyWeekSection({
           <div className="ev-detail-inner">
             <div className="ev-detail-head">
               <span className="catdot" style={{ background: colorOf(expandedEvent) }} />
-              <span className="ev-detail-groups">
-                {(meta.catGroups[expandedEvent.cat] ?? [])
-                  .map((g) => meta.groupLabels[g])
-                  .join(" · ")}
-              </span>
+              <span className="ev-detail-groups">{groupLabelsOf(meta, expandedEvent)}</span>
               <span className="ev-detail-title">{expandedEvent.name}</span>
               {expandedEvent.approx && <span className="approx">approx.</span>}
             </div>

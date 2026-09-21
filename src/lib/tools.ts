@@ -131,30 +131,6 @@ export type EventMatch = Pick<
 export type ToolResult =
   { ok: true; count: number; matches: EventMatch[] } | { ok: false; error: string };
 
-/**
- * Materialize a validated NewEventInput into the full event shape (minus the
- * id, which the store/DB assigns): defaults `approx`, and applies the rule that
- * `genre` is only meaningful for the MUS category (defaulting to "other" there
- * and forced to null everywhere else).
- */
-export function materializeNewEvent(input: NewEventInput): Omit<CalendarEvent, "id"> {
-  return {
-    name: input.name,
-    venue: input.venue,
-    cat: input.cat,
-    start: input.start,
-    end: input.end,
-    startTime: input.startTime ?? null,
-    endTime: input.endTime ?? null,
-    cost: input.cost,
-    desc: input.desc,
-    link: input.link,
-    approx: input.approx ?? false,
-    genre: input.cat === "MUS" ? (input.genre ?? "other") : null,
-    status: input.status ?? null,
-  };
-}
-
 /** Narrow + validate a loosely-typed tool_use input before trusting it as a NewEventInput. */
 export function toNewEventInput(input: Record<string, unknown>): NewEventInput | { error: string } {
   const required = ["name", "venue", "cat", "start", "end", "cost", "desc", "link"] as const;

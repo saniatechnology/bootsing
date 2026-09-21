@@ -1,28 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { executeTool, extractEventPatch, materializeNewEvent } from "../tools";
+import { executeTool, extractEventPatch } from "../tools";
 import type { ToolResult } from "../tools";
-import { CATEGORY_KEYS } from "../types";
-import type { CalendarEvent, CalendarMeta, NewEventInput } from "../types";
-
-function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
-  return {
-    id: 1,
-    name: "Test event",
-    venue: "Test venue",
-    cat: "MUS",
-    start: "2026-09-01",
-    end: "2026-09-01",
-    startTime: null,
-    endTime: null,
-    cost: "Free",
-    desc: "",
-    link: "https://example.com",
-    approx: false,
-    genre: null,
-    status: null,
-    ...overrides,
-  };
-}
+import type { CalendarEvent } from "../types";
+import { META, makeEvent } from "./fixtures";
 
 function sampleEvents(): CalendarEvent[] {
   return [
@@ -65,16 +45,8 @@ function sampleEvents(): CalendarEvent[] {
   ];
 }
 
-// find_events only reads meta.catGroups, so the rest of CalendarMeta is stubbed.
-const catGroups = Object.fromEntries(
-  CATEGORY_KEYS.map((c) => [c, ["culture"]])
-) as CalendarMeta["catGroups"];
-catGroups.MUS = ["dancing"];
-catGroups.QUEER = ["queer", "dancing"];
-const meta = { catGroups } as unknown as CalendarMeta;
-
 function findIds(input: Record<string, unknown>): number[] {
-  const result: ToolResult = executeTool("find_events", input, sampleEvents(), meta);
+  const result: ToolResult = executeTool("find_events", input, sampleEvents(), META);
   if (!("matches" in result)) throw new Error("expected a find_events result");
   return result.matches.map((m) => m.id).sort((a, b) => a - b);
 }
@@ -105,39 +77,6 @@ describe("executeTool: find_events", () => {
 
   it("returns everything when no filters are given", () => {
     expect(findIds({})).toEqual([1, 2, 3, 4]);
-  });
-});
-
-describe("materializeNewEvent", () => {
-  function baseInput(overrides: Partial<NewEventInput>): NewEventInput {
-    return {
-      name: "Talk",
-      venue: "Hall",
-      cat: "TECH",
-      start: "2026-09-08",
-      end: "2026-09-08",
-      cost: "Free",
-      desc: "d",
-      link: "https://x.dev",
-      ...overrides,
-    };
-  }
-
-  it("defaults approx to false and forces a null genre for non-music categories", () => {
-    const event = materializeNewEvent(baseInput({ cat: "TECH", genre: "electronic" }));
-    expect(event.approx).toBe(false);
-    expect(event.genre).toBeNull();
-  });
-
-  it("defaults a music event's genre to 'other' when none is given", () => {
-    const event = materializeNewEvent(baseInput({ cat: "MUS" }));
-    expect(event.genre).toBe("other");
-  });
-
-  it("keeps an explicit music genre and approx flag", () => {
-    const event = materializeNewEvent(baseInput({ cat: "MUS", genre: "latin", approx: true }));
-    expect(event.genre).toBe("latin");
-    expect(event.approx).toBe(true);
   });
 });
 

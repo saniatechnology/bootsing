@@ -67,7 +67,10 @@ export interface CalendarEvent {
   status: EventStatus | null;
 }
 
-/** Fields a caller may set when creating a new event; `id` is assigned by the store. */
+/**
+ * Fields a caller may set when creating a new event; `id` is assigned by the
+ * store and `status` always starts as null (events are saved to Home later).
+ */
 export type NewEventInput = Omit<
   CalendarEvent,
   "id" | "approx" | "genre" | "startTime" | "endTime" | "status"
@@ -76,7 +79,6 @@ export type NewEventInput = Omit<
   genre?: GenreKey;
   startTime?: string | null;
   endTime?: string | null;
-  status?: EventStatus | null;
 };
 
 /** Fields a caller may change on an existing event; all optional except the target id. */

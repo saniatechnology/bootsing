@@ -8,7 +8,8 @@
  */
 
 import { addDays, clipToWeek, daysBetween, parseIsoDate } from "./dates";
-import type { CalendarEvent, IsoDate } from "./types";
+import type { CalendarEvent } from "./types";
+import type { WeekRange } from "./weeks";
 
 export interface WeekRow {
   event: CalendarEvent;
@@ -37,7 +38,7 @@ export interface WeekLayout {
 
 export function buildWeekLayout(
   events: CalendarEvent[],
-  [weekStartIso, weekEndIso]: [IsoDate, IsoDate]
+  [weekStartIso, weekEndIso]: WeekRange
 ): WeekLayout {
   const weekStart = parseIsoDate(weekStartIso);
   const weekEnd = parseIsoDate(weekEndIso);
@@ -93,21 +94,4 @@ export function buildWeekLayout(
   });
 
   return { weekStart, weekEnd, dayCount, days, rows, laneCount: laneCols.length };
-}
-
-/**
- * Index of the week that contains `iso`. If the date falls before the first
- * week it clamps to 0, and after the last week it clamps to the last index —
- * so "This week" always lands on a real, in-range week.
- */
-export function weekIndexForDate(weeks: [IsoDate, IsoDate][], iso: IsoDate): number {
-  if (weeks.length === 0) return 0;
-  const target = parseIsoDate(iso).getTime();
-  for (let i = 0; i < weeks.length; i++) {
-    const start = parseIsoDate(weeks[i][0]).getTime();
-    const end = parseIsoDate(weeks[i][1]).getTime();
-    if (target >= start && target <= end) return i;
-  }
-  if (target < parseIsoDate(weeks[0][0]).getTime()) return 0;
-  return weeks.length - 1;
 }

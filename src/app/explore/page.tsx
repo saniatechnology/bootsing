@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { CalendarApp, LoadErrorScreen } from "@/components/CalendarApp";
 import { readEvents, readMeta } from "@/lib/store";
-import { weekIndexForDate } from "@/lib/grid";
+import { configuredWeekIndexForDate } from "@/lib/weeks";
 import { toIsoDate } from "@/lib/dates";
 
 export const metadata: Metadata = {
@@ -26,6 +26,8 @@ export default async function ExplorePage({
   }
   const w = Number((await searchParams).w);
   const initialWeekIndex =
-    Number.isInteger(w) && w >= 0 ? w : weekIndexForDate(meta.weeks, toIsoDate(new Date()));
+    Number.isInteger(w) && w >= 0
+      ? w
+      : configuredWeekIndexForDate(meta.weeks, toIsoDate(new Date()));
   return <CalendarApp initialEvents={events} meta={meta} initialWeekIndex={initialWeekIndex} />;
 }

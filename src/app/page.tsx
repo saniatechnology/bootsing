@@ -1,7 +1,7 @@
 import { HomeApp } from "@/components/HomeApp";
 import { LoadErrorScreen } from "@/components/CalendarApp";
 import { readEvents, readMeta } from "@/lib/store";
-import { weekIndexForDate } from "@/lib/grid";
+import { configuredWeekIndexForDate } from "@/lib/weeks";
 import { toIsoDate } from "@/lib/dates";
 
 // Always read the current file on the server at request time — this is a
@@ -19,6 +19,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ w
   }
   const w = Number((await searchParams).w);
   const initialWeekIndex =
-    Number.isInteger(w) && w >= 0 ? w : weekIndexForDate(meta.weeks, toIsoDate(new Date()));
+    Number.isInteger(w) && w >= 0
+      ? w
+      : configuredWeekIndexForDate(meta.weeks, toIsoDate(new Date()));
   return <HomeApp initialEvents={events} meta={meta} initialWeekIndex={initialWeekIndex} />;
 }

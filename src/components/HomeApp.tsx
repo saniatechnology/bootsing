@@ -7,12 +7,13 @@ import { HourlyWeekSection } from "./HourlyWeekSection";
 import { EventList } from "./EventList";
 import { EventForm } from "./EventForm";
 import { HomeBulkBar } from "./HomeBulkBar";
-import { StatusControls, STATUS_META } from "./StatusControls";
-import { useOffline } from "@/lib/useOffline";
-import { addDays, daysBetween, parseIsoDate, toIsoDate } from "@/lib/dates";
-import { weekIndexForDate } from "@/lib/grid";
+import { StatusControls } from "./StatusControls";
+import { useOffline } from "@/hooks/useOffline";
+import { toIsoDate } from "@/lib/dates";
+import { STATUS_META } from "@/lib/status-meta";
+import { browseHorizon, configuredWeekIndexForDate, latestStart, weekForIndex } from "@/lib/weeks";
 import { EVENT_STATUS_KEYS } from "@/lib/types";
-import type { CalendarEvent, CalendarMeta, EventStatus, IsoDate } from "@/lib/types";
+import type { CalendarEvent, CalendarMeta, EventStatus } from "@/lib/types";
 
 interface HomeAppProps {
   initialEvents: CalendarEvent[];
@@ -20,34 +21,10 @@ interface HomeAppProps {
   initialWeekIndex: number;
 }
 
-// Duplicated from CalendarApp: the [start, end] week at an index, extending
-// past the configured list into synthetic future weeks so nav keeps working.
-function weekForIndex(weeks: [IsoDate, IsoDate][], index: number): [IsoDate, IsoDate] | undefined {
-  if (weeks.length === 0) return undefined;
-  if (index < weeks.length) return weeks[index];
-  const lastEnd = parseIsoDate(weeks[weeks.length - 1][1]);
-  const offset = index - (weeks.length - 1);
-  const start = addDays(lastEnd, 1 + (offset - 1) * 7);
-  return [toIsoDate(start), toIsoDate(addDays(start, 6))];
-}
-
-function indexForDate(weeks: [IsoDate, IsoDate][], iso: IsoDate): number {
-  if (weeks.length === 0) return 0;
-  const t = parseIsoDate(iso).getTime();
-  for (let i = 0; i < weeks.length; i++) {
-    if (t >= parseIsoDate(weeks[i][0]).getTime() && t <= parseIsoDate(weeks[i][1]).getTime())
-      return i;
-  }
-  if (t < parseIsoDate(weeks[0][0]).getTime()) return 0;
-  const lastEnd = parseIsoDate(weeks[weeks.length - 1][1]);
-  const days = daysBetween(lastEnd, parseIsoDate(iso));
-  return days <= 0 ? weeks.length - 1 : weeks.length - 1 + Math.ceil(days / 7);
-}
-
 export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps) {
   const [events, setEvents] = useState(initialEvents);
   const [statusFilter, setStatusFilter] = useState<EventStatus | "all">("all");
-  const thisWeekIndex = weekIndexForDate(meta.weeks, toIsoDate(new Date()));
+  const thisWeekIndex = configuredWeekIndexForDate(meta.weeks, toIsoDate(new Date()));
   const [weekIndex, setWeekIndex] = useState(initialWeekIndex);
 
   const [connError, setConnError] = useState<string | null>(null);
@@ -70,12 +47,7 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
   const selectedEvents = visible.filter((e) => selectedIds.has(e.id));
 
   // Let the user browse a couple of months past the last saved event.
-  const lastSavedIso =
-    saved.length > 0
-      ? saved.reduce((max, e) => (e.start > max ? e.start : max), saved[0].start)
-      : null;
-  const lastSavedIndex = lastSavedIso ? indexForDate(meta.weeks, lastSavedIso) : thisWeekIndex;
-  const maxWeekIndex = Math.max(thisWeekIndex, lastSavedIndex + 8);
+  const maxWeekIndex = browseHorizon(meta.weeks, latestStart(saved), thisWeekIndex);
 
   function toggleSelected(id: number) {
     setSelectedIds((prev) => {

@@ -1,0 +1,5 @@
+# Commits that only reformat code. Skip them in blame with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Format the codebase with Prettier
+a5f6a2e5e7257430e6ae936f9838697ad1585c69

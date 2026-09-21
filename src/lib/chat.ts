@@ -14,8 +14,9 @@ import {
 } from "./tools";
 import { readEvents, readMeta } from "./store";
 import { toIsoDate } from "./dates";
-import { weekIndexForDate } from "./grid";
-import type { CalendarEvent, EventSummary, ProposedAction } from "./types";
+import { summarizeEvent } from "./events";
+import { configuredWeekIndexForDate } from "./weeks";
+import type { CalendarEvent, ProposedAction } from "./types";
 import type { ProgressEmit } from "./progress";
 
 export interface ChatTurnResult {
@@ -47,7 +48,7 @@ export async function runChatTurn(
   const todayIso = toIsoDate(new Date());
   const system = buildSystemPrompt({
     todayIso,
-    currentWeekIndex: weekIndexForDate(meta.weeks, todayIso),
+    currentWeekIndex: configuredWeekIndexForDate(meta.weeks, todayIso),
     weeks: meta.weeks,
     selectedEvents: events.filter((e) => selectedIds.includes(e.id)),
   });
@@ -115,10 +116,6 @@ export async function runChatTurn(
   const reply = finalText || (proposedActions.length > 0 ? "Here's what I'd like to change:" : "");
 
   return { reply, proposedActions, events, history: messages };
-}
-
-function summarizeEvent(e: CalendarEvent): EventSummary {
-  return { id: e.id, name: e.name, venue: e.venue, start: e.start, end: e.end };
 }
 
 function dateLabel(start: string, end: string): string {
