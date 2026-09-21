@@ -1,4 +1,4 @@
-import { CATEGORY_KEYS, GENRE_KEYS } from "./types";
+import { taxonomyPromptSection } from "./taxonomy-prompt";
 import type { CalendarEvent, IsoDate } from "./types";
 
 export interface SystemPromptContext {
@@ -63,10 +63,7 @@ Tools:
   editing. Use it when the user asks you to "find" or "research" events, or when unsure of a detail, rather
   than inventing one.
 
-Categories: ${CATEGORY_KEYS.join(", ")}.
-Music genre tags (MUS category only): ${GENRE_KEYS.join(", ")}.
-Map colloquial music terms to those tags: techno / house / EDM / rave / trance -> electronic;
-reggaeton / salsa / bachata -> latin; rap / trap -> hiphop; anything spanning several -> mixed.
+${taxonomyPromptSection()}
 Events are sorted into three overlapping filter groups — culture, dancing, and queer — automatically from
 their category, so just pick the best-fitting category.
 

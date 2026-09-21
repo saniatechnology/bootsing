@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import { CalendarApp, LoadErrorScreen } from "@/components/CalendarApp";
-import { readEvents, readMeta } from "@/lib/store";
-import { configuredWeekIndexForDate } from "@/lib/weeks";
-import { toIsoDate } from "@/lib/dates";
+import { loadCalendarPage } from "@/lib/page-data";
 
 export const metadata: Metadata = {
   title: "Explore — Bootsing",
 };
 
-// Always read fresh on the server: this is a living, chat-editable dataset.
+// Always read fresh from the database: this is a living, editable dataset.
 export const dynamic = "force-dynamic";
 
 export default async function ExplorePage({
@@ -16,18 +14,13 @@ export default async function ExplorePage({
 }: {
   searchParams: Promise<{ w?: string }>;
 }) {
-  let events: Awaited<ReturnType<typeof readEvents>>;
-  let meta: Awaited<ReturnType<typeof readMeta>>;
-  try {
-    [events, meta] = await Promise.all([readEvents(), readMeta()]);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to load your calendar.";
-    return <LoadErrorScreen message={message} />;
-  }
-  const w = Number((await searchParams).w);
-  const initialWeekIndex =
-    Number.isInteger(w) && w >= 0
-      ? w
-      : configuredWeekIndexForDate(meta.weeks, toIsoDate(new Date()));
-  return <CalendarApp initialEvents={events} meta={meta} initialWeekIndex={initialWeekIndex} />;
+  const data = await loadCalendarPage(searchParams);
+  if (!data.ok) return <LoadErrorScreen message={data.message} />;
+  return (
+    <CalendarApp
+      initialEvents={data.events}
+      meta={data.meta}
+      initialWeekIndex={data.initialWeekIndex}
+    />
+  );
 }

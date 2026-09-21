@@ -1,8 +1,11 @@
 import "server-only";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { requireEnv } from "./env";
 
 let client: SupabaseClient | null = null;
+
+const ENV_HINT = "Copy .env.example to .env.local and fill it in.";
 
 /**
  * supabase-js eagerly constructs a realtime client that needs a `WebSocket`
@@ -20,13 +23,8 @@ function ensureWebSocket(): void {
 /** Service-role client — bypasses RLS, so this module must never be imported into browser code. */
 export function getSupabaseClient(): SupabaseClient {
   if (!client) {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!url || !key) {
-      throw new Error(
-        "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set. Copy .env.example to .env.local and fill them in."
-      );
-    }
+    const url = requireEnv("SUPABASE_URL", ENV_HINT);
+    const key = requireEnv("SUPABASE_SERVICE_ROLE_KEY", ENV_HINT);
     ensureWebSocket();
     client = createClient(url, key, { auth: { persistSession: false } });
   }
@@ -35,9 +33,5 @@ export function getSupabaseClient(): SupabaseClient {
 
 /** The single current user until real auth is added; every query scopes to this id. */
 export function getCurrentUserId(): string {
-  const id = process.env.DEFAULT_USER_ID;
-  if (!id) {
-    throw new Error("DEFAULT_USER_ID is not set. See .env.example.");
-  }
-  return id;
+  return requireEnv("DEFAULT_USER_ID", ENV_HINT);
 }

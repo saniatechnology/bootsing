@@ -11,7 +11,7 @@ import { StatusControls } from "./StatusControls";
 import { useOffline } from "@/hooks/useOffline";
 import { toIsoDate } from "@/lib/dates";
 import { STATUS_META } from "@/lib/status-meta";
-import { browseHorizon, configuredWeekIndexForDate, latestStart, weekForIndex } from "@/lib/weeks";
+import { browseHorizon, latestStart, weekForIndex, weekIndexForDate } from "@/lib/weeks";
 import { EVENT_STATUS_KEYS } from "@/lib/types";
 import type { CalendarEvent, CalendarMeta, EventStatus } from "@/lib/types";
 
@@ -24,7 +24,7 @@ interface HomeAppProps {
 export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps) {
   const [events, setEvents] = useState(initialEvents);
   const [statusFilter, setStatusFilter] = useState<EventStatus | "all">("all");
-  const thisWeekIndex = configuredWeekIndexForDate(meta.weeks, toIsoDate(new Date()));
+  const thisWeekIndex = weekIndexForDate(meta.weeks, toIsoDate(new Date()));
   const [weekIndex, setWeekIndex] = useState(initialWeekIndex);
 
   const [connError, setConnError] = useState<string | null>(null);

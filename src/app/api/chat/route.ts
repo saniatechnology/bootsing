@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 import { runChatTurn } from "@/lib/chat";
+import { apiRoute, parseJsonBody } from "@/lib/http";
 import { ndjsonResponse } from "@/lib/progress";
 
 const chatRequestSchema = z.object({
@@ -14,34 +14,10 @@ const chatRequestSchema = z.object({
   selectedIds: z.array(z.number().int()).default([]),
 });
 
-export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Request body must be JSON" }, { status: 400 });
-  }
-
-  const parsed = chatRequestSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
-      { status: 400 }
-    );
-  }
-
-  try {
-    return ndjsonResponse((emit) =>
-      runChatTurn(
-        parsed.data.message,
-        parsed.data.history as Parameters<typeof runChatTurn>[1],
-        parsed.data.selectedIds,
-        emit
-      )
-    );
-  } catch (err) {
-    console.error("[/api/chat]", err);
-    const message = err instanceof Error ? err.message : "Something went wrong";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
-}
+/** Streams progress as NDJSON; the final `done` event carries a `ChatApiResponse`. */
+export const POST = apiRoute("POST /api/chat", async (request) => {
+  const { message, history, selectedIds } = await parseJsonBody(request, chatRequestSchema);
+  return ndjsonResponse((emit) =>
+    runChatTurn(message, history as Parameters<typeof runChatTurn>[1], selectedIds, emit)
+  );
+});

@@ -22,6 +22,33 @@ import type { EventPatch, NewEventInput, Preferences, PreferenceSection } from "
  * desc->description); the mapping to and from the domain model lives here.
  */
 
+// ---- Events ----
+
+/**
+ * Domain field -> `events` column. Declared once and used for the select list,
+ * inserts and patches, so adding a field to `CalendarEvent` without mapping it
+ * here is a compile error rather than a silently ignored write.
+ */
+const EVENT_COLUMN_MAP = {
+  name: "name",
+  venue: "venue",
+  cat: "cat",
+  start: "starts",
+  end: "ends",
+  startTime: "start_time",
+  endTime: "end_time",
+  cost: "cost",
+  desc: "description",
+  link: "link",
+  approx: "approx",
+  genre: "genre",
+  status: "status",
+} as const satisfies Record<keyof Omit<CalendarEvent, "id">, string>;
+
+type EventField = keyof typeof EVENT_COLUMN_MAP;
+const EVENT_FIELDS = Object.keys(EVENT_COLUMN_MAP) as EventField[];
+const EVENT_COLUMNS = ["id", ...Object.values(EVENT_COLUMN_MAP)].join(",");
+
 interface EventRow {
   id: number;
   name: string;
@@ -38,9 +65,6 @@ interface EventRow {
   genre: string | null;
   status: string | null;
 }
-
-const EVENT_COLUMNS =
-  "id,name,venue,cat,starts,ends,start_time,end_time,cost,description,link,approx,genre,status";
 
 function rowToEvent(row: EventRow): CalendarEvent {
   return {
@@ -61,6 +85,22 @@ function rowToEvent(row: EventRow): CalendarEvent {
   };
 }
 
+/** Every column of a new event, ready to insert. */
+function eventToRow(event: Omit<CalendarEvent, "id">): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  for (const field of EVENT_FIELDS) row[EVENT_COLUMN_MAP[field]] = event[field];
+  return row;
+}
+
+/** Only the columns a patch actually sets; `{}` when it sets nothing. */
+function patchToRow(patch: EventPatch): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  for (const field of EVENT_FIELDS) {
+    if (patch[field] !== undefined) row[EVENT_COLUMN_MAP[field]] = patch[field];
+  }
+  return row;
+}
+
 export async function readEvents(): Promise<CalendarEvent[]> {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
@@ -68,55 +108,22 @@ export async function readEvents(): Promise<CalendarEvent[]> {
     .select(EVENT_COLUMNS)
     .eq("user_id", getCurrentUserId())
     .order("starts", { ascending: true })
-    .order("id", { ascending: true });
+    .order("id", { ascending: true })
+    .overrideTypes<EventRow[], { merge: false }>();
   if (error) throw new Error(`Failed to read events: ${error.message}`);
-  return (data as EventRow[]).map(rowToEvent);
+  return data.map(rowToEvent);
 }
 
 export async function insertEvent(input: NewEventInput): Promise<CalendarEvent> {
   const supabase = getSupabaseClient();
-  const e = materializeNewEvent(input);
   const { data, error } = await supabase
     .from("events")
-    .insert({
-      user_id: getCurrentUserId(),
-      name: e.name,
-      venue: e.venue,
-      cat: e.cat,
-      starts: e.start,
-      ends: e.end,
-      start_time: e.startTime,
-      end_time: e.endTime,
-      cost: e.cost,
-      description: e.desc,
-      link: e.link,
-      approx: e.approx,
-      genre: e.genre,
-      status: e.status,
-    })
+    .insert({ user_id: getCurrentUserId(), ...eventToRow(materializeNewEvent(input)) })
     .select(EVENT_COLUMNS)
-    .single();
+    .single()
+    .overrideTypes<EventRow, { merge: false }>();
   if (error) throw new Error(`Failed to add event: ${error.message}`);
-  return rowToEvent(data as EventRow);
-}
-
-/** Map a domain patch to DB columns; returns {} when nothing recognised is set. */
-function patchToRow(patch: EventPatch): Record<string, unknown> {
-  const row: Record<string, unknown> = {};
-  if (patch.name !== undefined) row.name = patch.name;
-  if (patch.venue !== undefined) row.venue = patch.venue;
-  if (patch.cat !== undefined) row.cat = patch.cat;
-  if (patch.start !== undefined) row.starts = patch.start;
-  if (patch.end !== undefined) row.ends = patch.end;
-  if (patch.startTime !== undefined) row.start_time = patch.startTime;
-  if (patch.endTime !== undefined) row.end_time = patch.endTime;
-  if (patch.cost !== undefined) row.cost = patch.cost;
-  if (patch.desc !== undefined) row.description = patch.desc;
-  if (patch.link !== undefined) row.link = patch.link;
-  if (patch.approx !== undefined) row.approx = patch.approx;
-  if (patch.genre !== undefined) row.genre = patch.genre;
-  if (patch.status !== undefined) row.status = patch.status;
-  return row;
+  return rowToEvent(data);
 }
 
 /** Update an event in place. Returns null when no such event exists for this user. */
@@ -125,16 +132,17 @@ export async function updateEvent(id: number, patch: EventPatch): Promise<Calend
   const userId = getCurrentUserId();
   const columns = patchToRow(patch);
 
-  // Nothing recognised to change: just return the current row (or null if gone).
+  // Nothing to change: just return the current row (or null if it's gone).
   if (Object.keys(columns).length === 0) {
     const { data, error } = await supabase
       .from("events")
       .select(EVENT_COLUMNS)
       .eq("user_id", userId)
       .eq("id", id)
-      .maybeSingle();
+      .maybeSingle()
+      .overrideTypes<EventRow, { merge: false }>();
     if (error) throw new Error(`Failed to load event: ${error.message}`);
-    return data ? rowToEvent(data as EventRow) : null;
+    return data ? rowToEvent(data) : null;
   }
 
   const { data, error } = await supabase
@@ -143,9 +151,10 @@ export async function updateEvent(id: number, patch: EventPatch): Promise<Calend
     .eq("user_id", userId)
     .eq("id", id)
     .select(EVENT_COLUMNS)
-    .maybeSingle();
+    .maybeSingle()
+    .overrideTypes<EventRow, { merge: false }>();
   if (error) throw new Error(`Failed to edit event: ${error.message}`);
-  return data ? rowToEvent(data as EventRow) : null;
+  return data ? rowToEvent(data) : null;
 }
 
 /** Delete an event. Returns the removed event, or null when it didn't exist. */
@@ -157,9 +166,10 @@ export async function deleteEvent(id: number): Promise<CalendarEvent | null> {
     .eq("user_id", getCurrentUserId())
     .eq("id", id)
     .select(EVENT_COLUMNS)
-    .maybeSingle();
+    .maybeSingle()
+    .overrideTypes<EventRow, { merge: false }>();
   if (error) throw new Error(`Failed to delete event: ${error.message}`);
-  return data ? rowToEvent(data as EventRow) : null;
+  return data ? rowToEvent(data) : null;
 }
 
 /** Delete every event whose start date falls within [weekStart, weekEnd]. Returns how many were removed. */

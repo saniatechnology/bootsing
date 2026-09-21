@@ -2,21 +2,23 @@ import "server-only";
 
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
-import { CHAT_MODEL, streamTurn, cachedSystem, cachedTools } from "./anthropic-client";
+import {
+  MODEL,
+  cachedSystem,
+  cachedTools,
+  streamTurn,
+  textOf,
+  toolUsesOf,
+  webSearchTool,
+} from "./anthropic-client";
+import type { ResearchApiResponse } from "./api-types";
+import { toIsoDate } from "./dates";
+import type { ProgressEmit } from "./progress";
 import { buildResearchPrompt } from "./research-prompt";
-import type { CalendarEvent, IsoDate } from "./types";
+import { deleteEventsStartingInWeek, insertEvent, readEvents, readPreferences } from "./store";
+import type { IsoDate } from "./types";
 import { newEventInputSchema, submitWeekEventsInputSchema, toolInputSchema } from "./validation";
 import type { NewEventInput } from "./validation";
-import type { ProgressEmit } from "./progress";
-import {
-  readEvents,
-  readMeta,
-  readPreferences,
-  insertEvent,
-  deleteEventsStartingInWeek,
-} from "./store";
-import { toIsoDate } from "./dates";
-import { isResearchableWeek as isResearchableWeekIn } from "./weeks";
 
 const MAX_RESEARCH_LOOPS = 8;
 const SUBMIT_TOOL_NAME = "submit_week_events";
@@ -28,18 +30,14 @@ const SUBMIT_WEEK_EVENTS_TOOL: Anthropic.Messages.Tool = {
   input_schema: toolInputSchema(submitWeekEventsInputSchema),
 };
 
-/** Web search runs server-side at the Anthropic API; a higher cap than chat for thorough research. */
-const WEB_SEARCH_RESEARCH_TOOL: Anthropic.Messages.WebSearchTool20260318 = {
-  type: "web_search_20260318",
-  name: "web_search",
-  max_uses: 5,
-  allowed_callers: ["direct"], // sequential searches, not batched sandbox bursts
-};
-
 const RESEARCH_TOOLS: Anthropic.Messages.ToolUnion[] = [
-  WEB_SEARCH_RESEARCH_TOOL,
+  // A higher search cap than chat for thorough research; direct calls only,
+  // so searches run sequentially rather than as batched sandbox bursts.
+  webSearchTool({ maxUses: 5, allowedCallers: ["direct"] }),
   SUBMIT_WEEK_EVENTS_TOOL,
 ];
+
+const STAGE_LABELS = { [SUBMIT_TOOL_NAME]: "Saving events…" };
 
 export interface WeekResearchResult {
   events: NewEventInput[];
@@ -50,10 +48,7 @@ export interface WeekResearchResult {
 function findSubmit(
   content: Anthropic.Messages.ContentBlock[]
 ): Anthropic.Messages.ToolUseBlock | undefined {
-  return content.find(
-    (b): b is Anthropic.Messages.ToolUseBlock =>
-      b.type === "tool_use" && b.name === SUBMIT_TOOL_NAME
-  );
+  return toolUsesOf(content).find((b) => b.name === SUBMIT_TOOL_NAME);
 }
 
 /**
@@ -119,7 +114,7 @@ export async function runWeekResearch(
   for (let turn = 0; turn < MAX_RESEARCH_LOOPS; turn++) {
     const response = await streamTurn(
       {
-        model: CHAT_MODEL,
+        model: MODEL,
         max_tokens: 4096,
         thinking: { type: "adaptive", display: "summarized" },
         output_config: { effort: "medium" },
@@ -127,13 +122,11 @@ export async function runWeekResearch(
         tools: cachedTools(RESEARCH_TOOLS),
         messages,
       },
-      emit
+      { emit, stageLabels: STAGE_LABELS }
     );
 
-    const textBlocks = response.content.filter(
-      (b): b is Anthropic.Messages.TextBlock => b.type === "text"
-    );
-    if (textBlocks.length > 0) finalText = textBlocks.map((b) => b.text).join("\n");
+    const text = textOf(response.content);
+    if (text) finalText = text;
 
     const submit = findSubmit(response.content);
     if (submit) {
@@ -152,25 +145,18 @@ export async function runWeekResearch(
   });
   const forced = await streamTurn(
     {
-      model: CHAT_MODEL,
+      model: MODEL,
       max_tokens: 4096,
       system: cachedSystem(system),
       tools: cachedTools(RESEARCH_TOOLS),
       tool_choice: { type: "tool", name: SUBMIT_TOOL_NAME },
       messages,
     },
-    emit
+    { emit, stageLabels: STAGE_LABELS }
   );
   const submit = findSubmit(forced.content);
   const events = submit ? parseSubmittedEvents(submit.input, weekStart, weekEnd) : [];
   return { events, reply: finalText };
-}
-
-export interface WeekReplaceResult {
-  events: CalendarEvent[];
-  added: number;
-  removed: number;
-  reply: string;
 }
 
 /**
@@ -183,7 +169,7 @@ export async function researchAndReplaceWeek(
   weekStart: IsoDate,
   weekEnd: IsoDate,
   emit?: ProgressEmit
-): Promise<WeekReplaceResult> {
+): Promise<ResearchApiResponse> {
   const { events: found, reply } = await runWeekResearch(weekStart, weekEnd, emit);
 
   emit?.({
@@ -197,10 +183,4 @@ export async function researchAndReplaceWeek(
 
   const events = await readEvents();
   return { events, added: found.length, removed, reply };
-}
-
-/** Guard for the research endpoint: only weeks the calendar can actually display may be researched. */
-export async function isResearchableWeek(weekStart: IsoDate, weekEnd: IsoDate): Promise<boolean> {
-  const meta = await readMeta();
-  return isResearchableWeekIn(meta.weeks, [weekStart, weekEnd]);
 }

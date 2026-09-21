@@ -1,4 +1,4 @@
-import { CATEGORY_KEYS, GENRE_KEYS } from "./types";
+import { taxonomyPromptSection } from "./taxonomy-prompt";
 import type { IsoDate } from "./types";
 import type { Preferences } from "./validation";
 
@@ -56,10 +56,7 @@ How to work:
   date isn't confirmed.
 - Include "startTime" (and "endTime" if known) as 24h HH:MM when the source gives a time; omit them otherwise.
 
-Categories: ${CATEGORY_KEYS.join(", ")}.
-Music genre tags (MUS category only): ${GENRE_KEYS.join(", ")}.
-Map colloquial music terms to those tags: techno / house / EDM / rave / trance -> electronic;
-reggaeton / salsa / bachata -> latin; rap / trap -> hiphop; anything spanning several -> mixed.
+${taxonomyPromptSection()}
 Pick the single best-fitting category for each event; the calendar sorts events into its culture / dancing /
 queer filters automatically from the category.
 

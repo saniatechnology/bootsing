@@ -11,7 +11,7 @@ import { WeekSection } from "./WeekSection";
 import { StatusIndicator } from "./StatusIndicator";
 import { useOffline } from "@/hooks/useOffline";
 import { toIsoDate } from "@/lib/dates";
-import { browseHorizon, configuredWeekIndexForDate, latestStart, weekForIndex } from "@/lib/weeks";
+import { browseHorizon, latestStart, weekForIndex, weekIndexForDate } from "@/lib/weeks";
 import { readProgressStream, reduceProgress } from "@/lib/progress";
 import type { ProgressLine } from "@/lib/progress";
 import type { CalendarEvent, CalendarMeta, GroupKey } from "@/lib/types";
@@ -29,7 +29,7 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
   const [events, setEvents] = useState(initialEvents);
   const [activeGroup, setActiveGroup] = useState<GroupKey | "all">("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const thisWeekIndex = configuredWeekIndexForDate(meta.weeks, toIsoDate(new Date()));
+  const thisWeekIndex = weekIndexForDate(meta.weeks, toIsoDate(new Date()));
   const [weekIndex, setWeekIndex] = useState(initialWeekIndex);
 
   const week = weekForIndex(meta.weeks, weekIndex);

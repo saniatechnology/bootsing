@@ -52,15 +52,6 @@ export function weekIndexForDate(weeks: WeekRange[], iso: IsoDate): number {
 }
 
 /**
- * Like `weekIndexForDate`, but never leaves the configured list: dates after
- * the last week clamp to the last index. Use this where an index must address
- * a week that actually has configuration behind it.
- */
-export function configuredWeekIndexForDate(weeks: WeekRange[], iso: IsoDate): number {
-  return Math.min(Math.max(weeks.length - 1, 0), weekIndexForDate(weeks, iso));
-}
-
-/**
  * A week may be researched when it is exactly a week the navigation can show:
  * either a configured week or an aligned 7-day window continuing the grid.
  * Anything else (misaligned dates, partial windows, a made-up range inside a

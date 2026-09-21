@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   browseHorizon,
-  configuredWeekIndexForDate,
   isResearchableWeek,
   latestStart,
   weekForIndex,
@@ -54,21 +53,6 @@ describe("weekIndexForDate", () => {
 
   it("returns 0 for an empty list", () => {
     expect(weekIndexForDate([], "2026-09-01")).toBe(0);
-  });
-});
-
-describe("configuredWeekIndexForDate", () => {
-  it("matches weekIndexForDate within the configured range", () => {
-    expect(configuredWeekIndexForDate(WEEKS, "2026-09-07")).toBe(2);
-    expect(configuredWeekIndexForDate(WEEKS, "2026-01-01")).toBe(0);
-  });
-
-  it("clamps dates after the last week to the last index", () => {
-    expect(configuredWeekIndexForDate(WEEKS, "2026-12-25")).toBe(LAST);
-  });
-
-  it("returns 0 for an empty list", () => {
-    expect(configuredWeekIndexForDate([], "2026-09-01")).toBe(0);
   });
 });
 

@@ -1,4 +1,10 @@
-/** Streaming progress protocol shared by the research + chat AI flows. */
+/**
+ * The streaming progress protocol shared by the chat and research flows: the
+ * server emits newline-delimited JSON events while a long Claude call runs,
+ * and the browser folds them into a live list of progress lines. Both ends
+ * live here so the event shape can't drift. No framework imports.
+ */
+
 export type ProgressEvent =
   | { type: "stage"; label: string }
   | { type: "search"; query: string }
@@ -31,12 +37,15 @@ export function reduceProgress(lines: ProgressLine[], event: ProgressEvent): Pro
  * Wraps a long-running handler in an NDJSON streaming Response. The handler
  * receives `emit` to push progress events; its return value is sent as a final
  * `done` event, and any throw becomes an `error` event so the client can react.
+ * Once the client disconnects, further emits are dropped instead of throwing.
  */
 export function ndjsonResponse(run: (emit: ProgressEmit) => Promise<unknown>): Response {
   const encoder = new TextEncoder();
+  let closed = false;
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
       const emit: ProgressEmit = (event) => {
+        if (closed) return;
         controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
       };
       try {
@@ -48,8 +57,14 @@ export function ndjsonResponse(run: (emit: ProgressEmit) => Promise<unknown>): R
           message: err instanceof Error ? err.message : "Something went wrong",
         });
       } finally {
-        controller.close();
+        if (!closed) {
+          closed = true;
+          controller.close();
+        }
       }
+    },
+    cancel() {
+      closed = true;
     },
   });
   return new Response(stream, {

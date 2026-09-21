@@ -2,26 +2,31 @@ import "server-only";
 
 import type Anthropic from "@anthropic-ai/sdk";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
-import { CHAT_MODEL, streamTurn, cachedSystem, cachedTools } from "./anthropic-client";
-import { buildSystemPrompt } from "./system-prompt";
-import { ALL_TOOLS, FIND_EVENTS_TOOL_NAME, MUTATING_TOOL_NAMES, executeTool } from "./tools";
+import {
+  MODEL,
+  cachedSystem,
+  cachedTools,
+  streamTurn,
+  textBlocksOf,
+  textOf,
+  toolUsesOf,
+} from "./anthropic-client";
+import type { ChatApiResponse } from "./api-types";
+import { toIsoDate } from "./dates";
+import type { ProgressEmit } from "./progress";
 import { buildProposedAction } from "./proposals";
 import { readEvents, readMeta } from "./store";
-import { toIsoDate } from "./dates";
-import { configuredWeekIndexForDate } from "./weeks";
-import type { CalendarEvent } from "./types";
+import { buildSystemPrompt } from "./system-prompt";
+import { ALL_TOOLS, FIND_EVENTS_TOOL_NAME, MUTATING_TOOL_NAMES, executeTool } from "./tools";
 import type { ProposedAction } from "./validation";
-import type { ProgressEmit } from "./progress";
+import { weekIndexForDate } from "./weeks";
 
-export interface ChatTurnResult {
-  reply: string;
-  /** Changes the assistant proposes; empty when it only answered or found nothing to do. */
-  proposedActions: ProposedAction[];
-  events: CalendarEvent[];
-  history: MessageParam[];
-}
+/** What the route streams back as `done`; the history is the SDK's typed message array here. */
+export type ChatTurnResult = Omit<ChatApiResponse, "history"> & { history: MessageParam[] };
 
 const MAX_AGENT_LOOPS = 6;
+
+const STAGE_LABELS = { [FIND_EVENTS_TOOL_NAME]: "Looking through the calendar…" };
 
 /**
  * Runs one user message through the tool-use agent loop. Read-only tools
@@ -42,7 +47,7 @@ export async function runChatTurn(
   const todayIso = toIsoDate(new Date());
   const system = buildSystemPrompt({
     todayIso,
-    currentWeekIndex: configuredWeekIndexForDate(meta.weeks, todayIso),
+    currentWeekIndex: weekIndexForDate(meta.weeks, todayIso),
     weeks: meta.weeks,
     selectedEvents: events.filter((e) => selectedIds.includes(e.id)),
   });
@@ -56,7 +61,7 @@ export async function runChatTurn(
   for (let turn = 0; turn < MAX_AGENT_LOOPS; turn++) {
     const response = await streamTurn(
       {
-        model: CHAT_MODEL,
+        model: MODEL,
         max_tokens: 2048,
         thinking: { type: "adaptive", display: "summarized" },
         output_config: { effort: "medium" },
@@ -64,17 +69,13 @@ export async function runChatTurn(
         tools: cachedTools(ALL_TOOLS),
         messages,
       },
-      emit
+      { emit, stageLabels: STAGE_LABELS }
     );
 
-    const textBlocks = response.content.filter(
-      (b): b is Anthropic.Messages.TextBlock => b.type === "text"
-    );
-    if (textBlocks.length > 0) finalText = textBlocks.map((b) => b.text).join("\n");
+    const text = textOf(response.content);
+    if (text) finalText = text;
 
-    const toolUses = response.content.filter(
-      (b): b is Anthropic.Messages.ToolUseBlock => b.type === "tool_use"
-    );
+    const toolUses = toolUsesOf(response.content);
     const mutating = toolUses.filter((tu) => MUTATING_TOOL_NAMES.has(tu.name));
 
     // A mutating call ends the planning turn: collect the proposals but never
@@ -82,6 +83,7 @@ export async function runChatTurn(
     // history never contains a tool_use without a matching tool_result (which
     // the Anthropic API would reject on the next turn).
     if (mutating.length > 0) {
+      const textBlocks = textBlocksOf(response.content);
       if (textBlocks.length > 0) messages.push({ role: "assistant", content: textBlocks });
       for (const tu of mutating) {
         const action = buildProposedAction(tu, events);
@@ -107,5 +109,5 @@ export async function runChatTurn(
 
   const reply = finalText || (proposedActions.length > 0 ? "Here's what I'd like to change:" : "");
 
-  return { reply, proposedActions, events, history: messages };
+  return { reply, proposedActions, history: messages };
 }

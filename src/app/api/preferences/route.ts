@@ -1,40 +1,13 @@
-import { NextResponse } from "next/server";
+import type { PreferencesResponse } from "@/lib/api-types";
+import { apiRoute, jsonResponse, parseJsonBody } from "@/lib/http";
 import { readPreferences, writePreferences } from "@/lib/store";
 import { preferencesSchema } from "@/lib/validation";
 
-export async function GET() {
-  try {
-    const preferences = await readPreferences();
-    return NextResponse.json({ preferences });
-  } catch (err) {
-    console.error("[GET /api/preferences]", err);
-    const message = err instanceof Error ? err.message : "Something went wrong";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
-}
+export const GET = apiRoute("GET /api/preferences", async () => {
+  return jsonResponse<PreferencesResponse>({ preferences: await readPreferences() });
+});
 
-export async function PUT(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Request body must be JSON" }, { status: 400 });
-  }
-
-  const parsed = preferencesSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Invalid request" },
-      { status: 400 }
-    );
-  }
-
-  try {
-    const preferences = await writePreferences(parsed.data);
-    return NextResponse.json({ preferences });
-  } catch (err) {
-    console.error("[PUT /api/preferences]", err);
-    const message = err instanceof Error ? err.message : "Something went wrong";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
-}
+export const PUT = apiRoute("PUT /api/preferences", async (request) => {
+  const prefs = await parseJsonBody(request, preferencesSchema);
+  return jsonResponse<PreferencesResponse>({ preferences: await writePreferences(prefs) });
+});

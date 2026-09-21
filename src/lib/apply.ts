@@ -1,21 +1,8 @@
 import "server-only";
 
-import { readEvents, insertEvent, updateEvent, deleteEvent } from "./store";
-import type { CalendarEvent } from "./types";
+import type { AppliedAction, ApplyApiResponse } from "./api-types";
+import { deleteEvent, insertEvent, readEvents, updateEvent } from "./store";
 import type { ProposedAction } from "./validation";
-
-export interface AppliedResult {
-  actionId: string;
-  ok: boolean;
-  summary: string;
-  error?: string;
-}
-
-export interface ApplyResult {
-  events: CalendarEvent[];
-  applied: AppliedResult[];
-  reply: string;
-}
 
 /**
  * Applies the actions the user approved from a proposal. This is deterministic
@@ -25,8 +12,8 @@ export interface ApplyResult {
  * independently (e.g. its target no longer exists); those failures are reported
  * per-action rather than aborting the whole batch.
  */
-export async function applyActions(actions: ProposedAction[]): Promise<ApplyResult> {
-  const applied: AppliedResult[] = [];
+export async function applyActions(actions: ProposedAction[]): Promise<ApplyApiResponse> {
+  const applied: AppliedAction[] = [];
 
   for (const action of actions) {
     let ok = false;
@@ -61,7 +48,7 @@ export async function applyActions(actions: ProposedAction[]): Promise<ApplyResu
   return { events, applied, reply: buildReply(applied) };
 }
 
-function buildReply(applied: AppliedResult[]): string {
+function buildReply(applied: AppliedAction[]): string {
   if (applied.length === 0) return "No changes were applied.";
   const ok = applied.filter((a) => a.ok);
   const failed = applied.filter((a) => !a.ok);

@@ -1,25 +1,32 @@
 import "server-only";
 
 import Anthropic from "@anthropic-ai/sdk";
+import { requireEnv } from "./env";
 import type { ProgressEmit } from "./progress";
+
+/**
+ * Everything that talks to the Anthropic SDK directly: the lazily-built
+ * client, prompt-caching helpers, the streamed turn runner that turns SDK
+ * events into UI progress, and small content-block accessors. Nothing here
+ * knows about calendars; the chat and research loops layer that on top.
+ */
 
 let client: Anthropic | null = null;
 
 /** Lazily constructed so a missing key surfaces as a clear error on first use, not at import time. */
 export function getAnthropicClient(): Anthropic {
   if (!client) {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error(
-        "ANTHROPIC_API_KEY is not set. Copy .env.example to .env.local and add your key " +
-          "from https://console.anthropic.com/settings/keys"
-      );
-    }
-    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const apiKey = requireEnv(
+      "ANTHROPIC_API_KEY",
+      "Copy .env.example to .env.local and add your key from https://console.anthropic.com/settings/keys"
+    );
+    client = new Anthropic({ apiKey });
   }
   return client;
 }
 
-export const CHAT_MODEL = "claude-sonnet-5";
+/** The model used for every Claude call. Override with `ANTHROPIC_MODEL` to try another. */
+export const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5";
 
 /**
  * Put a cache breakpoint on the last tool so the whole tool block is served
@@ -39,8 +46,42 @@ export function cachedSystem(text: string): Anthropic.Messages.TextBlockParam[] 
   return [{ type: "text", text, cache_control: { type: "ephemeral" } }];
 }
 
+/** The server-side web search tool, executed and resolved by the Anthropic API itself. */
+export function webSearchTool(options: {
+  /** Cap on searches per request; each one is billed. */
+  maxUses: number;
+  /** Restrict how the model may invoke it, e.g. `["direct"]` for sequential searches only. */
+  allowedCallers?: Anthropic.Messages.WebSearchTool20260318["allowed_callers"];
+}): Anthropic.Messages.WebSearchTool20260318 {
+  return {
+    type: "web_search_20260318",
+    name: "web_search",
+    max_uses: options.maxUses,
+    ...(options.allowedCallers ? { allowed_callers: options.allowedCallers } : {}),
+  };
+}
+
+export function textBlocksOf(
+  content: readonly Anthropic.Messages.ContentBlock[]
+): Anthropic.Messages.TextBlock[] {
+  return content.filter((b): b is Anthropic.Messages.TextBlock => b.type === "text");
+}
+
+/** All of a response's text, joined; empty when it contained none. */
+export function textOf(content: readonly Anthropic.Messages.ContentBlock[]): string {
+  return textBlocksOf(content)
+    .map((b) => b.text)
+    .join("\n");
+}
+
+export function toolUsesOf(
+  content: readonly Anthropic.Messages.ContentBlock[]
+): Anthropic.Messages.ToolUseBlock[] {
+  return content.filter((b): b is Anthropic.Messages.ToolUseBlock => b.type === "tool_use");
+}
+
 /** Pull the query strings out of web_search({"query": "..."}) calls in executed code. */
-function extractSearchQueries(code: string): string[] {
+export function extractSearchQueries(code: string): string[] {
   const queries: string[] = [];
   const re = /"query"\s*:\s*"((?:[^"\\]|\\.)*)"/g;
   let m: RegExpExecArray | null;
@@ -54,17 +95,27 @@ function extractSearchQueries(code: string): string[] {
   return queries;
 }
 
+export interface StreamTurnOptions {
+  emit?: ProgressEmit;
+  /**
+   * Progress labels to emit when the model starts calling one of the caller's
+   * own tools, keyed by tool name — e.g. `{ find_events: "Looking through the calendar…" }`.
+   */
+  stageLabels?: Readonly<Record<string, string>>;
+}
+
 /**
  * Runs one streamed model turn, forwarding progress to `emit` as it arrives:
- * assistant text deltas, each server-side search query, and the sources each
- * search returned. claude-sonnet-5 drives web_search from a code_execution
- * sandbox, so queries are extracted from the executed code rather than the
- * (empty) web_search blocks. Returns the assembled final message so the
- * caller's agent loop can inspect content and stop_reason as before.
+ * assistant text deltas, each server-side search query, the sources each
+ * search returned, and a stage label when a caller tool starts. The model
+ * drives web_search from a code_execution sandbox, so queries are extracted
+ * from the executed code rather than the (empty) web_search blocks. Returns
+ * the assembled final message so the caller's agent loop can inspect content
+ * and stop_reason.
  */
 export async function streamTurn(
   params: Parameters<Anthropic["messages"]["stream"]>[0],
-  emit?: ProgressEmit
+  { emit, stageLabels = {} }: StreamTurnOptions = {}
 ): Promise<Anthropic.Messages.Message> {
   const stream = getAnthropicClient().messages.stream(params);
   let toolName: string | null = null;
@@ -94,10 +145,8 @@ export async function streamTurn(
           seenUrls.add(r.url);
           emit?.({ type: "result", title: r.title, url: r.url });
         }
-      } else if (block.type === "tool_use" && block.name === "find_events") {
-        emit?.({ type: "stage", label: "Looking through the calendar\u2026" });
-      } else if (block.type === "tool_use" && block.name === "submit_week_events") {
-        emit?.({ type: "stage", label: "Saving events\u2026" });
+      } else if (block.type === "tool_use" && stageLabels[block.name]) {
+        emit?.({ type: "stage", label: stageLabels[block.name] });
       }
     } else if (ev.type === "content_block_delta") {
       if (ev.delta.type === "text_delta") emit?.({ type: "text", delta: ev.delta.text });
@@ -114,10 +163,7 @@ export async function streamTurn(
         if (name === "web_search" && typeof input.query === "string") {
           emitSearch(input.query);
         } else if (name === "code_execution" && typeof input.code === "string") {
-          const queries = extractSearchQueries(input.code);
-          if (queries.length > 0) {
-            for (const q of queries) emitSearch(q);
-          }
+          for (const q of extractSearchQueries(input.code)) emitSearch(q);
         }
       } catch {
         /* partial/invalid tool input — nothing to surface */
