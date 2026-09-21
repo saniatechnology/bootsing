@@ -1,7 +1,8 @@
 import "server-only";
 
 import { readEvents, insertEvent, updateEvent, deleteEvent } from "./store";
-import type { CalendarEvent, ProposedAction } from "./types";
+import type { CalendarEvent } from "./types";
+import type { ProposedAction } from "./validation";
 
 export interface AppliedResult {
   actionId: string;

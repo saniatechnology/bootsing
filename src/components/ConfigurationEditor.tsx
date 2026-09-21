@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Preferences, PreferenceSection } from "@/lib/preferences";
+import type { Preferences, PreferenceSection } from "@/lib/validation";
 
 interface ConfigurationEditorProps {
   initial: Preferences;

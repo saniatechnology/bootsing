@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readEvents, readMeta, insertEvent } from "@/lib/store";
 import { newEventInputSchema } from "@/lib/validation";
-import type { NewEventInput } from "@/lib/types";
 
 export async function GET() {
   const [events, meta] = await Promise.all([readEvents(), readMeta()]);
@@ -25,7 +24,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const event = await insertEvent(parsed.data as NewEventInput);
+    const event = await insertEvent(parsed.data);
     const events = await readEvents();
     return NextResponse.json({ event, events }, { status: 201 });
   } catch (err) {

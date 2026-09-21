@@ -4,9 +4,9 @@ import type Anthropic from "@anthropic-ai/sdk";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 import { CHAT_MODEL, streamTurn, cachedSystem, cachedTools } from "./anthropic-client";
 import { buildResearchPrompt } from "./research-prompt";
-import { CATEGORY_KEYS, GENRE_KEYS } from "./types";
-import type { CalendarEvent, IsoDate, NewEventInput } from "./types";
-import { newEventInputSchema } from "./validation";
+import type { CalendarEvent, IsoDate } from "./types";
+import { newEventInputSchema, submitWeekEventsInputSchema, toolInputSchema } from "./validation";
+import type { NewEventInput } from "./validation";
 import type { ProgressEmit } from "./progress";
 import {
   readEvents,
@@ -21,45 +21,11 @@ import { isResearchableWeek as isResearchableWeekIn } from "./weeks";
 const MAX_RESEARCH_LOOPS = 8;
 const SUBMIT_TOOL_NAME = "submit_week_events";
 
-/** The event fields the model fills in for each researched event. */
-const researchedEventProperties = {
-  name: { type: "string", description: "Event title" },
-  venue: { type: "string", description: "Venue or location in Barcelona" },
-  cat: { type: "string", enum: CATEGORY_KEYS, description: "Category key" },
-  start: { type: "string", description: "Start date, ISO yyyy-mm-dd, within the target week" },
-  end: { type: "string", description: "End date, ISO yyyy-mm-dd, within the target week" },
-  startTime: { type: "string", description: "Start time when known, 24h HH:MM; omit if unknown" },
-  endTime: { type: "string", description: "End time when known, 24h HH:MM; omit if unknown" },
-  cost: { type: "string", description: 'e.g. "Free", "€15", "Unknown"' },
-  desc: { type: "string", description: "One or two factual sentences" },
-  link: { type: "string", description: "Source URL for the event" },
-  approx: { type: "boolean", description: "True if the date is approximate/unconfirmed" },
-  genre: {
-    type: "string",
-    enum: GENRE_KEYS,
-    description: "Only for the MUS category: music genre tag used by the dance filter",
-  },
-} as const;
-
 const SUBMIT_WEEK_EVENTS_TOOL: Anthropic.Messages.Tool = {
   name: SUBMIT_TOOL_NAME,
   description:
-    "Record the real Barcelona events you found for the target week. Call this once with the full list.",
-  input_schema: {
-    type: "object",
-    properties: {
-      events: {
-        type: "array",
-        description: "All events found for the week; may be empty if none were sourced.",
-        items: {
-          type: "object",
-          properties: researchedEventProperties,
-          required: ["name", "venue", "cat", "start", "end", "cost", "desc", "link"],
-        },
-      },
-    },
-    required: ["events"],
-  },
+    "Record the real events you found for the target week. Call this once with the full list.",
+  input_schema: toolInputSchema(submitWeekEventsInputSchema),
 };
 
 /** Web search runs server-side at the Anthropic API; a higher cap than chat for thorough research. */
@@ -90,31 +56,40 @@ function findSubmit(
   );
 }
 
-/** Validate and clamp the model's submitted events to the target week. */
-function parseSubmittedEvents(
-  input: Record<string, unknown>,
+/**
+ * Validate the model's `submit_week_events` payload and keep only events that
+ * fall inside the researched week. Each candidate is checked on its own so one
+ * malformed entry doesn't discard the whole batch; an end date outside the
+ * week (or before the start) is clamped to the start date.
+ */
+export function parseSubmittedEvents(
+  input: unknown,
   weekStart: IsoDate,
   weekEnd: IsoDate
 ): NewEventInput[] {
-  const raw = Array.isArray(input.events) ? input.events : [];
+  const raw =
+    typeof input === "object" &&
+    input !== null &&
+    Array.isArray((input as { events?: unknown }).events)
+      ? ((input as { events: unknown[] }).events as unknown[])
+      : [];
   const events: NewEventInput[] = [];
   for (const candidate of raw) {
     const parsed = newEventInputSchema.safeParse(candidate);
     if (!parsed.success) continue;
-    const e = parsed.data as NewEventInput;
-    // Keep only events that actually fall inside the researched week.
+    const e = parsed.data;
     if (e.start < weekStart || e.start > weekEnd) continue;
-    if (e.end < e.start || e.end > weekEnd) e.end = e.start;
-    events.push(e);
+    const end = e.end < e.start || e.end > weekEnd ? e.start : e.end;
+    events.push({ ...e, end });
   }
   return events;
 }
 
 /**
- * Runs one research pass for a week: asks Claude to web_search real Barcelona
- * events matching the user's preferences, then submit them. Read-only — it does
- * not touch the database. web_search is resolved server-side by the Anthropic
- * API (surfacing as pause_turn while it runs); the only client tool is
+ * Runs one research pass for a week: asks Claude to web_search real events
+ * matching the user's preferences, then submit them. Read-only — it does not
+ * touch the database. web_search is resolved server-side by the Anthropic API
+ * (surfacing as pause_turn while it runs); the only client tool is
  * submit_week_events, which ends the loop.
  */
 export async function runWeekResearch(
@@ -139,7 +114,7 @@ export async function runWeekResearch(
   ];
   let finalText = "";
 
-  emit?.({ type: "stage", label: "Researching events\u2026" });
+  emit?.({ type: "stage", label: "Researching events…" });
 
   for (let turn = 0; turn < MAX_RESEARCH_LOOPS; turn++) {
     const response = await streamTurn(
@@ -162,12 +137,7 @@ export async function runWeekResearch(
 
     const submit = findSubmit(response.content);
     if (submit) {
-      const events = parseSubmittedEvents(
-        submit.input as Record<string, unknown>,
-        weekStart,
-        weekEnd
-      );
-      return { events, reply: finalText };
+      return { events: parseSubmittedEvents(submit.input, weekStart, weekEnd), reply: finalText };
     }
 
     messages.push({ role: "assistant", content: response.content });
@@ -192,9 +162,7 @@ export async function runWeekResearch(
     emit
   );
   const submit = findSubmit(forced.content);
-  const events = submit
-    ? parseSubmittedEvents(submit.input as Record<string, unknown>, weekStart, weekEnd)
-    : [];
+  const events = submit ? parseSubmittedEvents(submit.input, weekStart, weekEnd) : [];
   return { events, reply: finalText };
 }
 
@@ -220,7 +188,7 @@ export async function researchAndReplaceWeek(
 
   emit?.({
     type: "stage",
-    label: `Saving ${found.length} event${found.length === 1 ? "" : "s"}\u2026`,
+    label: `Saving ${found.length} event${found.length === 1 ? "" : "s"}…`,
   });
   const removed = await deleteEventsStartingInWeek(weekStart, weekEnd);
   for (const input of found) {

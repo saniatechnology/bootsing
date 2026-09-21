@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isSafeHttpUrl, materializeNewEvent, summarizeEvent } from "../events";
-import type { NewEventInput } from "../types";
+import type { NewEventInput } from "../validation";
 import { makeEvent } from "./fixtures";
 
 function baseInput(overrides: Partial<NewEventInput> = {}): NewEventInput {

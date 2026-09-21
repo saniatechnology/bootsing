@@ -3,7 +3,8 @@
 import { useCallback, useRef, useState } from "react";
 import { readProgressStream, reduceProgress } from "@/lib/progress";
 import type { ProgressLine } from "@/lib/progress";
-import type { CalendarEvent, ProposedAction } from "@/lib/types";
+import type { CalendarEvent } from "@/lib/types";
+import type { ProposedAction } from "@/lib/validation";
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";

@@ -1,6 +1,6 @@
 import { CATEGORY_KEYS, GENRE_KEYS } from "./types";
 import type { IsoDate } from "./types";
-import type { Preferences } from "./preferences";
+import type { Preferences } from "./validation";
 
 export interface ResearchPromptContext {
   /** The week to research, inclusive ISO bounds. */

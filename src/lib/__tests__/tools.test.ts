@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { executeTool, extractEventPatch } from "../tools";
+import {
+  ALL_TOOLS,
+  CALENDAR_TOOLS,
+  FIND_EVENTS_TOOL,
+  MUTATING_TOOL_NAMES,
+  executeTool,
+} from "../tools";
 import type { ToolResult } from "../tools";
 import type { CalendarEvent } from "../types";
 import { META, makeEvent } from "./fixtures";
@@ -45,9 +51,9 @@ function sampleEvents(): CalendarEvent[] {
   ];
 }
 
-function findIds(input: Record<string, unknown>): number[] {
+function findIds(input: unknown): number[] {
   const result: ToolResult = executeTool("find_events", input, sampleEvents(), META);
-  if (!("matches" in result)) throw new Error("expected a find_events result");
+  if (!result.ok) throw new Error(`expected a find_events result, got: ${result.error}`);
   return result.matches.map((m) => m.id).sort((a, b) => a - b);
 }
 
@@ -78,21 +84,41 @@ describe("executeTool: find_events", () => {
   it("returns everything when no filters are given", () => {
     expect(findIds({})).toEqual([1, 2, 3, 4]);
   });
-});
 
-describe("extractEventPatch", () => {
-  it("keeps recognised fields and drops unknown or invalid ones", () => {
-    const patch = extractEventPatch({
-      id: 5,
-      name: "New name",
-      cat: "not-a-category",
-      genre: "electronic",
-      bogus: "ignored",
-    });
-    expect(patch).toEqual({ name: "New name", genre: "electronic" });
+  it("reports invalid filters back as a tool error instead of guessing", () => {
+    const result = executeTool("find_events", { group: "sports" }, sampleEvents(), META);
+    expect(result.ok).toBe(false);
   });
 
-  it("preserves an explicit null genre", () => {
-    expect(extractEventPatch({ genre: null })).toEqual({ genre: null });
+  it("rejects unknown tool names", () => {
+    expect(executeTool("add_event", {}, sampleEvents(), META)).toEqual({
+      ok: false,
+      error: 'Unknown tool "add_event"',
+    });
+  });
+});
+
+describe("tool definitions", () => {
+  it("treats exactly the add/edit/delete tools as mutating", () => {
+    expect([...MUTATING_TOOL_NAMES].sort()).toEqual(["add_event", "delete_event", "edit_event"]);
+    expect(ALL_TOOLS.map((t) => ("name" in t ? t.name : t.type))).toEqual([
+      "web_search",
+      "find_events",
+      ...CALENDAR_TOOLS.map((t) => t.name),
+    ]);
+  });
+
+  it("does not let the model set the user's Home status through edit_event", () => {
+    const edit = CALENDAR_TOOLS.find((t) => t.name === "edit_event")!;
+    const properties = edit.input_schema.properties as Record<string, unknown>;
+    expect(Object.keys(properties)).not.toContain("status");
+    expect(edit.input_schema.required).toEqual(["id"]);
+  });
+
+  it("emits plain JSON Schema without the $schema meta key", () => {
+    for (const tool of [FIND_EVENTS_TOOL, ...CALENDAR_TOOLS]) {
+      expect(tool.input_schema.type).toBe("object");
+      expect(tool.input_schema).not.toHaveProperty("$schema");
+    }
   });
 });

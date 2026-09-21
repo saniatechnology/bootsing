@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readEvents, updateEvent, deleteEvent } from "@/lib/store";
 import { eventPatchSchema } from "@/lib/validation";
-import type { CalendarEvent } from "@/lib/types";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -34,7 +33,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   }
 
   try {
-    const updated = await updateEvent(id, parsed.data as Partial<Omit<CalendarEvent, "id">>);
+    const updated = await updateEvent(id, parsed.data);
     if (!updated) {
       return NextResponse.json({ error: `No event with id ${id}` }, { status: 404 });
     }

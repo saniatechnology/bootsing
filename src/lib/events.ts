@@ -5,7 +5,8 @@
  * the store and the UI can use it.
  */
 
-import type { CalendarEvent, EventSummary, NewEventInput } from "./types";
+import type { CalendarEvent } from "./types";
+import type { EventSummary, NewEventInput } from "./validation";
 
 /**
  * Turn a validated `NewEventInput` into the full event shape (minus the id,

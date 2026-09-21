@@ -2,7 +2,6 @@ import "server-only";
 
 import { getSupabaseClient, getCurrentUserId } from "./supabase";
 import { materializeNewEvent } from "./events";
-import type { Preferences, PreferenceSection } from "./preferences";
 import type {
   CalendarEvent,
   CalendarMeta,
@@ -11,8 +10,8 @@ import type {
   GenreKey,
   GroupKey,
   IsoDate,
-  NewEventInput,
 } from "./types";
+import type { EventPatch, NewEventInput, Preferences, PreferenceSection } from "./validation";
 
 /**
  * The persistence layer for Bootsing, backed by Supabase (Postgres). Every
@@ -102,7 +101,7 @@ export async function insertEvent(input: NewEventInput): Promise<CalendarEvent> 
 }
 
 /** Map a domain patch to DB columns; returns {} when nothing recognised is set. */
-function patchToRow(patch: Partial<Omit<CalendarEvent, "id">>): Record<string, unknown> {
+function patchToRow(patch: EventPatch): Record<string, unknown> {
   const row: Record<string, unknown> = {};
   if (patch.name !== undefined) row.name = patch.name;
   if (patch.venue !== undefined) row.venue = patch.venue;
@@ -121,10 +120,7 @@ function patchToRow(patch: Partial<Omit<CalendarEvent, "id">>): Record<string, u
 }
 
 /** Update an event in place. Returns null when no such event exists for this user. */
-export async function updateEvent(
-  id: number,
-  patch: Partial<Omit<CalendarEvent, "id">>
-): Promise<CalendarEvent | null> {
+export async function updateEvent(id: number, patch: EventPatch): Promise<CalendarEvent | null> {
   const supabase = getSupabaseClient();
   const userId = getCurrentUserId();
   const columns = patchToRow(patch);
