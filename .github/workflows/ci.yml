@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Lint, typecheck, format check, and unit tests.
+      - run: npm run check
+
+      # The production build needs no secrets: pages are dynamic and the
+      # Supabase/Anthropic clients are constructed lazily on first request.
+      - run: npm run build
