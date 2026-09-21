@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { dayOfWeekAbbr, fmtDateRange, fmtTimeRange, parseIsoDate } from "@/lib/dates";
-import { groupLabelsOf, primaryGroupColor } from "@/lib/event-meta";
+import { dayOfWeekAbbr, parseIsoDate } from "@/lib/dates";
+import { primaryGroupColor } from "@/lib/event-meta";
 import { buildHourlyWeekLayout } from "@/lib/hourly";
+import { activateOnKey } from "@/lib/keyboard";
 import { STATUS_META } from "@/lib/status-meta";
-import { SelectBadge } from "./EventList";
+import type { CalendarEvent, CalendarMeta, EventStatus } from "@/lib/types";
+import type { WeekRange } from "@/lib/weeks";
+import { EventDetail } from "../shared/EventDetail";
+import { SelectBadge } from "../shared/SelectBadge";
 import { StatusControls } from "./StatusControls";
-import type { CalendarEvent, CalendarMeta, EventStatus, IsoDate } from "@/lib/types";
 
 /** Pixel height of one hour row on the time axis. */
 const HOUR_H = 56;
@@ -21,11 +24,21 @@ function fmtBlockTime(startMin: number, endMin: number): string {
   return `${fmt(startMin)}–${fmt(endMin)}`;
 }
 
+interface HourlyWeekSectionProps {
+  week: WeekRange;
+  events: CalendarEvent[];
+  meta: CalendarMeta;
+  selectedIds: ReadonlySet<number>;
+  onToggleSelect: (id: number) => void;
+  onEdit: (event: CalendarEvent) => void;
+  onSetStatus: (id: number, status: EventStatus | null) => void;
+}
+
 /**
  * The Home page's hourly week grid. Timed single-day events sit on a vertical
  * time axis (packed side-by-side when they overlap); untimed or multi-day
- * events float in an "all-day" band above it. Blocks are colour-coded by the
- * user's status; editing happens in the list below.
+ * events float in an "all-day" band above it. Clicking a block opens its
+ * detail panel below the grid.
  */
 export function HourlyWeekSection({
   week,
@@ -35,31 +48,17 @@ export function HourlyWeekSection({
   onToggleSelect,
   onEdit,
   onSetStatus,
-}: {
-  week: [IsoDate, IsoDate];
-  events: CalendarEvent[];
-  meta: CalendarMeta;
-  selectedIds: Set<number>;
-  onToggleSelect: (id: number) => void;
-  onEdit: (event: CalendarEvent) => void;
-  onSetStatus: (id: number, status: EventStatus | null) => void;
-}) {
+}: HourlyWeekSectionProps) {
   const layout = buildHourlyWeekLayout(events, week);
   const bodyHeight = ((layout.axisEndMin - layout.axisStartMin) / 60) * HOUR_H;
   const gridCols = `repeat(${layout.dayCount}, 1fr)`;
-
-  const noTimed = layout.timed.length === 0;
 
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const expandedEvent = events.find((e) => e.id === expandedId) ?? null;
   // 1-based position used only as the badge fallback when an event is untagged.
   const orderIndex = new Map(events.map((e, i) => [e.id, i + 1]));
 
-  function toggleExpanded(id: number) {
-    setExpandedId((prev) => (prev === id ? null : id));
-  }
-
-  // The group colour used for an event's left border, matching Explore.
+  const toggleExpanded = (id: number) => setExpandedId((prev) => (prev === id ? null : id));
   const colorOf = (event: CalendarEvent) => primaryGroupColor(meta, event);
 
   return (
@@ -94,17 +93,7 @@ export function HourlyWeekSection({
       )}
 
       <div className="hourly-body">
-        {/* <div className="hourly-axis" style={{ height: bodyHeight }}>
-          {layout.hours.slice(0, -1).map((m, i) => (
-            <div className="hourly-hour" key={m} style={{ top: i * HOUR_H }}>
-              {fmtHourLabel(m)}
-            </div>
-          ))}
-        </div> */}
-        <div
-          className="hourly-cols"
-          style={{ gridTemplateColumns: `repeat(${layout.dayCount}, 1fr)`, height: bodyHeight }}
-        >
+        <div className="hourly-cols" style={{ gridTemplateColumns: gridCols, height: bodyHeight }}>
           {layout.days.map((day, dayIndex) => (
             <div
               className="hourly-col"
@@ -137,12 +126,7 @@ export function HourlyWeekSection({
                       aria-expanded={expanded}
                       title={`${fmtBlockTime(t.startMin, t.endMin)} · ${ev.name} — ${ev.venue}`}
                       onClick={() => toggleExpanded(ev.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          toggleExpanded(ev.id);
-                        }
-                      }}
+                      onKeyDown={activateOnKey(() => toggleExpanded(ev.id))}
                     >
                       <div className="ev-row-line1">
                         <SelectBadge
@@ -166,63 +150,30 @@ export function HourlyWeekSection({
             </div>
           ))}
         </div>
-        {noTimed && layout.untimed.length === 0 && (
+        {!layout.hasTimed && layout.untimed.length === 0 && (
           <p className="hourly-empty">No events with known times this week.</p>
         )}
       </div>
 
       {expandedEvent && (
         <div className="ev-detail hourly-detail">
-          <div className="ev-detail-inner">
-            <div className="ev-detail-head">
-              <span className="catdot" style={{ background: colorOf(expandedEvent) }} />
-              <span className="ev-detail-groups">{groupLabelsOf(meta, expandedEvent)}</span>
-              <span className="ev-detail-title">{expandedEvent.name}</span>
-              {expandedEvent.approx && <span className="approx">approx.</span>}
-            </div>
-            <dl className="ev-detail-grid">
-              <div>
-                <dt>Venue</dt>
-                <dd>{expandedEvent.venue}</dd>
-              </div>
-              <div>
-                <dt>Date</dt>
-                <dd className="mono">
-                  {fmtDateRange(parseIsoDate(expandedEvent.start), parseIsoDate(expandedEvent.end))}
-                </dd>
-              </div>
-              {expandedEvent.startTime && (
-                <div>
-                  <dt>Time</dt>
-                  <dd className="mono">
-                    {fmtTimeRange(expandedEvent.startTime, expandedEvent.endTime)}
-                  </dd>
-                </div>
-              )}
-              <div>
-                <dt>Cost</dt>
-                <dd>{expandedEvent.cost}</dd>
-              </div>
-              <div className="ev-detail-desc">
-                <dt>Description</dt>
-                <dd>{expandedEvent.desc}</dd>
-              </div>
-            </dl>
-            <a
-              className="ev-detail-link"
-              href={expandedEvent.link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              More info &#8599;
-            </a>
-            <div className="ev-detail-actions">
-              <StatusControls event={expandedEvent} onSetStatus={onSetStatus} />
-              <button type="button" className="ev-action-btn" onClick={() => onEdit(expandedEvent)}>
-                Edit
-              </button>
-            </div>
-          </div>
+          <EventDetail
+            event={expandedEvent}
+            meta={meta}
+            range={[parseIsoDate(expandedEvent.start), parseIsoDate(expandedEvent.end)]}
+            actions={
+              <>
+                <StatusControls event={expandedEvent} onSetStatus={onSetStatus} />
+                <button
+                  type="button"
+                  className="ev-action-btn"
+                  onClick={() => onEdit(expandedEvent)}
+                >
+                  Edit
+                </button>
+              </>
+            }
+          />
         </div>
       )}
     </section>

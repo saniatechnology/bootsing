@@ -4,59 +4,23 @@ import { Fragment, useState, type ReactNode } from "react";
 import { fmtDateRange } from "@/lib/dates";
 import { groupLabelsOf, matchesGroup, primaryGroupColor } from "@/lib/event-meta";
 import { buildWeekLayout } from "@/lib/grid";
+import { activateOnKey } from "@/lib/keyboard";
 import { STATUS_META } from "@/lib/status-meta";
-import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
-
-/**
- * The number badge that, on row hover or when the event is selected, becomes a
- * checkbox for manual selection. Shared by the week grid and the list table.
- */
-export function SelectBadge({
-  index,
-  eventName,
-  selected,
-  onToggle,
-  numClassName,
-  statusEmoji,
-}: {
-  index: number;
-  eventName: string;
-  selected: boolean;
-  onToggle: () => void;
-  numClassName: string;
-  statusEmoji?: string;
-}) {
-  return (
-    <span className="ev-select" onClick={(e) => e.stopPropagation()}>
-      <span className={numClassName} aria-hidden="true">
-        {statusEmoji ?? index}
-      </span>
-      <input
-        type="checkbox"
-        className="ev-select-box"
-        checked={selected}
-        onChange={onToggle}
-        aria-label={`Select ${eventName}`}
-      />
-    </span>
-  );
-}
+import type { CalendarEvent, CalendarMeta, GroupKey } from "@/lib/types";
+import type { WeekRange } from "@/lib/weeks";
+import { EventLink } from "./EventLink";
+import { SelectBadge } from "./SelectBadge";
 
 interface EventListProps {
-  week: [IsoDate, IsoDate];
+  week: WeekRange;
   events: CalendarEvent[];
   meta: CalendarMeta;
   activeGroup?: GroupKey | "all";
-  selectedIds: Set<number>;
+  selectedIds: ReadonlySet<number>;
   onToggleSelect: (id: number) => void;
   onEdit: (event: CalendarEvent) => void;
   /** The options panel shown below a row when it's expanded (rating / delete). */
   renderActions: (event: CalendarEvent) => ReactNode;
-  /** Controlled expansion (used so Home's hourly blocks can open a row). */
-  expandedId?: number | null;
-  onExpandedChange?: (id: number | null) => void;
-  /** Tint rows by status (Home only; Explore leaves tagged events uncolored). */
-  statusColors?: boolean;
   /** Show the event's status emoji in place of the row number (Home). */
   statusBadge?: boolean;
   /** Label for the first column ("#" on Explore, "Hype" on Home). */
@@ -64,10 +28,10 @@ interface EventListProps {
 }
 
 /**
- * The shared event list, used by both Explore and Home. Each row shows the
+ * The shared event table, used by both Explore and Home. Each row shows the
  * event's info plus a select checkbox, a "more info" link and an Edit button;
- * clicking the row opens an options panel below it (rating / delete), mirroring
- * the expanded detail in the week grid.
+ * clicking the row opens an options panel below it, mirroring the expanded
+ * detail in the week grid. Rows follow the grid's ordering and numbering.
  */
 export function EventList({
   week,
@@ -78,26 +42,14 @@ export function EventList({
   onToggleSelect,
   onEdit,
   renderActions,
-  expandedId,
-  onExpandedChange,
-  statusColors = false,
   statusBadge = false,
   firstColLabel = "#",
 }: EventListProps) {
   const layout = buildWeekLayout(events, week);
-  const [localExpanded, setLocalExpanded] = useState<number | null>(null);
-  const controlled = onExpandedChange !== undefined;
-  const expanded = controlled ? (expandedId ?? null) : localExpanded;
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  function toggleExpanded(id: number) {
-    const next = expanded === id ? null : id;
-    if (controlled) onExpandedChange!(next);
-    else setLocalExpanded(next);
-  }
-
-  const isHidden = (event: CalendarEvent) => !matchesGroup(meta, event, activeGroup);
-
-  const visibleRows = layout.rows.filter((r) => !isHidden(r.event));
+  const toggleExpanded = (id: number) => setExpandedId((prev) => (prev === id ? null : id));
+  const visibleRows = layout.rows.filter((r) => matchesGroup(meta, r.event, activeGroup));
   if (visibleRows.length === 0) return null;
 
   return (
@@ -117,27 +69,20 @@ export function EventList({
           </tr>
         </thead>
         <tbody>
-          {layout.rows.map((row) => {
-            const { event, index, clippedStart, clippedEnd } = row;
-            if (isHidden(event)) return null;
+          {visibleRows.map(({ event, index, clippedStart, clippedEnd }) => {
             const selected = selectedIds.has(event.id);
-            const isOpen = expanded === event.id;
+            const isOpen = expandedId === event.id;
             return (
               <Fragment key={event.id}>
                 <tr
                   id={`ev-list-row-${event.id}`}
-                  className={`ev-list-row${selected ? " selected" : ""}${isOpen ? " expanded" : ""}${statusColors && event.status ? ` status-${event.status}` : ""}`}
+                  className={`ev-list-row${selected ? " selected" : ""}${isOpen ? " expanded" : ""}`}
                   role="button"
                   tabIndex={0}
                   aria-expanded={isOpen}
                   aria-label={`Options for ${event.name}`}
                   onClick={() => toggleExpanded(event.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      toggleExpanded(event.id);
-                    }
-                  }}
+                  onKeyDown={activateOnKey(() => toggleExpanded(event.id))}
                 >
                   <td className="dnum-cell">
                     <SelectBadge
@@ -154,6 +99,7 @@ export function EventList({
                   <td>
                     <span
                       className="catdot"
+                      aria-hidden="true"
                       style={{ background: primaryGroupColor(meta, event) }}
                     />
                     {groupLabelsOf(meta, event)}
@@ -167,14 +113,7 @@ export function EventList({
                   <td>{event.cost}</td>
                   <td>{event.desc}</td>
                   <td>
-                    <a
-                      href={event.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      More info &#8599;
-                    </a>
+                    <EventLink link={event.link} onClick={(e) => e.stopPropagation()} />
                   </td>
                   <td className="ev-list-edit-cell">
                     <button
@@ -191,7 +130,7 @@ export function EventList({
                   </td>
                 </tr>
                 {isOpen && (
-                  <tr className="ev-list-detail" key={`${event.id}-detail`}>
+                  <tr className="ev-list-detail">
                     <td colSpan={9}>
                       <div className="ev-list-actions" onClick={(e) => e.stopPropagation()}>
                         {renderActions(event)}

@@ -9,6 +9,7 @@ interface FilterBarProps {
   onSelectGroup: (group: GroupKey | "all") => void;
 }
 
+/** Explore's group filter chips: All, plus one per configured group in its colour. */
 export function FilterBar({ meta, activeGroup, onSelectGroup }: FilterBarProps) {
   const options: { key: GroupKey | "all"; label: string; color?: string }[] = [
     { key: "all", label: "All" },
@@ -29,7 +30,7 @@ export function FilterBar({ meta, activeGroup, onSelectGroup }: FilterBarProps) 
           aria-pressed={activeGroup === key}
           onClick={() => onSelectGroup(key)}
         >
-          {color && <span className="catdot" style={{ background: color }} />}
+          {color && <span className="catdot" aria-hidden="true" style={{ background: color }} />}
           {label}
         </button>
       ))}

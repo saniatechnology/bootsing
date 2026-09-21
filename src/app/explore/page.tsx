@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { CalendarApp, LoadErrorScreen } from "@/components/CalendarApp";
+import { CalendarApp } from "@/components/calendar/CalendarApp";
+import { LoadErrorScreen } from "@/components/shared/LoadErrorScreen";
 import { loadCalendarPage } from "@/lib/page-data";
 
 export const metadata: Metadata = {

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
+import { api, errorMessage } from "@/lib/api";
 import type { Preferences, PreferenceSection } from "@/lib/validation";
 
 interface ConfigurationEditorProps {
@@ -11,6 +12,28 @@ interface ConfigurationEditorProps {
 type SaveState =
   { status: "idle" | "saving" } | { status: "saved" } | { status: "error"; message: string };
 
+/** Trim every field and drop blank items so empty rows aren't persisted. */
+function cleanForSave(prefs: Preferences): Preferences {
+  return {
+    intro: prefs.intro,
+    sections: prefs.sections.map((s) => ({
+      title: s.title,
+      note: s.note?.trim() ? s.note : undefined,
+      emptyText: s.emptyText?.trim() ? s.emptyText : undefined,
+      items: s.items
+        .filter((it) => it.label.trim() !== "")
+        .map((it) => ({
+          label: it.label.trim(),
+          detail: it.detail?.trim() ? it.detail.trim() : undefined,
+        })),
+    })),
+  };
+}
+
+/**
+ * The Configuration page: free-form sections of preferences (what to look
+ * for, favourite venues, what to skip) that the research prompt is built from.
+ */
 export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
   const [prefs, setPrefs] = useState<Preferences>(initial);
   const [save, setSave] = useState<SaveState>({ status: "idle" });
@@ -61,37 +84,11 @@ export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
 
   async function handleSave() {
     setSave({ status: "saving" });
-    // Drop blank items and trim so we don't persist empty rows.
-    const payload: Preferences = {
-      intro: prefs.intro,
-      sections: prefs.sections.map((s) => ({
-        title: s.title,
-        note: s.note?.trim() ? s.note : undefined,
-        emptyText: s.emptyText?.trim() ? s.emptyText : undefined,
-        items: s.items
-          .filter((it) => it.label.trim() !== "")
-          .map((it) => ({
-            label: it.label.trim(),
-            detail: it.detail?.trim() ? it.detail.trim() : undefined,
-          })),
-      })),
-    };
-
     try {
-      const res = await fetch("/api/preferences", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setSave({ status: "error", message: data.error ?? "Something went wrong." });
-        return;
-      }
-      setPrefs(data.preferences as Preferences);
+      setPrefs(await api.savePreferences(cleanForSave(prefs)));
       setSave({ status: "saved" });
     } catch (err) {
-      setSave({ status: "error", message: err instanceof Error ? err.message : "Network error." });
+      setSave({ status: "error", message: errorMessage(err, "Something went wrong.") });
     }
   }
 
