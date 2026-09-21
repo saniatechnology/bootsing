@@ -37,6 +37,12 @@ export function dayOfWeekAbbr(date: Date): string {
   return DAY_ABBR[date.getUTCDay()];
 }
 
+/** Format an optional start/end clock time, e.g. "21:00" or "21:00–23:00". Empty when no start time. */
+export function fmtTimeRange(startTime: string | null, endTime: string | null): string {
+  if (!startTime) return "";
+  return endTime ? `${startTime}–${endTime}` : startTime;
+}
+
 export function fmtDateRange(start: Date, end: Date): string {
   const sMonth = MONTH_ABBR[start.getUTCMonth()];
   const eMonth = MONTH_ABBR[end.getUTCMonth()];

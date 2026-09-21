@@ -52,6 +52,7 @@ How to work:
 - Set a "link" to the most specific source URL you used (venue/event/ticket page). Keep "desc" to one or two
   factual sentences. Use "Unknown" for cost when you can't confirm it. Set approx=true only when the exact
   date isn't confirmed.
+- Include "startTime" (and "endTime" if known) as 24h HH:MM when the source gives a time; omit them otherwise.
 
 Categories: ${CATEGORY_KEYS.join(", ")}.
 Music genre tags (MUS category only): ${GENRE_KEYS.join(", ")}.

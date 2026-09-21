@@ -30,6 +30,8 @@ interface EventRow {
   cat: string;
   starts: string;
   ends: string;
+  start_time: string | null;
+  end_time: string | null;
   cost: string;
   description: string;
   link: string;
@@ -37,7 +39,8 @@ interface EventRow {
   genre: string | null;
 }
 
-const EVENT_COLUMNS = "id,name,venue,cat,starts,ends,cost,description,link,approx,genre";
+const EVENT_COLUMNS =
+  "id,name,venue,cat,starts,ends,start_time,end_time,cost,description,link,approx,genre";
 
 function rowToEvent(row: EventRow): CalendarEvent {
   return {
@@ -47,6 +50,8 @@ function rowToEvent(row: EventRow): CalendarEvent {
     cat: row.cat as CategoryKey,
     start: row.starts,
     end: row.ends,
+    startTime: row.start_time,
+    endTime: row.end_time,
     cost: row.cost,
     desc: row.description,
     link: row.link,
@@ -79,6 +84,8 @@ export async function insertEvent(input: NewEventInput): Promise<CalendarEvent> 
       cat: e.cat,
       starts: e.start,
       ends: e.end,
+      start_time: e.startTime,
+      end_time: e.endTime,
       cost: e.cost,
       description: e.desc,
       link: e.link,
@@ -99,6 +106,8 @@ function patchToRow(patch: Partial<Omit<CalendarEvent, "id">>): Record<string, u
   if (patch.cat !== undefined) row.cat = patch.cat;
   if (patch.start !== undefined) row.starts = patch.start;
   if (patch.end !== undefined) row.ends = patch.end;
+  if (patch.startTime !== undefined) row.start_time = patch.startTime;
+  if (patch.endTime !== undefined) row.end_time = patch.endTime;
   if (patch.cost !== undefined) row.cost = patch.cost;
   if (patch.desc !== undefined) row.description = patch.desc;
   if (patch.link !== undefined) row.link = patch.link;

@@ -604,6 +604,12 @@ h1 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.ev-time {
+  flex: none;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
 .approx {
   flex: none;
   font-size: 0.68rem;

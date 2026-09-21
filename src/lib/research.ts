@@ -27,6 +27,8 @@ const researchedEventProperties = {
   cat: { type: "string", enum: CATEGORY_KEYS, description: "Category key" },
   start: { type: "string", description: "Start date, ISO yyyy-mm-dd, within the target week" },
   end: { type: "string", description: "End date, ISO yyyy-mm-dd, within the target week" },
+  startTime: { type: "string", description: "Start time when known, 24h HH:MM; omit if unknown" },
+  endTime: { type: "string", description: "End time when known, 24h HH:MM; omit if unknown" },
   cost: { type: "string", description: 'e.g. "Free", "€15", "Unknown"' },
   desc: { type: "string", description: "One or two factual sentences" },
   link: { type: "string", description: "Source URL for the event" },

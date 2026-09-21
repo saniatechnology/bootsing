@@ -4,6 +4,7 @@ import { CATEGORY_KEYS, GENRE_KEYS } from "./types";
 /** Shared Zod schemas for validating event payloads at API boundaries. */
 
 export const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be ISO yyyy-mm-dd");
+export const timeOfDay = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "time must be 24h HH:MM");
 export const category = z.enum(CATEGORY_KEYS);
 export const genre = z.enum(GENRE_KEYS);
 
@@ -14,6 +15,8 @@ export const newEventInputSchema = z.object({
   cat: category,
   start: isoDate,
   end: isoDate,
+  startTime: timeOfDay.nullish(),
+  endTime: timeOfDay.nullish(),
   cost: z.string(),
   desc: z.string(),
   link: z.string(),
@@ -28,6 +31,8 @@ export const eventPatchSchema = z.object({
   cat: category.optional(),
   start: isoDate.optional(),
   end: isoDate.optional(),
+  startTime: timeOfDay.nullable().optional(),
+  endTime: timeOfDay.nullable().optional(),
   cost: z.string().optional(),
   desc: z.string().optional(),
   link: z.string().optional(),

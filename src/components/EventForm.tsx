@@ -22,6 +22,8 @@ interface FormState {
   cat: CategoryKey;
   start: string;
   end: string;
+  startTime: string;
+  endTime: string;
   cost: string;
   desc: string;
   link: string;
@@ -36,6 +38,8 @@ function initialState(event: CalendarEvent | null, defaultDate: string): FormSta
     cat: event?.cat ?? "IND",
     start: event?.start ?? defaultDate,
     end: event?.end ?? defaultDate,
+    startTime: event?.startTime ?? "",
+    endTime: event?.endTime ?? "",
     cost: event?.cost ?? "",
     desc: event?.desc ?? "",
     link: event?.link ?? "",
@@ -73,12 +77,16 @@ export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportE
 
     // genre only applies to the MUS category; null it out otherwise.
     const genre = form.cat === "MUS" ? form.genre : null;
+    const startTime = form.startTime.trim() || null;
+    const endTime = form.endTime.trim() || null;
     const payload = {
       name: form.name.trim(),
       venue: form.venue.trim(),
       cat: form.cat,
       start: form.start,
       end: form.end,
+      startTime,
+      endTime,
       cost: form.cost,
       desc: form.desc,
       link: form.link,
@@ -165,6 +173,16 @@ export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportE
           <label className="field">
             <span>End date</span>
             <input type="date" value={form.end} onChange={(e) => update("end", e.target.value)} required />
+          </label>
+
+          <label className="field">
+            <span>Start time</span>
+            <input type="time" value={form.startTime} onChange={(e) => update("startTime", e.target.value)} />
+          </label>
+
+          <label className="field">
+            <span>End time</span>
+            <input type="time" value={form.endTime} onChange={(e) => update("endTime", e.target.value)} />
           </label>
 
           <label className="field">

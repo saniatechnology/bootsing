@@ -26,6 +26,8 @@ const eventFieldProperties = {
   cat: { type: "string", enum: CATEGORY_KEYS, description: "Category key" },
   start: { type: "string", description: "Start date, ISO yyyy-mm-dd" },
   end: { type: "string", description: "End date, ISO yyyy-mm-dd" },
+  startTime: { type: "string", description: "Optional start time, 24h HH:MM" },
+  endTime: { type: "string", description: "Optional end time, 24h HH:MM" },
   cost: { type: "string", description: 'e.g. "Free", "Paid", "€15"' },
   desc: { type: "string", description: "One or two sentence description" },
   link: { type: "string", description: "URL for more info" },
@@ -131,6 +133,8 @@ export function materializeNewEvent(input: NewEventInput): Omit<CalendarEvent, "
     cat: input.cat,
     start: input.start,
     end: input.end,
+    startTime: input.startTime ?? null,
+    endTime: input.endTime ?? null,
     cost: input.cost,
     desc: input.desc,
     link: input.link,
@@ -156,6 +160,8 @@ export function toNewEventInput(input: Record<string, unknown>): NewEventInput |
     cat: input.cat as NewEventInput["cat"],
     start: input.start as string,
     end: input.end as string,
+    startTime: typeof input.startTime === "string" ? input.startTime : undefined,
+    endTime: typeof input.endTime === "string" ? input.endTime : undefined,
     cost: input.cost as string,
     desc: input.desc as string,
     link: input.link as string,
@@ -176,6 +182,10 @@ export function extractEventPatch(
   }
   if (typeof input.start === "string") patch.start = input.start;
   if (typeof input.end === "string") patch.end = input.end;
+  if (input.startTime === null) patch.startTime = null;
+  else if (typeof input.startTime === "string") patch.startTime = input.startTime;
+  if (input.endTime === null) patch.endTime = null;
+  else if (typeof input.endTime === "string") patch.endTime = input.endTime;
   if (typeof input.cost === "string") patch.cost = input.cost;
   if (typeof input.desc === "string") patch.desc = input.desc;
   if (typeof input.link === "string") patch.link = input.link;

@@ -10,6 +10,8 @@ function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
     cat: "MUS",
     start: "2026-09-01",
     end: "2026-09-01",
+    startTime: null,
+    endTime: null,
     cost: "Free",
     desc: "",
     link: "https://example.com",

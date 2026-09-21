@@ -46,6 +46,9 @@ export interface CalendarEvent {
   cat: CategoryKey;
   start: IsoDate;
   end: IsoDate;
+  /** Optional start/end clock time, 24h "HH:MM"; `null` when unknown. Display-only — the grid buckets by date. */
+  startTime: string | null;
+  endTime: string | null;
   cost: string;
   desc: string;
   link: string;
@@ -55,9 +58,14 @@ export interface CalendarEvent {
 }
 
 /** Fields a caller may set when creating a new event; `id` is assigned by the store. */
-export type NewEventInput = Omit<CalendarEvent, "id" | "approx" | "genre"> & {
+export type NewEventInput = Omit<
+  CalendarEvent,
+  "id" | "approx" | "genre" | "startTime" | "endTime"
+> & {
   approx?: boolean;
   genre?: GenreKey;
+  startTime?: string | null;
+  endTime?: string | null;
 };
 
 /** Fields a caller may change on an existing event; all optional except the target id. */

@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState, type ReactNode } from "react";
-import { dayOfWeekAbbr, fmtDateRange, toIsoDate } from "@/lib/dates";
+import { dayOfWeekAbbr, fmtDateRange, fmtTimeRange, toIsoDate } from "@/lib/dates";
 import { buildWeekLayout } from "@/lib/grid";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 
@@ -189,6 +189,7 @@ export function WeekSection({
                   numClassName="ev-badge"
                 />
                 <span className="ev-name">{event.name}</span>
+                {event.startTime && <span className="ev-time">{event.startTime}</span>}
                 {/* <span className="ev-venue">{event.venue}</span> */}
                 {event.approx && <span className="approx">approx.</span>}
               </div>
@@ -213,6 +214,12 @@ export function WeekSection({
                         <dt>Date</dt>
                         <dd className="mono">{fmtDateRange(clippedStart, clippedEnd)}</dd>
                       </div>
+                      {event.startTime && (
+                        <div>
+                          <dt>Time</dt>
+                          <dd className="mono">{fmtTimeRange(event.startTime, event.endTime)}</dd>
+                        </div>
+                      )}
                       <div>
                         <dt>Cost</dt>
                         <dd>{event.cost}</dd>
