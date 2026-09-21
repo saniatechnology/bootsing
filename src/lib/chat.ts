@@ -103,7 +103,9 @@ export async function runChatTurn(
     const toolResults: Anthropic.Messages.ToolResultBlockParam[] = reads.map((tu) => ({
       type: "tool_result",
       tool_use_id: tu.id,
-      content: JSON.stringify(executeTool(tu.name, tu.input as Record<string, unknown>, events, meta)),
+      content: JSON.stringify(
+        executeTool(tu.name, tu.input as Record<string, unknown>, events, meta)
+      ),
     }));
     messages.push({ role: "user", content: toolResults });
 

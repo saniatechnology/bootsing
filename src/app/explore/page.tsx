@@ -11,7 +11,11 @@ export const metadata: Metadata = {
 // Always read fresh on the server: this is a living, chat-editable dataset.
 export const dynamic = "force-dynamic";
 
-export default async function ExplorePage({ searchParams }: { searchParams: Promise<{ w?: string }> }) {
+export default async function ExplorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ w?: string }>;
+}) {
   let events: Awaited<ReturnType<typeof readEvents>>;
   let meta: Awaited<ReturnType<typeof readMeta>>;
   try {

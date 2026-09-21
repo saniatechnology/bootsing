@@ -35,7 +35,8 @@ function indexForDate(weeks: [IsoDate, IsoDate][], iso: IsoDate): number {
   if (weeks.length === 0) return 0;
   const t = parseIsoDate(iso).getTime();
   for (let i = 0; i < weeks.length; i++) {
-    if (t >= parseIsoDate(weeks[i][0]).getTime() && t <= parseIsoDate(weeks[i][1]).getTime()) return i;
+    if (t >= parseIsoDate(weeks[i][0]).getTime() && t <= parseIsoDate(weeks[i][1]).getTime())
+      return i;
   }
   if (t < parseIsoDate(weeks[0][0]).getTime()) return 0;
   const lastEnd = parseIsoDate(weeks[weeks.length - 1][1]);
@@ -69,7 +70,10 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
   const selectedEvents = visible.filter((e) => selectedIds.has(e.id));
 
   // Let the user browse a couple of months past the last saved event.
-  const lastSavedIso = saved.length > 0 ? saved.reduce((max, e) => (e.start > max ? e.start : max), saved[0].start) : null;
+  const lastSavedIso =
+    saved.length > 0
+      ? saved.reduce((max, e) => (e.start > max ? e.start : max), saved[0].start)
+      : null;
   const lastSavedIndex = lastSavedIso ? indexForDate(meta.weeks, lastSavedIso) : thisWeekIndex;
   const maxWeekIndex = Math.max(thisWeekIndex, lastSavedIndex + 8);
 
@@ -118,22 +122,49 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
             </Link>
           </div>
           <div className="topbar-actions">
-            <StatusIndicator error={connError} offline={offline} onDismiss={() => setConnError(null)} />
-            <Link href="/configuration" className="settings-btn" aria-label="Open configuration" title="Configuration">
-              <span className="material-symbols-outlined" aria-hidden="true">settings</span>
+            <StatusIndicator
+              error={connError}
+              offline={offline}
+              onDismiss={() => setConnError(null)}
+            />
+            <Link
+              href="/configuration"
+              className="settings-btn"
+              aria-label="Open configuration"
+              title="Configuration"
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                settings
+              </span>
             </Link>
           </div>
         </div>
 
         <div className="controls">
           <div className="week-nav">
-            <button type="button" className="nav-btn nav-today" onClick={() => setWeekIndex(thisWeekIndex)}>
+            <button
+              type="button"
+              className="nav-btn nav-today"
+              onClick={() => setWeekIndex(thisWeekIndex)}
+            >
               This week
             </button>
-            <button type="button" className="nav-btn" onClick={() => setWeekIndex((i) => Math.max(0, i - 1))} disabled={weekIndex === 0} aria-label="Previous week">
+            <button
+              type="button"
+              className="nav-btn"
+              onClick={() => setWeekIndex((i) => Math.max(0, i - 1))}
+              disabled={weekIndex === 0}
+              aria-label="Previous week"
+            >
               &lsaquo;
             </button>
-            <button type="button" className="nav-btn" onClick={() => setWeekIndex((i) => Math.min(maxWeekIndex, i + 1))} disabled={weekIndex >= maxWeekIndex} aria-label="Next week">
+            <button
+              type="button"
+              className="nav-btn"
+              onClick={() => setWeekIndex((i) => Math.min(maxWeekIndex, i + 1))}
+              disabled={weekIndex >= maxWeekIndex}
+              aria-label="Next week"
+            >
               &rsaquo;
             </button>
           </div>
@@ -155,7 +186,9 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
                 aria-pressed={statusFilter === s}
                 onClick={() => setStatusFilter(s)}
               >
-                <span className="filter-chip-emoji" aria-hidden="true">{STATUS_META[s].emoji}</span>
+                <span className="filter-chip-emoji" aria-hidden="true">
+                  {STATUS_META[s].emoji}
+                </span>
                 {STATUS_META[s].label} <span className="filter-count">{counts[s]}</span>
               </button>
             ))}
@@ -167,7 +200,11 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
         <section className="home-empty">
           <p>No saved events yet.</p>
           <p>
-            Head to <Link href="/explore" className="home-empty-link">Explore</Link> and star the ones that catch your eye.
+            Head to{" "}
+            <Link href="/explore" className="home-empty-link">
+              Explore
+            </Link>{" "}
+            and star the ones that catch your eye.
           </p>
         </section>
       ) : (
@@ -193,7 +230,9 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
               onExpandedChange={setExpandedId}
               statusBadge
               firstColLabel="Hype"
-              renderActions={(event) => <StatusControls event={event} onSetStatus={handleSetStatus} />}
+              renderActions={(event) => (
+                <StatusControls event={event} onSetStatus={handleSetStatus} />
+              )}
             />
           </>
         )

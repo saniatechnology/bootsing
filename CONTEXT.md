@@ -114,20 +114,20 @@ definitions originally came from).
 
 ### Category keys (`cat`)
 
-| key | label |
-|---|---|
-| `IND` | Independent art spaces |
-| `GAL` | Contemporary art & galleries |
-| `QUEER` | Queer events |
-| `MUS` | Music |
-| `MUSPROD` | Music production |
-| `GAME` | Games / anime / nerd culture |
-| `ARCH` | World Capital of Architecture 2026 |
-| `FASH` | Fashion |
-| `TECH` | Tech & software |
-| `NEIGH` | Neighborhood festivals |
-| `CHIC` | Chic / standout |
-| `BONUS` | Also on (bonus filler) |
+| key       | label                              |
+| --------- | ---------------------------------- |
+| `IND`     | Independent art spaces             |
+| `GAL`     | Contemporary art & galleries       |
+| `QUEER`   | Queer events                       |
+| `MUS`     | Music                              |
+| `MUSPROD` | Music production                   |
+| `GAME`    | Games / anime / nerd culture       |
+| `ARCH`    | World Capital of Architecture 2026 |
+| `FASH`    | Fashion                            |
+| `TECH`    | Tech & software                    |
+| `NEIGH`   | Neighborhood festivals             |
+| `CHIC`    | Chic / standout                    |
+| `BONUS`   | Also on (bonus filler)             |
 
 ### Genre keys (`genre`, `MUS` events only)
 

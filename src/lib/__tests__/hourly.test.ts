@@ -71,8 +71,20 @@ describe("buildHourlyWeekLayout", () => {
   it("packs overlapping events into separate lanes", () => {
     const layout = buildHourlyWeekLayout(
       [
-        makeEvent({ id: 1, start: "2026-09-01", end: "2026-09-01", startTime: "20:00", endTime: "22:00" }),
-        makeEvent({ id: 2, start: "2026-09-01", end: "2026-09-01", startTime: "21:00", endTime: "23:00" }),
+        makeEvent({
+          id: 1,
+          start: "2026-09-01",
+          end: "2026-09-01",
+          startTime: "20:00",
+          endTime: "22:00",
+        }),
+        makeEvent({
+          id: 2,
+          start: "2026-09-01",
+          end: "2026-09-01",
+          startTime: "21:00",
+          endTime: "23:00",
+        }),
       ],
       WEEK
     );

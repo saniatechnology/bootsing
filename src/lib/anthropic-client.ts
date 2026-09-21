@@ -25,9 +25,7 @@ export const CHAT_MODEL = "claude-sonnet-5";
  * Put a cache breakpoint on the last tool so the whole tool block is served
  * from cache on the agent loop's repeat calls (tools are identical each turn).
  */
-export function cachedTools(
-  tools: Anthropic.Messages.ToolUnion[]
-): Anthropic.Messages.ToolUnion[] {
+export function cachedTools(tools: Anthropic.Messages.ToolUnion[]): Anthropic.Messages.ToolUnion[] {
   if (tools.length === 0) return tools;
   const last = {
     ...tools[tools.length - 1],
@@ -103,7 +101,8 @@ export async function streamTurn(
       }
     } else if (ev.type === "content_block_delta") {
       if (ev.delta.type === "text_delta") emit?.({ type: "text", delta: ev.delta.text });
-      else if (ev.delta.type === "thinking_delta") emit?.({ type: "text", delta: ev.delta.thinking });
+      else if (ev.delta.type === "thinking_delta")
+        emit?.({ type: "text", delta: ev.delta.thinking });
       else if (ev.delta.type === "input_json_delta" && toolName) toolJson += ev.delta.partial_json;
     } else if (ev.type === "content_block_stop" && toolName) {
       const name = toolName;
@@ -118,7 +117,6 @@ export async function streamTurn(
           const queries = extractSearchQueries(input.code);
           if (queries.length > 0) {
             for (const q of queries) emitSearch(q);
-
           }
         }
       } catch {

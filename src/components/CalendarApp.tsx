@@ -30,10 +30,7 @@ interface CalendarAppProps {
  * week; indexes past the end return successive empty 7-day windows, so the user
  * can navigate forward into future weeks and research them.
  */
-function weekForIndex(
-  weeks: [IsoDate, IsoDate][],
-  index: number
-): [IsoDate, IsoDate] | undefined {
+function weekForIndex(weeks: [IsoDate, IsoDate][], index: number): [IsoDate, IsoDate] | undefined {
   if (weeks.length === 0) return undefined;
   if (index < weeks.length) return weeks[index];
   const lastEnd = parseIsoDate(weeks[weeks.length - 1][1]);
@@ -47,7 +44,8 @@ function indexForDate(weeks: [IsoDate, IsoDate][], iso: IsoDate): number {
   if (weeks.length === 0) return 0;
   const t = parseIsoDate(iso).getTime();
   for (let i = 0; i < weeks.length; i++) {
-    if (t >= parseIsoDate(weeks[i][0]).getTime() && t <= parseIsoDate(weeks[i][1]).getTime()) return i;
+    if (t >= parseIsoDate(weeks[i][0]).getTime() && t <= parseIsoDate(weeks[i][1]).getTime())
+      return i;
   }
   if (t < parseIsoDate(weeks[0][0]).getTime()) return 0;
   const lastEnd = parseIsoDate(weeks[weeks.length - 1][1]);
@@ -66,7 +64,9 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
 
   // Let the user browse up to ~2 months (8 weeks) beyond the last week that has events.
   const lastEventIso =
-    events.length > 0 ? events.reduce((max, e) => (e.start > max ? e.start : max), events[0].start) : null;
+    events.length > 0
+      ? events.reduce((max, e) => (e.start > max ? e.start : max), events[0].start)
+      : null;
   const lastEventIndex = lastEventIso
     ? indexForDate(meta.weeks, lastEventIso)
     : Math.max(thisWeekIndex, meta.weeks.length - 1);
@@ -263,7 +263,12 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
                 </button>
               )
             )}
-            <Link href="/configuration" className="settings-btn" aria-label="Open configuration" title="Configuration">
+            <Link
+              href="/configuration"
+              className="settings-btn"
+              aria-label="Open configuration"
+              title="Configuration"
+            >
               <span className="material-symbols-outlined" aria-hidden="true">
                 settings
               </span>
@@ -273,10 +278,20 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
 
         <div className="controls">
           <div className="week-nav">
-            <button type="button" className="nav-btn nav-today" onClick={() => setWeekIndex(thisWeekIndex)}>
+            <button
+              type="button"
+              className="nav-btn nav-today"
+              onClick={() => setWeekIndex(thisWeekIndex)}
+            >
               This week
             </button>
-            <button type="button" className="nav-btn" onClick={() => setWeekIndex((i) => Math.max(0, i - 1))} disabled={weekIndex === 0} aria-label="Previous week">
+            <button
+              type="button"
+              className="nav-btn"
+              onClick={() => setWeekIndex((i) => Math.max(0, i - 1))}
+              disabled={weekIndex === 0}
+              aria-label="Previous week"
+            >
               &lsaquo;
             </button>
             <button
@@ -370,7 +385,11 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
         </section>
       )}
 
-      <footer className="note">Click a day&rsquo;s header to add an event on that date, or edit and remove events with the controls on each row &mdash; or ask the chat box (bottom right), which edits this calendar&rsquo;s data and can search the web first when you ask it to look something up.</footer>
+      <footer className="note">
+        Click a day&rsquo;s header to add an event on that date, or edit and remove events with the
+        controls on each row &mdash; or ask the chat box (bottom right), which edits this
+        calendar&rsquo;s data and can search the web first when you ask it to look something up.
+      </footer>
 
       <ChatPanel
         open={chatOpen}
@@ -470,7 +489,12 @@ export function LoadErrorScreen({ message }: { message: string }) {
           <h1>Bootsing</h1>
           <div className="topbar-actions">
             <StatusIndicator error={error} offline={offline} onDismiss={() => setError(null)} />
-            <Link href="/configuration" className="settings-btn" aria-label="Open configuration" title="Configuration">
+            <Link
+              href="/configuration"
+              className="settings-btn"
+              aria-label="Open configuration"
+              title="Configuration"
+            >
               <span className="material-symbols-outlined" aria-hidden="true">
                 settings
               </span>

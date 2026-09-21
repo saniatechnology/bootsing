@@ -1814,7 +1814,13 @@ table.detail-table.home-list {
 }
 .hourly-col {
   position: relative;
-  background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(100% - 1px), var(--border) calc(100% - 1px), var(--border) 100%);
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(100% - 1px),
+    var(--border) calc(100% - 1px),
+    var(--border) 100%
+  );
 }
 .hourly-block {
   position: absolute;

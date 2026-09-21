@@ -21,4 +21,3 @@ export interface Preferences {
   intro: string;
   sections: PreferenceSection[];
 }
-

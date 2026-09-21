@@ -169,12 +169,17 @@ export function WeekSection({
               </div>
 
               {expanded && (
-                <div className="ev-detail" style={{ gridRow: expandedLane + 3, gridColumn: "1 / -1" }}>
+                <div
+                  className="ev-detail"
+                  style={{ gridRow: expandedLane + 3, gridColumn: "1 / -1" }}
+                >
                   <div className="ev-detail-inner">
                     <div className="ev-detail-head">
                       <span className="catdot" style={{ background: colorOf(event) }} />
                       <span className="ev-detail-groups">
-                        {groupsOf(event).map((g) => meta.groupLabels[g]).join(" · ")}
+                        {groupsOf(event)
+                          .map((g) => meta.groupLabels[g])
+                          .join(" · ")}
                       </span>
                       <span className="ev-detail-title">{event.name}</span>
                       {event.approx && <span className="approx">approx.</span>}
@@ -216,13 +221,17 @@ export function WeekSection({
                         type="button"
                         className={`ev-action-btn ev-action-star${event.status ? " is-saved" : ""}`}
                         aria-pressed={event.status !== null}
-                        title={event.status ? "Saved to Home — click to remove" : "Mark as interesting"}
+                        title={
+                          event.status ? "Saved to Home — click to remove" : "Mark as interesting"
+                        }
                         onClick={(e) => {
                           e.stopPropagation();
                           onToggleInteresting(event);
                         }}
                       >
-                        <span className="ev-action-emoji" aria-hidden="true">👀</span>
+                        <span className="ev-action-emoji" aria-hidden="true">
+                          👀
+                        </span>
                         {event.status ? "Saved" : "Interesting"}
                       </button>
                       <button
@@ -271,7 +280,9 @@ export function WeekSection({
               title={event.status ? "Saved to Home — click to remove" : "Mark as interesting"}
               onClick={() => onToggleInteresting(event)}
             >
-              <span className="ev-action-emoji" aria-hidden="true">👀</span>
+              <span className="ev-action-emoji" aria-hidden="true">
+                👀
+              </span>
               {event.status ? "Saved" : "Interesting"}
             </button>
             <button

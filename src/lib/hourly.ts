@@ -113,7 +113,14 @@ export function buildHourlyWeekLayout(
       let lane = 0;
       while (lane < laneEnds.length && laneEnds[lane] > it.startMin) lane++;
       laneEnds[lane] = it.endMin;
-      placed.push({ event: it.event, dayIndex, startMin: it.startMin, endMin: it.endMin, lane, laneCount: 0 });
+      placed.push({
+        event: it.event,
+        dayIndex,
+        startMin: it.startMin,
+        endMin: it.endMin,
+        lane,
+        laneCount: 0,
+      });
       if (it.startMin < axisStartMin) axisStartMin = it.startMin;
       if (it.endMin > axisEndMin) axisEndMin = it.endMin;
     }

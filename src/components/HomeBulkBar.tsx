@@ -15,7 +15,13 @@ interface HomeBulkBarProps {
  * Bulk actions for the Home page: clear the selection, or remove the rating
  * from every selected event (status -> null), sending them back to Explore.
  */
-export function HomeBulkBar({ selectedEvents, onEventsChanged, onClearSelection, reportError, clearError }: HomeBulkBarProps) {
+export function HomeBulkBar({
+  selectedEvents,
+  onEventsChanged,
+  onClearSelection,
+  reportError,
+  clearError,
+}: HomeBulkBarProps) {
   const [removing, setRemoving] = useState(false);
   const count = selectedEvents.length;
   const active = count > 0;

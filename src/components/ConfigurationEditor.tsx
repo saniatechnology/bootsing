@@ -8,7 +8,8 @@ interface ConfigurationEditorProps {
   initial: Preferences;
 }
 
-type SaveState = { status: "idle" | "saving" } | { status: "saved" } | { status: "error"; message: string };
+type SaveState =
+  { status: "idle" | "saving" } | { status: "saved" } | { status: "error"; message: string };
 
 export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
   const [prefs, setPrefs] = useState<Preferences>(initial);
@@ -26,7 +27,11 @@ export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
     });
   }
 
-  function updateItem(sectionIndex: number, itemIndex: number, patch: { label?: string; detail?: string }) {
+  function updateItem(
+    sectionIndex: number,
+    itemIndex: number,
+    patch: { label?: string; detail?: string }
+  ) {
     updateSection(sectionIndex, {
       items: prefs.sections[sectionIndex].items.map((it, i) =>
         i === itemIndex ? { ...it, ...patch } : it
@@ -65,7 +70,10 @@ export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
         emptyText: s.emptyText?.trim() ? s.emptyText : undefined,
         items: s.items
           .filter((it) => it.label.trim() !== "")
-          .map((it) => ({ label: it.label.trim(), detail: it.detail?.trim() ? it.detail.trim() : undefined })),
+          .map((it) => ({
+            label: it.label.trim(),
+            detail: it.detail?.trim() ? it.detail.trim() : undefined,
+          })),
       })),
     };
 
@@ -92,7 +100,12 @@ export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
       <header className="page">
         <div className="topbar">
           <h1>Configuration</h1>
-          <Link href="/" className="settings-btn" aria-label="Back to calendar" title="Back to calendar">
+          <Link
+            href="/"
+            className="settings-btn"
+            aria-label="Back to calendar"
+            title="Back to calendar"
+          >
             <span className="material-symbols-outlined" aria-hidden="true">
               arrow_back
             </span>
@@ -118,7 +131,11 @@ export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
                 onChange={(e) => updateSection(si, { title: e.target.value })}
                 placeholder="Section title"
               />
-              <button type="button" className="ev-action-btn ev-action-delete" onClick={() => removeSection(si)}>
+              <button
+                type="button"
+                className="ev-action-btn ev-action-delete"
+                onClick={() => removeSection(si)}
+              >
                 Remove
               </button>
             </div>
@@ -169,7 +186,12 @@ export function ConfigurationEditor({ initial }: ConfigurationEditorProps) {
         <div className="config-save-group">
           {save.status === "saved" && <span className="config-save-msg">Saved</span>}
           {save.status === "error" && <span className="config-save-err">{save.message}</span>}
-          <button type="button" className="ef-save config-save-btn" onClick={handleSave} disabled={save.status === "saving"}>
+          <button
+            type="button"
+            className="ef-save config-save-btn"
+            onClick={handleSave}
+            disabled={save.status === "saving"}
+          >
             {save.status === "saving" ? "Saving…" : "Save changes"}
           </button>
         </div>

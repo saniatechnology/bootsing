@@ -221,8 +221,7 @@ export function ChatPanel({
 
   return (
     <>
-      <button id="chat-toggle" aria-label="Open chat" onClick={() => onOpenChange(!open)}>
-      </button>
+      <button id="chat-toggle" aria-label="Open chat" onClick={() => onOpenChange(!open)}></button>
 
       {open && (
         <div id="chat-panel">
@@ -297,7 +296,9 @@ export function ChatPanel({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                proposal ? "Confirm or cancel the changes above" : "e.g. Delete the jazz night at Marula"
+                proposal
+                  ? "Confirm or cancel the changes above"
+                  : "e.g. Delete the jazz night at Marula"
               }
               autoComplete="off"
               disabled={proposal !== null || disabled}

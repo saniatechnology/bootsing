@@ -48,7 +48,15 @@ function initialState(event: CalendarEvent | null, defaultDate: string): FormSta
   };
 }
 
-export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportError, clearError }: EventFormProps) {
+export function EventForm({
+  meta,
+  event,
+  defaultDate,
+  onSaved,
+  onCancel,
+  reportError,
+  clearError,
+}: EventFormProps) {
   const [form, setForm] = useState<FormState>(() => initialState(event, defaultDate));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +129,13 @@ export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportE
   }
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={isEdit ? "Edit event" : "Add event"} onClick={onCancel}>
+    <div
+      className="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label={isEdit ? "Edit event" : "Add event"}
+      onClick={onCancel}
+    >
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-head">
           <span>{isEdit ? "Edit event" : "Add event"}</span>
@@ -133,7 +147,12 @@ export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportE
         <form className="event-form" onSubmit={handleSubmit}>
           <label className="field field-wide">
             <span>Name</span>
-            <input value={form.name} onChange={(e) => update("name", e.target.value)} required autoFocus />
+            <input
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              required
+              autoFocus
+            />
           </label>
 
           <label className="field field-wide">
@@ -155,7 +174,10 @@ export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportE
           {form.cat === "MUS" && (
             <label className="field">
               <span>Music genre</span>
-              <select value={form.genre} onChange={(e) => update("genre", e.target.value as GenreKey)}>
+              <select
+                value={form.genre}
+                onChange={(e) => update("genre", e.target.value as GenreKey)}
+              >
                 {GENRE_KEYS.map((key) => (
                   <option key={key} value={key}>
                     {meta.genreLabels[key] ?? key}
@@ -167,37 +189,67 @@ export function EventForm({ meta, event, defaultDate, onSaved, onCancel, reportE
 
           <label className="field">
             <span>Start date</span>
-            <input type="date" value={form.start} onChange={(e) => update("start", e.target.value)} required />
+            <input
+              type="date"
+              value={form.start}
+              onChange={(e) => update("start", e.target.value)}
+              required
+            />
           </label>
 
           <label className="field">
             <span>End date</span>
-            <input type="date" value={form.end} onChange={(e) => update("end", e.target.value)} required />
+            <input
+              type="date"
+              value={form.end}
+              onChange={(e) => update("end", e.target.value)}
+              required
+            />
           </label>
 
           <label className="field">
             <span>Start time</span>
-            <input type="time" value={form.startTime} onChange={(e) => update("startTime", e.target.value)} />
+            <input
+              type="time"
+              value={form.startTime}
+              onChange={(e) => update("startTime", e.target.value)}
+            />
           </label>
 
           <label className="field">
             <span>End time</span>
-            <input type="time" value={form.endTime} onChange={(e) => update("endTime", e.target.value)} />
+            <input
+              type="time"
+              value={form.endTime}
+              onChange={(e) => update("endTime", e.target.value)}
+            />
           </label>
 
           <label className="field">
             <span>Cost</span>
-            <input value={form.cost} onChange={(e) => update("cost", e.target.value)} placeholder="Free, €15, Unknown…" />
+            <input
+              value={form.cost}
+              onChange={(e) => update("cost", e.target.value)}
+              placeholder="Free, €15, Unknown…"
+            />
           </label>
 
           <label className="field field-check">
-            <input type="checkbox" checked={form.approx} onChange={(e) => update("approx", e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={form.approx}
+              onChange={(e) => update("approx", e.target.checked)}
+            />
             <span>Date is approximate</span>
           </label>
 
           <label className="field field-wide">
             <span>Link</span>
-            <input value={form.link} onChange={(e) => update("link", e.target.value)} placeholder="https://…" />
+            <input
+              value={form.link}
+              onChange={(e) => update("link", e.target.value)}
+              placeholder="https://…"
+            />
           </label>
 
           <label className="field field-wide">

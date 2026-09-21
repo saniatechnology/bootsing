@@ -35,7 +35,8 @@ const PREFERENCE_SECTIONS = [
       { label: "Queer events" },
       {
         label: "Music — pop / electronic, small-scale",
-        detail: "Discovery-oriented club nights and small-room shows, not big-room mainstream acts.",
+        detail:
+          "Discovery-oriented club nights and small-room shows, not big-room mainstream acts.",
       },
       { label: "Music production", detail: "Meetups, workshops, gear / modular-synth culture." },
       { label: "Games / anime / nerd culture" },
@@ -58,7 +59,10 @@ const PREFERENCE_SECTIONS = [
       { label: "Latin", detail: "Primary interest." },
       { label: "Hip-Hop", detail: "Primary interest." },
       { label: "Pop", detail: "Primary interest." },
-      { label: "Electronic / EDM", detail: "Secondary interest — wanted in the data but lower priority." },
+      {
+        label: "Electronic / EDM",
+        detail: "Secondary interest — wanted in the data but lower priority.",
+      },
     ],
   },
   {
@@ -73,7 +77,10 @@ const PREFERENCE_SECTIONS = [
     items: [
       { label: "Mainstream / tourist-oriented events" },
       { label: "Big-room mainstream music acts" },
-      { label: "Default \u201Cbig show\u201D tourist spectacle", detail: "Unless it's a genuine, deliberate pick." },
+      {
+        label: "Default \u201Cbig show\u201D tourist spectacle",
+        detail: "Unless it's a genuine, deliberate pick.",
+      },
     ],
   },
 ];
@@ -153,4 +160,6 @@ check(
 console.log(
   `Seeded ${eventRows.length} events, ${categoryRows.length} categories, ${weekRows.length} weeks, app_settings + preferences for user ${userId}.`
 );
-console.log("Note: reset the events id sequence after seeding explicit ids (see migration/README).");
+console.log(
+  "Note: reset the events id sequence after seeding explicit ids (see migration/README)."
+);

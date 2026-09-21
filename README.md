@@ -32,13 +32,13 @@ event on Sep 2".
 
 ## Scripts
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Local dev server with hot reload |
-| `npm run build` | Production build (also type-checks) |
-| `npm start` | Run a production build |
-| `npm run lint` | ESLint |
-| `npm test` | Unit tests (Vitest) for the pure date/grid logic |
+| Command         | What it does                                     |
+| --------------- | ------------------------------------------------ |
+| `npm run dev`   | Local dev server with hot reload                 |
+| `npm run build` | Production build (also type-checks)              |
+| `npm start`     | Run a production build                           |
+| `npm run lint`  | ESLint                                           |
+| `npm test`      | Unit tests (Vitest) for the pure date/grid logic |
 
 ## How it's wired together
 

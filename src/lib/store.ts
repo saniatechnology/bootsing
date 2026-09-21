@@ -228,9 +228,11 @@ export async function readMeta(): Promise<CalendarMeta> {
       .single(),
   ]);
 
-  if (categoriesRes.error) throw new Error(`Failed to read categories: ${categoriesRes.error.message}`);
+  if (categoriesRes.error)
+    throw new Error(`Failed to read categories: ${categoriesRes.error.message}`);
   if (weeksRes.error) throw new Error(`Failed to read weeks: ${weeksRes.error.message}`);
-  if (settingsRes.error) throw new Error(`Failed to read app settings: ${settingsRes.error.message}`);
+  if (settingsRes.error)
+    throw new Error(`Failed to read app settings: ${settingsRes.error.message}`);
 
   const cats = {} as Record<CategoryKey, CategoryMeta>;
   const catGroups = {} as Record<CategoryKey, GroupKey[]>;

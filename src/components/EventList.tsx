@@ -86,7 +86,7 @@ export function EventList({
   const layout = buildWeekLayout(events, week);
   const [localExpanded, setLocalExpanded] = useState<number | null>(null);
   const controlled = onExpandedChange !== undefined;
-  const expanded = controlled ? expandedId ?? null : localExpanded;
+  const expanded = controlled ? (expandedId ?? null) : localExpanded;
 
   function toggleExpanded(id: number) {
     const next = expanded === id ? null : id;
@@ -155,12 +155,16 @@ export function EventList({
                       selected={selected}
                       onToggle={() => onToggleSelect(event.id)}
                       numClassName="dnum-num"
-                      statusEmoji={statusBadge && event.status ? STATUS_META[event.status].emoji : undefined}
+                      statusEmoji={
+                        statusBadge && event.status ? STATUS_META[event.status].emoji : undefined
+                      }
                     />
                   </td>
                   <td>
                     <span className="catdot" style={{ background: colorOf(event) }} />
-                    {groupsOf(event).map((g) => meta.groupLabels[g]).join(" · ")}
+                    {groupsOf(event)
+                      .map((g) => meta.groupLabels[g])
+                      .join(" · ")}
                   </td>
                   <td className="evn">
                     {event.name}
@@ -171,7 +175,12 @@ export function EventList({
                   <td>{event.cost}</td>
                   <td>{event.desc}</td>
                   <td>
-                    <a href={event.link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                    <a
+                      href={event.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       More info &#8599;
                     </a>
                   </td>

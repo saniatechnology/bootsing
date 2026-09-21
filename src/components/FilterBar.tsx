@@ -12,7 +12,11 @@ interface FilterBarProps {
 export function FilterBar({ meta, activeGroup, onSelectGroup }: FilterBarProps) {
   const options: { key: GroupKey | "all"; label: string; color?: string }[] = [
     { key: "all", label: "All" },
-    ...GROUP_KEYS.map((key) => ({ key, label: meta.groupLabels[key], color: meta.groupColors[key] })),
+    ...GROUP_KEYS.map((key) => ({
+      key,
+      label: meta.groupLabels[key],
+      color: meta.groupColors[key],
+    })),
   ];
 
   return (

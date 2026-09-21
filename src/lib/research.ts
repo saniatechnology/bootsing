@@ -66,7 +66,7 @@ const WEB_SEARCH_RESEARCH_TOOL: Anthropic.Messages.WebSearchTool20260318 = {
   type: "web_search_20260318",
   name: "web_search",
   max_uses: 5,
-  allowed_callers: ["direct"],   // sequential searches, not batched sandbox bursts
+  allowed_callers: ["direct"], // sequential searches, not batched sandbox bursts
 };
 
 const RESEARCH_TOOLS: Anthropic.Messages.ToolUnion[] = [
@@ -217,7 +217,10 @@ export async function researchAndReplaceWeek(
 ): Promise<WeekReplaceResult> {
   const { events: found, reply } = await runWeekResearch(weekStart, weekEnd, emit);
 
-  emit?.({ type: "stage", label: `Saving ${found.length} event${found.length === 1 ? "" : "s"}\u2026` });
+  emit?.({
+    type: "stage",
+    label: `Saving ${found.length} event${found.length === 1 ? "" : "s"}\u2026`,
+  });
   const removed = await deleteEventsStartingInWeek(weekStart, weekEnd);
   for (const input of found) {
     await insertEvent(input);

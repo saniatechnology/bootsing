@@ -23,7 +23,9 @@ function formatPreferences(prefs: Preferences): string {
       continue;
     }
     for (const item of section.items) {
-      lines.push(item.detail?.trim() ? `- ${item.label}: ${item.detail.trim()}` : `- ${item.label}`);
+      lines.push(
+        item.detail?.trim() ? `- ${item.label}: ${item.detail.trim()}` : `- ${item.label}`
+      );
     }
   }
   return lines.join("\n");

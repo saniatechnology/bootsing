@@ -81,7 +81,10 @@ export function HourlyWeekSection({
               key={u.event.id}
               type="button"
               className={`hourly-item${expandedId === u.event.id ? " expanded" : ""}`}
-              style={{ gridColumn: `${u.colStart + 1} / span ${u.span}`, ["--cat" as string]: colorOf(u.event) }}
+              style={{
+                gridColumn: `${u.colStart + 1} / span ${u.span}`,
+                ["--cat" as string]: colorOf(u.event),
+              }}
               title={`${u.event.name} — ${u.event.venue}`}
               onClick={() => toggleExpanded(u.event.id)}
             >
@@ -175,7 +178,9 @@ export function HourlyWeekSection({
             <div className="ev-detail-head">
               <span className="catdot" style={{ background: colorOf(expandedEvent) }} />
               <span className="ev-detail-groups">
-                {(meta.catGroups[expandedEvent.cat] ?? []).map((g) => meta.groupLabels[g]).join(" · ")}
+                {(meta.catGroups[expandedEvent.cat] ?? [])
+                  .map((g) => meta.groupLabels[g])
+                  .join(" · ")}
               </span>
               <span className="ev-detail-title">{expandedEvent.name}</span>
               {expandedEvent.approx && <span className="approx">approx.</span>}
@@ -187,12 +192,16 @@ export function HourlyWeekSection({
               </div>
               <div>
                 <dt>Date</dt>
-                <dd className="mono">{fmtDateRange(parseIsoDate(expandedEvent.start), parseIsoDate(expandedEvent.end))}</dd>
+                <dd className="mono">
+                  {fmtDateRange(parseIsoDate(expandedEvent.start), parseIsoDate(expandedEvent.end))}
+                </dd>
               </div>
               {expandedEvent.startTime && (
                 <div>
                   <dt>Time</dt>
-                  <dd className="mono">{fmtTimeRange(expandedEvent.startTime, expandedEvent.endTime)}</dd>
+                  <dd className="mono">
+                    {fmtTimeRange(expandedEvent.startTime, expandedEvent.endTime)}
+                  </dd>
                 </div>
               )}
               <div>
@@ -204,7 +213,12 @@ export function HourlyWeekSection({
                 <dd>{expandedEvent.desc}</dd>
               </div>
             </dl>
-            <a className="ev-detail-link" href={expandedEvent.link} target="_blank" rel="noopener noreferrer">
+            <a
+              className="ev-detail-link"
+              href={expandedEvent.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               More info &#8599;
             </a>
             <div className="ev-detail-actions">

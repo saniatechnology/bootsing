@@ -56,7 +56,10 @@ export const CALENDAR_TOOLS: Anthropic.Messages.Tool[] = [
     description: "Edit an existing event by id. Only pass the fields that should change.",
     input_schema: {
       type: "object",
-      properties: { id: { type: "integer", description: "The event's id" }, ...eventFieldProperties },
+      properties: {
+        id: { type: "integer", description: "The event's id" },
+        ...eventFieldProperties,
+      },
       required: ["id"],
     },
   },
@@ -86,12 +89,21 @@ export const FIND_EVENTS_TOOL: Anthropic.Messages.Tool = {
   input_schema: {
     type: "object",
     properties: {
-      query: { type: "string", description: "Case-insensitive substring matched against name and venue" },
+      query: {
+        type: "string",
+        description: "Case-insensitive substring matched against name and venue",
+      },
       group: { type: "string", enum: GROUP_KEYS, description: "Filter group" },
       genre: { type: "string", enum: GENRE_KEYS, description: "Music genre tag" },
       cat: { type: "string", enum: CATEGORY_KEYS, description: "Category key" },
-      from: { type: "string", description: "Range start, ISO yyyy-mm-dd; matches events ending on/after it" },
-      to: { type: "string", description: "Range end, ISO yyyy-mm-dd; matches events starting on/before it" },
+      from: {
+        type: "string",
+        description: "Range start, ISO yyyy-mm-dd; matches events ending on/after it",
+      },
+      to: {
+        type: "string",
+        description: "Range end, ISO yyyy-mm-dd; matches events starting on/before it",
+      },
     },
   },
 };
@@ -117,8 +129,7 @@ export type EventMatch = Pick<
 >;
 
 export type ToolResult =
-  | { ok: true; count: number; matches: EventMatch[] }
-  | { ok: false; error: string };
+  { ok: true; count: number; matches: EventMatch[] } | { ok: false; error: string };
 
 /**
  * Materialize a validated NewEventInput into the full event shape (minus the
@@ -139,7 +150,7 @@ export function materializeNewEvent(input: NewEventInput): Omit<CalendarEvent, "
     desc: input.desc,
     link: input.link,
     approx: input.approx ?? false,
-    genre: input.cat === "MUS" ? input.genre ?? "other" : null,
+    genre: input.cat === "MUS" ? (input.genre ?? "other") : null,
     status: input.status ?? null,
   };
 }

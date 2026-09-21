@@ -11,7 +11,13 @@ interface BulkActionsBarProps {
   clearError: () => void;
 }
 
-export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelection, reportError, clearError }: BulkActionsBarProps) {
+export function BulkActionsBar({
+  selectedEvents,
+  onEventsChanged,
+  onClearSelection,
+  reportError,
+  clearError,
+}: BulkActionsBarProps) {
   const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [marking, setMarking] = useState(false);
@@ -130,7 +136,13 @@ export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelecti
       </button>
 
       {confirming && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Confirm delete" onClick={closeModal}>
+        <div
+          className="modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm delete"
+          onClick={closeModal}
+        >
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-head">
               <span>
@@ -142,7 +154,9 @@ export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelecti
             </div>
 
             <div className="bulk-delete-body">
-              <p className="bulk-delete-lead">This can&rsquo;t be undone. The following will be permanently deleted:</p>
+              <p className="bulk-delete-lead">
+                This can&rsquo;t be undone. The following will be permanently deleted:
+              </p>
               <ul className="bulk-delete-list">
                 {selectedEvents.map((ev) => (
                   <li key={ev.id}>
@@ -155,10 +169,20 @@ export function BulkActionsBar({ selectedEvents, onEventsChanged, onClearSelecti
               </ul>
               {error && <p className="bulk-delete-error">{error}</p>}
               <div className="bulk-delete-actions">
-                <button type="button" className="bd-cancel" onClick={closeModal} disabled={deleting}>
+                <button
+                  type="button"
+                  className="bd-cancel"
+                  onClick={closeModal}
+                  disabled={deleting}
+                >
                   Cancel
                 </button>
-                <button type="button" className="bd-confirm" onClick={handleConfirmDelete} disabled={deleting}>
+                <button
+                  type="button"
+                  className="bd-confirm"
+                  onClick={handleConfirmDelete}
+                  disabled={deleting}
+                >
                   {deleting ? "Deleting…" : `Delete ${count}`}
                 </button>
               </div>

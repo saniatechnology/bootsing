@@ -15,7 +15,12 @@ const eventSummary = z.object({
 // Mirrors the ProposedAction union in types.ts; the apply endpoint writes to
 // the database, so the client-supplied actions are fully re-validated here.
 const proposedAction = z.discriminatedUnion("kind", [
-  z.object({ id: z.string(), kind: z.literal("add"), summary: z.string(), input: newEventInputSchema }),
+  z.object({
+    id: z.string(),
+    kind: z.literal("add"),
+    summary: z.string(),
+    input: newEventInputSchema,
+  }),
   z.object({
     id: z.string(),
     kind: z.literal("edit"),

@@ -26,15 +26,49 @@ function makeEvent(overrides: Partial<CalendarEvent>): CalendarEvent {
 
 function sampleEvents(): CalendarEvent[] {
   return [
-    makeEvent({ id: 1, name: "Jazz Night", venue: "Marula", cat: "MUS", genre: "mixed", start: "2026-09-05", end: "2026-09-05" }),
-    makeEvent({ id: 2, name: "Techno Rave", venue: "Razzmatazz", cat: "MUS", genre: "electronic", start: "2026-09-10", end: "2026-09-10" }),
-    makeEvent({ id: 3, name: "Gallery Opening", venue: "MACBA", cat: "GAL", genre: null, start: "2026-09-12", end: "2026-09-20" }),
-    makeEvent({ id: 4, name: "Queer Disco", venue: "Sala Apolo", cat: "QUEER", genre: null, start: "2026-09-15", end: "2026-09-15" }),
+    makeEvent({
+      id: 1,
+      name: "Jazz Night",
+      venue: "Marula",
+      cat: "MUS",
+      genre: "mixed",
+      start: "2026-09-05",
+      end: "2026-09-05",
+    }),
+    makeEvent({
+      id: 2,
+      name: "Techno Rave",
+      venue: "Razzmatazz",
+      cat: "MUS",
+      genre: "electronic",
+      start: "2026-09-10",
+      end: "2026-09-10",
+    }),
+    makeEvent({
+      id: 3,
+      name: "Gallery Opening",
+      venue: "MACBA",
+      cat: "GAL",
+      genre: null,
+      start: "2026-09-12",
+      end: "2026-09-20",
+    }),
+    makeEvent({
+      id: 4,
+      name: "Queer Disco",
+      venue: "Sala Apolo",
+      cat: "QUEER",
+      genre: null,
+      start: "2026-09-15",
+      end: "2026-09-15",
+    }),
   ];
 }
 
 // find_events only reads meta.catGroups, so the rest of CalendarMeta is stubbed.
-const catGroups = Object.fromEntries(CATEGORY_KEYS.map((c) => [c, ["culture"]])) as CalendarMeta["catGroups"];
+const catGroups = Object.fromEntries(
+  CATEGORY_KEYS.map((c) => [c, ["culture"]])
+) as CalendarMeta["catGroups"];
 catGroups.MUS = ["dancing"];
 catGroups.QUEER = ["queer", "dancing"];
 const meta = { catGroups } as unknown as CalendarMeta;

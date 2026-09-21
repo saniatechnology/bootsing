@@ -43,7 +43,10 @@ export function ndjsonResponse(run: (emit: ProgressEmit) => Promise<unknown>): R
         const data = await run(emit);
         emit({ type: "done", data });
       } catch (err) {
-        emit({ type: "error", message: err instanceof Error ? err.message : "Something went wrong" });
+        emit({
+          type: "error",
+          message: err instanceof Error ? err.message : "Something went wrong",
+        });
       } finally {
         controller.close();
       }

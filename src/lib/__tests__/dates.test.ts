@@ -35,7 +35,12 @@ describe("clipToWeek", () => {
   });
 
   it("clips a range that overhangs both ends of the week", () => {
-    const result = clipToWeek(parseIsoDate("2026-09-01"), parseIsoDate("2026-09-30"), weekStart, weekEnd);
+    const result = clipToWeek(
+      parseIsoDate("2026-09-01"),
+      parseIsoDate("2026-09-30"),
+      weekStart,
+      weekEnd
+    );
     expect(result).not.toBeNull();
     const [start, end] = result!;
     expect(start.getTime()).toBe(weekStart.getTime());

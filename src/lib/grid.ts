@@ -61,9 +61,7 @@ export function buildWeekLayout(
   // Shorter full-duration events first, then earlier starts first — this is
   // what makes one-off nights float above multi-week exhibitions.
   candidates.sort(
-    (a, b) =>
-      a.fullDuration - b.fullDuration ||
-      a.clippedStart.getTime() - b.clippedStart.getTime()
+    (a, b) => a.fullDuration - b.fullDuration || a.clippedStart.getTime() - b.clippedStart.getTime()
   );
 
   // Pack each bar into the lowest lane whose day-columns are still free, so
