@@ -1,118 +1,148 @@
-# Bootsing — Culture + Dancing Calendar (Next.js)
+# Bootsing
 
-> **Picking this up fresh (e.g. in Claude Code)?** Read `CONTEXT.md` first —
-> it covers what this app is for, the category/genre preferences the data
-> was researched against, the data schema, and known rough edges. This file
-> covers setup, running, testing, and deployment.
+A personal calendar of cultural events: the things you find, save and actually
+go to. It shows one week at a time as a spreadsheet-style grid, lets you triage
+saved events (Boots / Maybe / Interesting), and has two Claude-powered helpers:
+a chat box that proposes edits you approve one by one, and a "research this
+week" action that searches the web for events matching your written
+preferences.
 
-The weekly calendar grid, rebuilt as a proper Next.js (App Router + TypeScript)
-app: a small typed data layer, React Server Components for the initial render,
-and a chat box that talks to Claude (via your own Anthropic API key) to add,
-edit, or delete events, using tool calling and — when it needs to look
-something up — the Claude API's built-in web search tool.
+It was built for one person's Barcelona, but everything that makes it personal
+lives in the database and a few small files, so you can point it at your own
+city and tastes (see [Personalising](#personalising)).
 
-## 1. Get an API key
+Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (Postgres)
+and the Anthropic SDK.
 
-Create one at https://console.anthropic.com/settings/keys. This is billed to
-your own Anthropic API console account, separate from any claude.ai
-subscription — see the "Cost" section below for what to expect.
+## Requirements
 
-## 2. Set up
+- Node 20.6 or newer (see `.nvmrc`).
+- A [Supabase](https://supabase.com) project (the free tier is fine).
+- An [Anthropic API key](https://console.anthropic.com/settings/keys). Usage is
+  billed to your own console account, separately from any claude.ai
+  subscription.
 
-```bash
-npm install
-cp .env.example .env.local
-# edit .env.local and paste your key in place of sk-ant-...
-npm run dev
-```
+## Setup
 
-Open http://localhost:3000. Try asking the chat box in the corner something
-like "add a free jazz night at Marula Café on Sep 9" or "delete the Bresh Club
-event on Sep 2".
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Create the database schema. With the
+   [Supabase CLI](https://supabase.com/docs/guides/cli) installed:
+
+   ```bash
+   supabase link --project-ref <your-project-ref>
+   supabase db push
+   ```
+
+   This applies the SQL files in `supabase/migrations/`. Without the CLI,
+   paste them into the project's SQL editor in order.
+
+3. Configure the environment:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Fill in `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+   (Project Settings → API) and `DEFAULT_USER_ID` (any UUID; the app is
+   single-user and scopes every row to it). `ANTHROPIC_MODEL` is optional.
+
+4. Seed a starter dataset (categories, week boundaries, preferences and a set
+   of example events). Re-running it resets that user's rows:
+
+   ```bash
+   npm run seed
+   ```
+
+5. Run it:
+
+   ```bash
+   npm run dev
+   ```
+
+   Open http://localhost:3000. Home shows saved events (none yet); Explore
+   shows everything. Try the chat box with "delete the jazz night at Marula",
+   or navigate to a week with no events and click "Research events for this
+   week".
 
 ## Scripts
 
-| Command         | What it does                                     |
-| --------------- | ------------------------------------------------ |
-| `npm run dev`   | Local dev server with hot reload                 |
-| `npm run build` | Production build (also type-checks)              |
-| `npm start`     | Run a production build                           |
-| `npm run lint`  | ESLint                                           |
-| `npm test`      | Unit tests (Vitest) for the pure date/grid logic |
+| Command             | What it does                                                |
+| ------------------- | ----------------------------------------------------------- |
+| `npm run dev`       | Dev server with hot reload                                  |
+| `npm run build`     | Production build (also type-checks the routes)              |
+| `npm start`         | Serve a production build                                    |
+| `npm run check`     | Lint, typecheck, format check and unit tests (what CI runs) |
+| `npm run lint`      | ESLint                                                      |
+| `npm run typecheck` | `next typegen` + `tsc --noEmit`                             |
+| `npm test`          | Unit tests (Vitest); `npm run test:watch` to watch          |
+| `npm run format`    | Prettier; `npm run format:check` to verify                  |
+| `npm run seed`      | Reset and seed the database from `supabase/seed/`           |
 
-## How it's wired together
+## How it works
 
-```
-data/events.json, data/meta.json     →  the one source of truth for events
-                                          and category/genre/week config
+[docs/architecture.md](docs/architecture.md) has the module map and request
+flows. In short:
 
-src/lib/types.ts                     →  the domain model (CalendarEvent,
-                                          CategoryKey, GenreKey, ...) — every
-                                          other module is built on these types
-src/lib/dates.ts, src/lib/grid.ts     →  pure functions: date math and the
-                                          "which events go where in this
-                                          week's grid" layout algorithm
-                                          (unit tested — see src/lib/__tests__)
-src/lib/store.ts                     →  the only place that touches the
-                                          filesystem (server-only)
-src/lib/tools.ts                     →  the add_event/edit_event/delete_event
-                                          tool definitions Claude can call,
-                                          plus the code that executes them
-src/lib/chat.ts                      →  the tool-use agent loop: call Claude,
-                                          run whatever tools it asks for,
-                                          feed results back, repeat
+- Pages are Server Components that read from Supabase on every request and
+  hand the data to a client component.
+- Every change goes through a small set of API routes that validate their
+  input with zod schemas in `src/lib/validation.ts`. The same schemas generate
+  the tool definitions Claude receives, so the model can only propose events
+  the API would accept.
+- The chat never writes directly: its add/edit/delete calls come back as a
+  proposal you approve, and only approved actions are applied.
+- Research deletes the week's events and inserts what Claude found, so it is
+  confirmed first when the week isn't empty.
 
-src/app/page.tsx                     →  Server Component: reads events/meta
-                                          straight from disk, no network hop
-src/app/api/events/route.ts          →  GET  — serves the current events/meta
-src/app/api/chat/route.ts            →  POST — runs a chat message through
-                                          the agent loop and returns the reply
-                                          plus any updated events
+## Personalising
 
-src/components/CalendarApp.tsx        →  client component: owns filter state
-                                          and the current event list
-src/components/WeekSection.tsx        →  renders one week's grid + detail
-                                          table from src/lib/grid.ts's output
-src/components/FilterBar.tsx          →  category/genre filter chips
-src/components/ChatPanel.tsx           →  the floating chat box
-```
+- **What to look for.** The Configuration page edits the preference sections
+  the research prompt is built from: event types, favourite venues, what to
+  skip. This is where most of the "personal" lives.
+- **Categories, groups and colours.** Seeded from `supabase/seed/meta.json`
+  into the `categories` and `app_settings` tables. The category and genre keys
+  are also TypeScript unions in `src/lib/types.ts` (`CATEGORY_KEYS`,
+  `GENRE_KEYS`), so changing the vocabulary means updating both.
+- **Status labels and emoji** for saved events: `src/lib/status-meta.ts`.
+- **Prompts.** `src/lib/system-prompt.ts` (chat) and
+  `src/lib/research-prompt.ts` (research). The city is currently hardcoded
+  there and in the empty-week copy in `CalendarApp`.
+- **Model.** Set `ANTHROPIC_MODEL` in `.env.local` to try another Claude
+  model.
+- **Theme.** Every colour is a token in `src/styles/theme.css`.
+
+## Deploying
+
+Any host that runs a Node server works (Vercel, Render, Railway, Fly.io, a
+VPS). Set the four environment variables in the host's dashboard rather than
+committing `.env.local`. The research route declares `maxDuration = 120`
+seconds; check your host allows that for serverless functions.
+
+**There is no authentication.** Anyone who can reach the deployment can edit
+your calendar and spend your Anthropic credits through the chat and research
+endpoints. Keep it private (a VPN, an access-protected host, or a shared-secret
+middleware) until auth is added.
 
 ## Cost
 
-Each add/edit/delete message costs a fraction of a cent (roughly
-$0.005–$0.01 with `claude-sonnet-5`, the model this app uses) — mostly input
-tokens for the small system prompt and tool definitions. A message where
-Claude uses `web_search` to look something up first adds a flat $0.01 per
-search plus a bit more in tokens for the results, so more like $0.015–$0.02.
-At a couple of edits a few times a week this comes out to well under $1/month.
-Billed to your own Anthropic API console account/credits, separate from any
-claude.ai subscription.
+Chat turns cost fractions of a cent in tokens plus a flat fee per web search
+Claude runs (capped at 3 per chat turn and 5 per research run). A research run
+is the most expensive action, typically a few cents. At personal usage this
+comes to well under a few dollars a month; check current pricing at
+https://www.anthropic.com/pricing.
 
-## Deploying it somewhere permanent
+## Development
 
-The important constraint: **the event data lives in two plain JSON files on
-disk** (`data/events.json`, `data/meta.json`), and your API key must stay
-server-side — it's only ever read inside `src/lib/anthropic-client.ts`
-(a server-only module) and the API routes, never shipped to the browser.
+`npm run check` must pass before merging; the GitHub Actions workflow runs it
+plus a production build on every push and pull request. Formatting is
+Prettier's job (`npm run format`), and ESLint stays out of style. Pure logic
+lives in `src/lib` and is unit-tested; components stay thin.
 
-- **Simplest — a host with a persistent, writable filesystem** (Render,
-  Railway, Fly.io, a plain VPS running `npm run build && npm start`): edits
-  made through the chat box persist exactly like they do locally.
-- **Vercel (or other serverless-function hosts):** these do **not** keep a
-  writable persistent disk between invocations, so `data/events.json` would
-  reset on every deploy and edits could vanish between requests. If you
-  deploy there anyway, swap the handful of functions in `src/lib/store.ts`
-  (`readEvents`/`writeEvents`) for reads/writes to something persistent —
-  Vercel KV/Blob, Postgres (Neon, Supabase), etc. Nothing else in the app
-  needs to change, since every other module only ever talks to `store.ts`.
-- Either way, set `ANTHROPIC_API_KEY` as an environment variable in the
-  host's dashboard rather than committing `.env.local`.
+## License
 
-## Extending the chat box later
-
-It currently has four tools: `add_event`, `edit_event`, `delete_event`
-(defined and executed in `src/lib/tools.ts`), and `web_search` (a server-side
-tool the Anthropic API resolves on its own — see the comment in
-`src/lib/chat.ts` for how the agent loop distinguishes the two kinds). To add
-a new ability, add an entry to `CALENDAR_TOOLS` in `src/lib/tools.ts` and a
-matching `case` in `executeTool()`.
+MIT, see [LICENSE](LICENSE).

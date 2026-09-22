@@ -9,8 +9,6 @@ package-lock.json
 supabase/.temp/
 supabase/.branches/
 
-# Large data fixtures: keep their existing hand-formatted layout
-data/
+# Data fixtures and research notes: keep their existing hand-formatted layout
 supabase/seed/
 docs/research/
-research/

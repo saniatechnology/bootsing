@@ -1,14 +1,20 @@
-// Seeds the current DEFAULT_USER_ID from data/events.json + data/meta.json.
-// Idempotent: clears this user's rows first, then reinserts. Run with:
-//   node --env-file=.env.local scripts/seed.mjs
-// Preferences are embedded here (from src/lib/preferences.ts) since that module
-// becomes DB-backed later.
+// Seeds a Supabase project with the starter dataset in supabase/seed/:
+// events, categories/weeks/settings (meta.json) and preferences, all under
+// DEFAULT_USER_ID. Idempotent: this user's rows are deleted first, then
+// reinserted. Run with:
+//
+//   npm run seed          (node --env-file=.env.local scripts/seed.mjs)
+//
+// The running app never reads these files; they exist to give a fresh install
+// something to look at and to document the expected shape of each table.
+import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const seedDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../supabase/seed");
+const readJson = (name) => JSON.parse(readFileSync(path.join(seedDir, name), "utf8"));
 
 const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, DEFAULT_USER_ID } = process.env;
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !DEFAULT_USER_ID) {
@@ -18,75 +24,29 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !DEFAULT_USER_ID) {
 }
 const userId = DEFAULT_USER_ID;
 
-const events = JSON.parse(readFileSync(path.join(root, "data/events.json"), "utf8"));
-const meta = JSON.parse(readFileSync(path.join(root, "data/meta.json"), "utf8"));
+const events = readJson("events.json");
+const meta = readJson("meta.json");
+const preferences = readJson("preferences.json");
 
-const PREFERENCES_INTRO =
-  "These are the preferences the current events were gathered against — what I said I want to see, " +
-  "what to skip, and the music I like for dancing. They're read-only for now; editing comes later.";
-
-const PREFERENCE_SECTIONS = [
-  {
-    title: "Event types I'm interested in",
-    note: "In rough priority order — what I most want to discover first.",
-    items: [
-      { label: "Independent / artist-run spaces" },
-      { label: "Contemporary art & galleries", detail: "Including openings and closings." },
-      { label: "Queer events" },
-      {
-        label: "Music — pop / electronic, small-scale",
-        detail:
-          "Discovery-oriented club nights and small-room shows, not big-room mainstream acts.",
-      },
-      { label: "Music production", detail: "Meetups, workshops, gear / modular-synth culture." },
-      { label: "Games / anime / nerd culture" },
-      {
-        label: "Barcelona World Capital of Architecture 2026",
-        detail: "Including the guided-tour (\u201CRutas\u201D) program.",
-      },
-      { label: "Fashion" },
-      { label: "Tech & software" },
-      { label: "Neighborhood festivals", detail: "Festes majors, La Merc\u00E8, etc." },
-      {
-        label: "\u201CChic but interesting\u201D standout events",
-        detail: "Polished picks that are still a genuine choice, not tourist spectacle.",
-      },
-    ],
-  },
-  {
-    title: "Music styles I like for dancing",
-    items: [
-      { label: "Latin", detail: "Primary interest." },
-      { label: "Hip-Hop", detail: "Primary interest." },
-      { label: "Pop", detail: "Primary interest." },
-      {
-        label: "Electronic / EDM",
-        detail: "Secondary interest — wanted in the data but lower priority.",
-      },
-    ],
-  },
-  {
-    title: "Favorite venues, festivals & events",
-    note: "Places and events I want to prioritize.",
-    emptyText: "None saved yet — this will fill in as I mark favorites.",
-    items: [],
-  },
-  {
-    title: "What to skip",
-    note: "General bias: favor independent, emerging, and discovery-oriented events. When two options are similar, the smaller / less-obvious one wins.",
-    items: [
-      { label: "Mainstream / tourist-oriented events" },
-      { label: "Big-room mainstream music acts" },
-      {
-        label: "Default \u201Cbig show\u201D tourist spectacle",
-        detail: "Unless it's a genuine, deliberate pick.",
-      },
-    ],
-  },
-];
+// Catch a malformed seed file before touching the database.
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+assert(Array.isArray(events), "events.json must be an array");
+assert(
+  meta.cats && meta.catGroups && Array.isArray(meta.weeks),
+  "meta.json is missing cats/catGroups/weeks"
+);
+for (const e of events) {
+  assert(typeof e.name === "string" && e.name, `event without a name: ${JSON.stringify(e)}`);
+  assert(e.cat in meta.cats, `event "${e.name}" has unknown category "${e.cat}"`);
+  assert(ISO_DATE.test(e.start) && ISO_DATE.test(e.end), `event "${e.name}" has non-ISO dates`);
+}
+assert(
+  typeof preferences.intro === "string" && Array.isArray(preferences.sections),
+  "preferences.json is malformed"
+);
 
 // supabase-js eagerly initializes a realtime client that needs a WebSocket
-// constructor. We never use realtime here, so a no-op stub is enough on Node 20.
+// constructor. We never use realtime here, so a no-op stub is enough on Node < 22.
 if (typeof globalThis.WebSocket === "undefined") {
   globalThis.WebSocket = class {};
 }
@@ -104,19 +64,23 @@ for (const table of ["events", "categories", "weeks", "app_settings", "preferenc
   check(`delete ${table}`, await supabase.from(table).delete().eq("user_id", userId));
 }
 
+// Ids are left to the identity column: inserting the file's ids would not
+// advance the sequence, and the app's first insert would then collide.
 const eventRows = events.map((e) => ({
-  id: e.id,
   user_id: userId,
   name: e.name,
   venue: e.venue,
   cat: e.cat,
   starts: e.start,
   ends: e.end,
+  start_time: e.startTime ?? null,
+  end_time: e.endTime ?? null,
   cost: e.cost,
   description: e.desc,
   link: e.link,
-  approx: e.approx,
-  genre: e.genre,
+  approx: e.approx ?? false,
+  genre: e.genre ?? null,
+  status: e.status ?? null,
 }));
 check("insert events", await supabase.from("events").insert(eventRows));
 
@@ -152,14 +116,11 @@ check(
   "insert preferences",
   await supabase.from("preferences").insert({
     user_id: userId,
-    intro: PREFERENCES_INTRO,
-    sections: PREFERENCE_SECTIONS,
+    intro: preferences.intro,
+    sections: preferences.sections,
   })
 );
 
 console.log(
-  `Seeded ${eventRows.length} events, ${categoryRows.length} categories, ${weekRows.length} weeks, app_settings + preferences for user ${userId}.`
-);
-console.log(
-  "Note: reset the events id sequence after seeding explicit ids (see migration/README)."
+  `Seeded ${eventRows.length} events, ${categoryRows.length} categories, ${weekRows.length} weeks, app_settings and preferences for user ${userId}.`
 );
