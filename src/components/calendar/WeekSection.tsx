@@ -5,13 +5,12 @@ import { dayOfWeekAbbr, toIsoDate } from "@/lib/dates";
 import { matchesGroup, primaryGroupColor } from "@/lib/event-meta";
 import { buildWeekLayout } from "@/lib/grid";
 import { activateOnKey } from "@/lib/keyboard";
-import { STATUS_META } from "@/lib/status-meta";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 import type { WeekRange } from "@/lib/weeks";
+import { EventBarBody } from "../shared/EventBarBody";
 import { EventDetail } from "../shared/EventDetail";
 import { EventList } from "../shared/EventList";
 import { InterestingButton } from "../shared/InterestingButton";
-import { SelectBadge } from "../shared/SelectBadge";
 
 interface WeekSectionProps {
   week: WeekRange;
@@ -143,7 +142,7 @@ export function WeekSection({
           return (
             <Fragment key={event.id}>
               <div
-                className={`ev-row${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
+                className={`ev-row ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
                 style={{
                   gridRow,
                   gridColumn: `${colStart} / span ${span}`,
@@ -156,22 +155,13 @@ export function WeekSection({
                 onClick={() => toggleExpanded(event.id)}
                 onKeyDown={activateOnKey(() => toggleExpanded(event.id))}
               >
-                <div className="ev-row-line1">
-                  <SelectBadge
-                    index={index}
-                    eventName={event.name}
-                    selected={selected}
-                    onToggle={() => onToggleSelect(event.id)}
-                    numClassName="ev-badge"
-                    statusEmoji={event.status ? STATUS_META[event.status].emoji : undefined}
-                  />
-                  <span className="ev-name">{event.name}</span>
-                  {event.approx && <span className="approx">approx.</span>}
-                </div>
-                <div className="ev-row-line2">
-                  <span className="ev-venue">{event.venue}</span>
-                  {event.startTime && <span className="ev-time">{event.startTime}</span>}
-                </div>
+                <EventBarBody
+                  event={event}
+                  index={index}
+                  selected={selected}
+                  onToggleSelect={() => onToggleSelect(event.id)}
+                  time={event.startTime ?? undefined}
+                />
               </div>
 
               {expanded && (

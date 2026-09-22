@@ -5,7 +5,6 @@ import { fmtDateRange } from "@/lib/dates";
 import { groupLabelsOf, matchesGroup, primaryGroupColor } from "@/lib/event-meta";
 import { buildWeekLayout } from "@/lib/grid";
 import { activateOnKey } from "@/lib/keyboard";
-import { STATUS_META } from "@/lib/status-meta";
 import type { CalendarEvent, CalendarMeta, GroupKey } from "@/lib/types";
 import type { WeekRange } from "@/lib/weeks";
 import { EventLink } from "./EventLink";
@@ -76,7 +75,7 @@ export function EventList({
               <Fragment key={event.id}>
                 <tr
                   id={`ev-list-row-${event.id}`}
-                  className={`ev-list-row${selected ? " selected" : ""}${isOpen ? " expanded" : ""}`}
+                  className={`ev-list-row ev-selectable${selected ? " selected" : ""}${isOpen ? " expanded" : ""}`}
                   role="button"
                   tabIndex={0}
                   aria-expanded={isOpen}
@@ -91,9 +90,7 @@ export function EventList({
                       selected={selected}
                       onToggle={() => onToggleSelect(event.id)}
                       numClassName="dnum-num"
-                      statusEmoji={
-                        statusBadge && event.status ? STATUS_META[event.status].emoji : undefined
-                      }
+                      status={statusBadge ? event.status : null}
                     />
                   </td>
                   <td>

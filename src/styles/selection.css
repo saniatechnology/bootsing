@@ -2,6 +2,9 @@
  * Manual event selection: the number badge swaps for a checkbox on hover (or
  * whenever it's ticked), and selected rows get an accent outline. Shared by the
  * Explore grid, the Home hourly grid and the list table.
+ *
+ * Any row that hosts a SelectBadge carries `ev-selectable`; the hover and
+ * selected rules below key off that class rather than each row's own class.
  */
 .ev-select {
   position: relative;
@@ -14,6 +17,17 @@
 }
 .dnum-num {
   font-family: "IBM Plex Mono", monospace;
+}
+/* Saved events show their status emoji in place of the numbered square. */
+.ev-badge.has-emoji {
+  background: none;
+  color: inherit;
+  width: auto;
+}
+.ev-select-num.has-emoji {
+  font-family: inherit;
+  font-size: 1.05rem;
+  line-height: 1;
 }
 .ev-select-box {
   position: absolute;
@@ -29,26 +43,22 @@
   accent-color: var(--accent);
 }
 /* Reveal the checkbox on row hover, or whenever it's already ticked. */
-.ev-row:hover .ev-select-box,
-.hourly-block:hover .ev-select-box,
-.detail-table tr:hover .ev-select-box,
+.ev-selectable:hover .ev-select-box,
 .ev-select-box:checked {
   opacity: 1;
   pointer-events: auto;
 }
 /* Hide the number while the checkbox is showing so they don't overlap. */
-.ev-row:hover .ev-badge,
-.hourly-block:hover .ev-badge,
-.detail-table tr:hover .dnum-num,
-.ev-select:has(.ev-select-box:checked) .ev-badge,
-.ev-select:has(.ev-select-box:checked) .dnum-num {
+.ev-selectable:hover .ev-select-num,
+.ev-select:has(.ev-select-box:checked) .ev-select-num {
   visibility: hidden;
 }
-.ev-row.selected,
-.hourly-block.selected {
+.ev-selectable.selected {
   outline: 1px solid var(--accent);
   outline-offset: -1px;
 }
-.detail-table tr.selected {
+/* Table rows tint instead of outlining. */
+.detail-table tr.ev-selectable.selected {
+  outline: none;
   background: var(--accent-tint);
 }

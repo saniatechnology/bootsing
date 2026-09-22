@@ -30,21 +30,19 @@
 }
 .hourly-band {
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 .hourly-item {
-  margin: 2px;
-  padding: 0.3rem 0.5rem;
-  border: 1px solid var(--border);
+  padding: 0.35rem 0.55rem;
   border-left: 4px solid var(--cat);
   background: var(--surface);
   color: var(--text);
   text-align: left;
-  font-size: 0.72rem;
-  font-weight: 600;
   cursor: pointer;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 .hourly-item:hover {
   background: var(--surface-2);
@@ -74,7 +72,6 @@
   position: absolute;
   overflow: hidden;
   padding: 0.35rem 0.55rem;
-  border: 1px solid var(--border);
   border-left: 4px solid var(--cat);
   background: var(--surface);
   color: var(--text);
