@@ -67,3 +67,19 @@ export interface ResearchApiResponse extends EventsResponse {
 export interface PreferencesResponse {
   preferences: Preferences;
 }
+
+/** The signed-in account, as returned by the auth routes. */
+export interface AuthUser {
+  username: string;
+  email: string | null;
+}
+
+/** `POST /api/auth/login` and `PATCH /api/auth/account`. */
+export interface AuthResponse {
+  user: AuthUser;
+}
+
+/** `POST /api/auth/logout` and `DELETE /api/auth/account`. */
+export interface OkResponse {
+  ok: true;
+}

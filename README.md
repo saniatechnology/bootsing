@@ -50,6 +50,8 @@ and the Anthropic SDK.
    Fill in `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
    (Project Settings → API) and `DEFAULT_USER_ID` (any UUID; the app is
    single-user and scopes every row to it). `ANTHROPIC_MODEL` is optional.
+   Set `SEED_USERNAME`, `SEED_PASSWORD` (and optionally `SEED_EMAIL`) for the
+   login you'll create in step 5.
 
 4. Seed a starter dataset (categories, week boundaries, preferences and a set
    of example events). Re-running it resets that user's rows:
@@ -58,7 +60,14 @@ and the Anthropic SDK.
    npm run seed
    ```
 
-5. Run it:
+5. Create your login user from the `SEED_*` values in `.env.local`. Re-running
+   overwrites the username, email and password:
+
+   ```bash
+   npm run seed:user
+   ```
+
+6. Run it:
 
    ```bash
    npm run dev

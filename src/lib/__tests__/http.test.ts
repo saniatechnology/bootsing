@@ -1,6 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
+import { getSessionUser } from "../auth";
 import { HttpError, apiRoute, jsonResponse, parseJsonBody, parsePositiveInt } from "../http";
+
+vi.mock("../auth", () => ({ getSessionUser: vi.fn() }));
+const mockedGetSessionUser = vi.mocked(getSessionUser);
 
 function jsonRequest(body: string): Request {
   return new Request("http://localhost/api/test", {
@@ -46,7 +50,26 @@ describe("parsePositiveInt", () => {
 describe("apiRoute", () => {
   const ctx = { params: Promise.resolve({}) };
 
+  beforeEach(() =>
+    mockedGetSessionUser.mockResolvedValue({ id: "u1", username: "a", email: null })
+  );
   afterEach(() => vi.restoreAllMocks());
+
+  it("answers 401 when the request has no session", async () => {
+    mockedGetSessionUser.mockResolvedValue(null);
+    const handler = apiRoute("test", async () => jsonResponse({ ok: true }));
+    const res = await handler(jsonRequest("{}"), ctx);
+    expect(res.status).toBe(401);
+    expect(await res.json()).toEqual({ error: "You must be signed in." });
+  });
+
+  it("skips the session check for public routes", async () => {
+    mockedGetSessionUser.mockResolvedValue(null);
+    const handler = apiRoute("test", async () => jsonResponse({ ok: true }), { public: true });
+    const res = await handler(jsonRequest("{}"), ctx);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+  });
 
   it("passes a successful response through untouched", async () => {
     const handler = apiRoute("test", async () => jsonResponse({ ok: true }, { status: 201 }));

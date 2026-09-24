@@ -5,8 +5,10 @@
 //
 //   npm run seed          (node --env-file=.env.local scripts/seed.mjs)
 //
-// The running app never reads these files; they exist to give a fresh install
-// something to look at and to document the expected shape of each table.
+// The login user is seeded separately by scripts/seed-user.mjs (npm run
+// seed:user). The running app never reads these files; they exist to give a
+// fresh install something to look at and to document the expected shape of
+// each table.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";

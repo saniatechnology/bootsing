@@ -179,3 +179,44 @@ export const preferencesSchema = z.object({
 export type PreferenceItem = z.infer<typeof preferenceItemSchema>;
 export type PreferenceSection = z.infer<typeof preferenceSectionSchema>;
 export type Preferences = z.infer<typeof preferencesSchema>;
+
+// ---- Auth ----
+
+/** Usernames are matched case-insensitively, so they're normalised to lower case here. */
+const username = z
+  .string()
+  .trim()
+  .min(4, "username is required")
+  .max(60, "username is too long")
+  .toLowerCase();
+
+/** An email, normalised, or empty to clear it. */
+const emailOrEmpty = z.union([
+  z.literal(""),
+  z.email("enter a valid email").trim().toLowerCase().max(200, "email is too long"),
+]);
+
+const newPassword = z
+  .string()
+  .min(8, "password must be at least 8 characters")
+  .max(200, "password is too long");
+
+export const loginSchema = z.object({
+  username,
+  password: z.string().min(1, "password is required"),
+});
+export type LoginInput = z.infer<typeof loginSchema>;
+
+/**
+ * One account change at a time. The current password is required for every
+ * change so a walk-up session can't quietly take over the account.
+ */
+export const accountUpdateSchema = z.discriminatedUnion("field", [
+  z.object({ field: z.literal("username"), currentPassword: z.string().min(1), username }),
+  z.object({ field: z.literal("email"), currentPassword: z.string().min(1), email: emailOrEmpty }),
+  z.object({ field: z.literal("password"), currentPassword: z.string().min(1), newPassword }),
+]);
+export type AccountUpdateInput = z.infer<typeof accountUpdateSchema>;
+
+export const accountDeleteSchema = z.object({ currentPassword: z.string().min(1) });
+export type AccountDeleteInput = z.infer<typeof accountDeleteSchema>;

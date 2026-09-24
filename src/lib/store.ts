@@ -1,6 +1,7 @@
 import "server-only";
 
-import { getSupabaseClient, getCurrentUserId } from "./supabase";
+import { getCurrentUserId } from "./auth";
+import { getSupabaseClient } from "./supabase";
 import { materializeNewEvent } from "./events";
 import type {
   CalendarEvent,
@@ -106,7 +107,7 @@ export async function readEvents(): Promise<CalendarEvent[]> {
   const { data, error } = await supabase
     .from("events")
     .select(EVENT_COLUMNS)
-    .eq("user_id", getCurrentUserId())
+    .eq("user_id", await getCurrentUserId())
     .order("starts", { ascending: true })
     .order("id", { ascending: true })
     .overrideTypes<EventRow[], { merge: false }>();
@@ -118,7 +119,7 @@ export async function insertEvent(input: NewEventInput): Promise<CalendarEvent> 
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("events")
-    .insert({ user_id: getCurrentUserId(), ...eventToRow(materializeNewEvent(input)) })
+    .insert({ user_id: await getCurrentUserId(), ...eventToRow(materializeNewEvent(input)) })
     .select(EVENT_COLUMNS)
     .single()
     .overrideTypes<EventRow, { merge: false }>();
@@ -129,7 +130,7 @@ export async function insertEvent(input: NewEventInput): Promise<CalendarEvent> 
 /** Update an event in place. Returns null when no such event exists for this user. */
 export async function updateEvent(id: number, patch: EventPatch): Promise<CalendarEvent | null> {
   const supabase = getSupabaseClient();
-  const userId = getCurrentUserId();
+  const userId = await getCurrentUserId();
   const columns = patchToRow(patch);
 
   // Nothing to change: just return the current row (or null if it's gone).
@@ -163,7 +164,7 @@ export async function deleteEvent(id: number): Promise<CalendarEvent | null> {
   const { data, error } = await supabase
     .from("events")
     .delete()
-    .eq("user_id", getCurrentUserId())
+    .eq("user_id", await getCurrentUserId())
     .eq("id", id)
     .select(EVENT_COLUMNS)
     .maybeSingle()
@@ -181,7 +182,7 @@ export async function deleteEventsStartingInWeek(
   const { data, error } = await supabase
     .from("events")
     .delete()
-    .eq("user_id", getCurrentUserId())
+    .eq("user_id", await getCurrentUserId())
     .gte("starts", weekStart)
     .lte("starts", weekEnd)
     .select("id");
@@ -214,7 +215,7 @@ interface AppSettingsRow {
 /** Assembles CalendarMeta from the categories, weeks, and app_settings tables. */
 export async function readMeta(): Promise<CalendarMeta> {
   const supabase = getSupabaseClient();
-  const userId = getCurrentUserId();
+  const userId = await getCurrentUserId();
 
   const [categoriesRes, weeksRes, settingsRes] = await Promise.all([
     supabase
@@ -276,7 +277,7 @@ export async function readPreferences(): Promise<Preferences> {
   const { data, error } = await supabase
     .from("preferences")
     .select("intro,sections")
-    .eq("user_id", getCurrentUserId())
+    .eq("user_id", await getCurrentUserId())
     .single();
   if (error) throw new Error(`Failed to read preferences: ${error.message}`);
   const row = data as PreferencesRow;
@@ -288,7 +289,7 @@ export async function writePreferences(prefs: Preferences): Promise<Preferences>
   const { data, error } = await supabase
     .from("preferences")
     .upsert(
-      { user_id: getCurrentUserId(), intro: prefs.intro, sections: prefs.sections },
+      { user_id: await getCurrentUserId(), intro: prefs.intro, sections: prefs.sections },
       { onConflict: "user_id" }
     )
     .select("intro,sections")
@@ -296,4 +297,105 @@ export async function writePreferences(prefs: Preferences): Promise<Preferences>
   if (error) throw new Error(`Failed to save preferences: ${error.message}`);
   const row = data as PreferencesRow;
   return { intro: row.intro, sections: row.sections };
+}
+
+// ---- Users (authentication) ----
+
+export interface UserRecord {
+  id: string;
+  username: string;
+  email: string | null;
+  passwordHash: string;
+}
+
+interface UserAccountRow {
+  id: string;
+  username: string;
+  email: string | null;
+  password_hash: string;
+}
+
+function rowToUser(row: UserAccountRow): UserRecord {
+  return { id: row.id, username: row.username, email: row.email, passwordHash: row.password_hash };
+}
+
+/** Look up a user by their (case-insensitive) username for sign-in. Null when none matches. */
+export async function findUserByUsername(username: string): Promise<UserRecord | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("users")
+    .select("id,username,email,password_hash")
+    .eq("username", username)
+    .maybeSingle<UserAccountRow>();
+  if (error) throw new Error(`Failed to look up user: ${error.message}`);
+  return data ? rowToUser(data) : null;
+}
+
+/** The full account record for a signed-in user, used to verify the current password. */
+export async function getUserById(id: string): Promise<UserRecord | null> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("users")
+    .select("id,username,email,password_hash")
+    .eq("id", id)
+    .maybeSingle<UserAccountRow>();
+  if (error) throw new Error(`Failed to load account: ${error.message}`);
+  return data ? rowToUser(data) : null;
+}
+
+/** True when another user already owns this username. */
+export async function isUsernameTaken(username: string, exceptId: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("users")
+    .select("id")
+    .eq("username", username)
+    .neq("id", exceptId)
+    .maybeSingle();
+  if (error) throw new Error(`Failed to check username: ${error.message}`);
+  return data !== null;
+}
+
+/** True when another user already owns this email. */
+export async function isEmailTaken(email: string, exceptId: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .neq("id", exceptId)
+    .maybeSingle();
+  if (error) throw new Error(`Failed to check email: ${error.message}`);
+  return data !== null;
+}
+
+/** Apply an account change (username, email and/or password hash) and bump updated_at. */
+export async function updateUserAccount(
+  id: string,
+  patch: { username?: string; email?: string | null; passwordHash?: string }
+): Promise<void> {
+  const columns: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (patch.username !== undefined) columns.username = patch.username;
+  if (patch.email !== undefined) columns.email = patch.email;
+  if (patch.passwordHash !== undefined) columns.password_hash = patch.passwordHash;
+
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("users").update(columns).eq("id", id);
+  if (error) throw new Error(`Failed to update account: ${error.message}`);
+}
+
+/** Delete every row a user owns across the calendar tables. Their sessions cascade with the user. */
+export async function deleteAllUserData(userId: string): Promise<void> {
+  const supabase = getSupabaseClient();
+  for (const table of ["events", "categories", "weeks", "app_settings", "preferences"]) {
+    const { error } = await supabase.from(table).delete().eq("user_id", userId);
+    if (error) throw new Error(`Failed to delete ${table}: ${error.message}`);
+  }
+}
+
+/** Delete the user record itself; its sessions are removed by the on-delete cascade. */
+export async function deleteUser(userId: string): Promise<void> {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("users").delete().eq("id", userId);
+  if (error) throw new Error(`Failed to delete account: ${error.message}`);
 }

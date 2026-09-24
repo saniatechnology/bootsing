@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { z } from "zod";
+import { getSessionUser } from "./auth";
 
 /**
  * Small helpers shared by every API route so each handler only contains its
@@ -67,17 +68,27 @@ export type RouteHandler<P = Record<string, never>> = (
   ctx: RouteContext<P>
 ) => Promise<Response>;
 
+/** Options for `apiRoute`. `public: true` skips the signed-in check (sign-in/out routes). */
+export interface RouteOptions {
+  public?: boolean;
+}
+
 /**
- * Wrap a route handler with uniform error handling. `HttpError`s become
- * `{ error }` responses with their status; anything else is logged under
- * `label` and answered with a 500 carrying the error message.
+ * Wrap a route handler with uniform auth + error handling. Unless `public`,
+ * the request must carry a valid session or it gets a 401 before the handler
+ * runs. `HttpError`s become `{ error }` responses with their status; anything
+ * else is logged under `label` and answered with a 500 carrying the message.
  */
 export function apiRoute<P = Record<string, never>>(
   label: string,
-  handler: RouteHandler<P>
+  handler: RouteHandler<P>,
+  options: RouteOptions = {}
 ): RouteHandler<P> {
   return async (request, ctx) => {
     try {
+      if (!options.public && !(await getSessionUser())) {
+        throw new HttpError(401, "You must be signed in.");
+      }
       return await handler(request, ctx);
     } catch (err) {
       if (err instanceof HttpError) {

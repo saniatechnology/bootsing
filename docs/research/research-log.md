@@ -5,6 +5,7 @@ Keep it concise but human-readable. Update after every research round.
 
 - **Last round:** 2026-09-21 (by Copilot / Opus 4.8, via `fetch_webpage`)
 - **Round 2:** 2026-09-21 — deep-dive on Sep 28–Oct 18 to populate the later weeks (added 27 events; TECH gap closed, Santa Mònica now fetchable).
+- **Round 3:** 2026-09-24 — user-supplied URL batch (La Mercè + club/party links). Added 11 events (ids 187–197). New fetchable sources: dice.fm (JSON-LD), luma.com. RA + Instagram still unreadable.
 - **Window researched:** 2026-09-21 → 2026-10-18 (weeks of 09-21, 09-28, 10-05, 10-12)
 - **Output file:** `research/researched-events.json`
 
@@ -29,7 +30,10 @@ Legend: ✅ useful & fetchable · ⚠️ partial (pagination/limited) · 🟨 JS
 | Fundació Joan Miró | fmirobcn.org/en/exhibitions/ | 🟨 | Extraction failed. Try browser automation next round. |
 | Arts Santa Mònica (fav) | artssantamonica.gencat.cat | 🟨 | Extraction failed on /en and /en/activitats. Try browser automation. |
 | Moog | moogbarcelona.com/en | 🟨 | Only club-hours boilerplate; agenda is JS. |
-| Resident Advisor | ra.co/events/es/barcelona | ⛔ | HTTP 403 on every path (incl. /week/YYYY-MM-DD). Best club/electronic/queer source — **needs another route** (browser, or xceed/clubbingspain). |
+| Resident Advisor | ra.co/events/es/barcelona | ⛔ | HTTP 403 on every path incl. individual `/events/<id>` (re-confirmed 2026-09-24). Best club/electronic/queer source — **needs another route** (browser, or xceed/clubbingspain). |
+| DICE | dice.fm/event/<slug> | ✅ | Individual event pages carry schema.org `MusicEvent` JSON-LD (exact startDate/endDate, venue address, price). Reliable for club nights (e.g. La Terrrazza). |
+| Luma | luma.com/<code> | ✅ | Event pages are fetchable (date, time, venue, price, description). Good for social/party/meetup events (e.g. Sky Sinner). |
+| Instagram post | instagram.com/p/<id> | ⛔ | Cookie/login wall — `fetch_webpage` returns only the cookie consent page, no post text. User must paste caption/date/venue. |
 | Time Out BCN | timeout.com/barcelona | ⚠️ | Generic listicles, no reliable per-date events. |
 | barcelona.cat/en/whats-on | — | 404 | Wrong path. |
 
@@ -77,6 +81,12 @@ See `research/researched-events.json` for full records. Titles+dates:
 - Tech Barcelona: Petit Comitech (09-30); FAIR Conference (10-01); Pier 01 Afterwork (10-01); Tech Up Nights Vol.21 (10-08); Shift AI Europe (10-13); Growing Without Losing Your Roots (10-14)
 - WCA CityMakers routes: Gaudí (10-01); Eixample de Cerdà (10-01); Vila de Gràcia (10-02); 22@ Poblenou (10-02); Llars Mundet (10-03); Can Batlló spanning (10-02→09); Barcelona Valenta Verde (10-09)
 - Museu Tàpies: Proyecto Extramuros Dora García (07-04→12-13, spanning) [via graf.cat]
+
+**Round 3 (2026-09-24, user URL batch — ids 187–197):**
+- La Mercè / BAM: Queer Falafel & MadMonKey (09-25, La Rambla del Raval); Uzi Freyja (09-25, La Rambla del Raval); Cristina Len (09-26, Antiga Fàbrica Estrella Damm); La Valentina (09-26, Moll de la Fusta); Sandra Monfort (09-26, Plaça de Catalunya)
+- La Mercè / other: Open-air Cinema 'La amiga de mi amiga' (09-24, Filmoteca) [QUEER]; Guided tour MACBA from the sky (09-24) [ARCH]; La Mercè Procession + Rolling Lantern Show (09-24, Pl. Catalunya) [NEIGH]; Drone display 'El fil vermell' BCN–Shanghai (09-24, Barceloneta) [CHIC]
+- Clubs/parties: NEO Open Air Takeover @ La Terrrazza (09-24, via dice.fm); Tall People Night @ Sky Sinner (10-02, via luma.com)
+- **Could NOT fetch (blocked):** ra.co/events/2513739, ra.co/events/2499616 (403); instagram.com/p/DdmKy7HDgNe, instagram.com/p/DdmAFmiM2yX (login wall). Awaiting user-pasted details.
 
 ## Checked but SKIPPED as uninteresting (ignore in future rounds)
 Reason in brackets. Mostly big-room/mainstream per user's "skip" bias.

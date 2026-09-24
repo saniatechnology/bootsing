@@ -10,15 +10,25 @@
 import type {
   ApiErrorBody,
   ApplyApiResponse,
+  AuthResponse,
+  AuthUser,
   ChatApiResponse,
   EventMutationResponse,
+  OkResponse,
   PreferencesResponse,
   ResearchApiResponse,
 } from "./api-types";
 import { readProgressStream } from "./progress";
 import type { ProgressEvent } from "./progress";
 import type { CalendarEvent } from "./types";
-import type { EventPatch, NewEventInput, Preferences, ProposedAction } from "./validation";
+import type {
+  AccountUpdateInput,
+  EventPatch,
+  LoginInput,
+  NewEventInput,
+  Preferences,
+  ProposedAction,
+} from "./validation";
 import type { WeekRange } from "./weeks";
 
 export class ApiError extends Error {
@@ -175,6 +185,36 @@ export const api = {
       signal,
       onProgress,
       "Couldn't research this week."
+    );
+  },
+
+  async login(input: LoginInput): Promise<AuthUser> {
+    const { user } = await request<AuthResponse>(
+      "/api/auth/login",
+      jsonInit("POST", input),
+      "Couldn't sign you in."
+    );
+    return user;
+  },
+
+  async logout(): Promise<void> {
+    await request<OkResponse>("/api/auth/logout", { method: "POST" }, "Couldn't sign you out.");
+  },
+
+  async updateAccount(input: AccountUpdateInput): Promise<AuthUser> {
+    const { user } = await request<AuthResponse>(
+      "/api/auth/account",
+      jsonInit("PATCH", input),
+      "Couldn't update your account."
+    );
+    return user;
+  },
+
+  async deleteAccount(currentPassword: string): Promise<void> {
+    await request<OkResponse>(
+      "/api/auth/account",
+      jsonInit("DELETE", { currentPassword }),
+      "Couldn't delete your account."
     );
   },
 };

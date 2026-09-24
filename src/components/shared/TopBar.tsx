@@ -44,6 +44,11 @@ export function TopBar({ weekIndex, status, actions, showNavigation = true }: To
             settings
           </span>
         </Link>
+        <Link href="/account" className="settings-btn" aria-label="Open account" title="Account">
+          <span className="material-symbols-outlined" aria-hidden="true">
+            account_circle
+          </span>
+        </Link>
       </div>
     </div>
   );

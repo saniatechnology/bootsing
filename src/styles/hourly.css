@@ -29,6 +29,7 @@
   font-weight: 600;
 }
 .hourly-band {
+  grid-auto-flow: dense;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }

@@ -30,8 +30,3 @@ export function getSupabaseClient(): SupabaseClient {
   }
   return client;
 }
-
-/** The single current user until real auth is added; every query scopes to this id. */
-export function getCurrentUserId(): string {
-  return requireEnv("DEFAULT_USER_ID", ENV_HINT);
-}

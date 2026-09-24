@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "npm run lint && npm run typecheck && npm run format:check && npm test",
-    "seed": "node --env-file=.env.local scripts/seed.mjs"
+    "seed": "node --env-file=.env.local scripts/seed.mjs",
+    "seed:user": "node --env-file=.env.local scripts/seed-user.mjs"
   },
   "engines": {
     "node": ">=20.6"
@@ -21,6 +22,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",
     "@supabase/supabase-js": "^2.109.0",
+    "bcryptjs": "^3.0.3",
     "next": "16.3.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
