@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useState, type ReactNode } from "react";
-import { fmtDateRange } from "@/lib/dates";
+import { fmtDateRange, fmtTimeRange } from "@/lib/dates";
 import { groupLabelsOf, matchesGroup, primaryGroupColor } from "@/lib/event-meta";
 import { buildWeekLayout } from "@/lib/grid";
 import { activateOnKey } from "@/lib/keyboard";
@@ -61,6 +61,7 @@ export function EventList({
             <th>Event</th>
             <th>Venue</th>
             <th>Date</th>
+            <th>Time</th>
             <th>Cost</th>
             <th>Description</th>
             <th />
@@ -107,6 +108,7 @@ export function EventList({
                   </td>
                   <td>{event.venue}</td>
                   <td className="mono">{fmtDateRange(clippedStart, clippedEnd)}</td>
+                  <td className="mono">{fmtTimeRange(event.startTime, event.endTime)}</td>
                   <td>{event.cost}</td>
                   <td>{event.desc}</td>
                   <td>
@@ -128,7 +130,7 @@ export function EventList({
                 </tr>
                 {isOpen && (
                   <tr className="ev-list-detail">
-                    <td colSpan={9}>
+                    <td colSpan={10}>
                       <div className="ev-list-actions" onClick={(e) => e.stopPropagation()}>
                         {renderActions(event)}
                       </div>

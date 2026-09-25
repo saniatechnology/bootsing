@@ -88,6 +88,12 @@ See `research/researched-events.json` for full records. Titles+dates:
 - Clubs/parties: NEO Open Air Takeover @ La Terrrazza (09-24, via dice.fm); Tall People Night @ Sky Sinner (10-02, via luma.com)
 - **Could NOT fetch (blocked):** ra.co/events/2513739, ra.co/events/2499616 (403); instagram.com/p/DdmKy7HDgNe, instagram.com/p/DdmAFmiM2yX (login wall). Awaiting user-pasted details.
 
+**Round 3b (2026-09-24, user-pasted details for blocked URLs — ids 198–200):**
+- La Paloma pres. Moltes Mercès: Me Siento Extraña x Planet Venus (09-25, La Paloma, Calle Tigre 27 Raval) [MUS/electronic] — was ra.co/events/2499616 (RA 403, user pasted).
+- La Mercè Festa a la Platja del Fòrum pres. Hassler aka Coyu [FREE] (09-24, Sunseabar Beach Club, Platja del Fòrum) [MUS/electronic] — was ra.co/events/2513739 (RA 403, user pasted).
+- Latineo end-of-summer @ La Caseta de Garraf (09-26, 16:00–22:00) [MUS/latin] — was instagram.com/p/DdmAFmiM2yX (login wall, user pasted). Lineup: Verushka Sirit, Acid Nena, Albert Santana, Lil Fe Miranda + closing salsa set.
+- **Still pending:** instagram.com/p/DdmKy7HDgNe (login wall). New venues to remember: La Paloma (Calle Tigre 27, Raval — RA club/207515), Sunseabar Beach Club (Platja del Fòrum — RA club/289040), La Caseta de Garraf (beach chiringuito, Garraf).
+
 ## Checked but SKIPPED as uninteresting (ignore in future rounds)
 Reason in brackets. Mostly big-room/mainstream per user's "skip" bias.
 - Razzmatazz: Haken/Ihlo (prog metal); Xandria (symph metal); Transvision Vamp (mainstream); Only The Poets (pop-rock); Fat Freddy's Drop (sold-out, big); The Damned (legacy punk, big); Luke Winslow-King (roots); Enzocerobulto; Valeria Lynch (mainstream); La K'onga (cuarteto); Shé (mainstream); Íñigo Quintero (mainstream pop); La Kermesse Redonda; Hillbilly Moon Explosion (rockabilly); The Riven; Sr Blanco (canceled); Avern+Ósserp (canceled)

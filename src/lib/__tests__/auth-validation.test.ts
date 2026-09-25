@@ -18,10 +18,10 @@ describe("accountUpdateSchema", () => {
   it("normalises a new username", () => {
     const parsed = accountUpdateSchema.parse({
       field: "username",
-      username: "  BOB ",
+      username: "  BOBBY ",
       currentPassword: "pw",
     });
-    expect(parsed).toEqual({ field: "username", username: "bob", currentPassword: "pw" });
+    expect(parsed).toEqual({ field: "username", username: "bobby", currentPassword: "pw" });
   });
 
   it("accepts an empty email to clear it and lower-cases a real one", () => {
