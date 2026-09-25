@@ -17,7 +17,7 @@
     "seed:user": "node --env-file=.env.local scripts/seed-user.mjs"
   },
   "engines": {
-    "node": ">=20.6"
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",
@@ -30,7 +30,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/node": "^22",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

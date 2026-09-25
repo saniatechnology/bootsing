@@ -1,0 +1,140 @@
+/*
+ * Mobile adaptations. Two concerns:
+ *   1. Week views (Explore grid + Home hourly grid) page their day columns:
+ *      arrows appear and columns switch from `1fr` to a fixed viewport width so
+ *      only a few days (or one) show at a time, the rest reached by scrolling.
+ *   2. The wide event list table reflows into stacked, labelled cards so a row
+ *      fits the screen without horizontal scrolling.
+ */
+
+/* The horizontal day pager (arrows hidden until a small screen needs them). */
+.day-scroll {
+  overflow-x: auto;
+}
+.day-nav-bar {
+  display: none;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+.day-nav {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1.15rem;
+  line-height: 1;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.day-nav:not(:disabled):hover {
+  background: var(--text);
+  color: var(--bg);
+}
+.day-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 720px) {
+  .wrap {
+    padding: 1.5rem 0.9rem 0;
+  }
+
+  /* --- Week views: show ~3 days, page the rest --- */
+  .day-nav-bar {
+    display: flex;
+  }
+  .day-scroll {
+    --col-w: 31vw;
+    scroll-snap-type: x proximity;
+  }
+  .day-scroll > .grid,
+  .day-scroll > .hourly-head,
+  .day-scroll > .hourly-band,
+  .day-scroll > .hourly-body {
+    min-width: max-content;
+  }
+  .day-scroll .hourly-cols {
+    min-width: max-content;
+  }
+  .daycell,
+  .hourly-dayhead {
+    scroll-snap-align: start;
+  }
+  /* Keep an expanded grid-row detail in view while the columns scroll under it. */
+  .day-scroll .ev-detail {
+    position: sticky;
+    left: 0;
+    width: 100vw;
+    max-width: 100vw;
+  }
+
+  /* --- Event list: table becomes stacked cards --- */
+  .detail-wrap {
+    overflow-x: visible;
+  }
+  table.detail-table {
+    min-width: 0;
+  }
+  .detail-table thead {
+    display: none;
+  }
+  .detail-table tbody,
+  .detail-table tr,
+  .detail-table td {
+    display: block;
+    width: 100%;
+  }
+  .detail-table tr.ev-list-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.8rem 0.85rem;
+    border-bottom: 3px solid var(--border);
+  }
+  .detail-table tr.ev-list-row td {
+    display: flex;
+    gap: 0.55rem;
+    align-items: baseline;
+    padding: 0;
+    border: none;
+    white-space: normal;
+  }
+  .detail-table tr.ev-list-row td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 4.4rem;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding-top: 0.12rem;
+  }
+  /* Event name is the card title; select badge sits just beneath it. */
+  .detail-table td.evn {
+    order: -2;
+    font-size: 1rem;
+    min-width: 0;
+  }
+  .detail-table td.dnum-cell {
+    order: -1;
+  }
+  .detail-table td.ev-list-edit-cell {
+    text-align: left;
+  }
+  .detail-table tr.ev-list-detail td {
+    padding: 0;
+  }
+}
+
+@media (max-width: 460px) {
+  /* Smallest screens: one day column at a time (with a peek of the next). */
+  .day-scroll {
+    --col-w: 82vw;
+  }
+}

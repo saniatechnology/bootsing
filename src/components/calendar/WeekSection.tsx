@@ -8,6 +8,7 @@ import { activateOnKey } from "@/lib/keyboard";
 import type { CalendarEvent, CalendarMeta, GroupKey, IsoDate } from "@/lib/types";
 import type { WeekRange } from "@/lib/weeks";
 import { EventBarBody } from "../shared/EventBarBody";
+import { DayScroller } from "../shared/DayScroller";
 import { EventDetail } from "../shared/EventDetail";
 import { EventList } from "../shared/EventList";
 import { InterestingButton } from "../shared/InterestingButton";
@@ -88,99 +89,101 @@ export function WeekSection({
 
   return (
     <section>
-      <div
-        className="grid"
-        style={{
-          gridTemplateColumns: `repeat(${layout.dayCount}, 1fr)`,
-          gridTemplateRows: `auto repeat(${layout.laneCount + (expandedRow ? 1 : 0)}, auto)`,
-        }}
-      >
-        {layout.days.map((day) => {
-          const iso = toIsoDate(day);
-          // Single-day, visible events on this date; multi-day events are left untouched.
-          const dayEventIds = events
-            .filter((e) => e.start === iso && e.end === iso && !isHidden(e))
-            .map((e) => e.id);
-          const selectDay = () => {
-            if (dayEventIds.length > 0) onSelectDay(dayEventIds);
-          };
-          return (
-            <div
-              className="daycell head"
-              key={iso}
-              style={{ gridRow: 1 }}
-              role="button"
-              tabIndex={0}
-              aria-label={`Select all events on ${iso}`}
-              title="Select all events on this day"
-              onClick={selectDay}
-              onKeyDown={activateOnKey(selectDay)}
-            >
-              <span className="dow">{dayOfWeekAbbr(day)}</span>
-              <span className="dnum">{day.getUTCDate()}</span>
-              <button
-                type="button"
-                className="day-add"
-                aria-label={`Add event on ${iso}`}
-                title="Add an event on this day"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onAddOnDate(iso);
-                }}
-              >
-                +
-              </button>
-            </div>
-          );
-        })}
-
-        {layout.rows.map(({ event, index, colStart, span, lane, clippedStart, clippedEnd }) => {
-          const selected = selectedIds.has(event.id);
-          const hidden = isHidden(event);
-          const expanded = expandedRow?.event.id === event.id;
-          const gridRow = lane + 2 + (expandedLane >= 0 && lane > expandedLane ? 1 : 0);
-          return (
-            <Fragment key={event.id}>
+      <DayScroller dayCount={layout.dayCount}>
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${layout.dayCount}, var(--col-w, 1fr))`,
+            gridTemplateRows: `auto repeat(${layout.laneCount + (expandedRow ? 1 : 0)}, auto)`,
+          }}
+        >
+          {layout.days.map((day) => {
+            const iso = toIsoDate(day);
+            // Single-day, visible events on this date; multi-day events are left untouched.
+            const dayEventIds = events
+              .filter((e) => e.start === iso && e.end === iso && !isHidden(e))
+              .map((e) => e.id);
+            const selectDay = () => {
+              if (dayEventIds.length > 0) onSelectDay(dayEventIds);
+            };
+            return (
               <div
-                className={`ev-row ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
-                style={{
-                  gridRow,
-                  gridColumn: `${colStart} / span ${span}`,
-                  ["--cat" as string]: primaryGroupColor(meta, event),
-                  display: hidden ? "none" : undefined,
-                }}
+                className="daycell head"
+                key={iso}
+                style={{ gridRow: 1 }}
                 role="button"
-                tabIndex={hidden ? -1 : 0}
-                aria-expanded={expanded}
-                onClick={() => toggleExpanded(event.id)}
-                onKeyDown={activateOnKey(() => toggleExpanded(event.id))}
+                tabIndex={0}
+                aria-label={`Select all events on ${iso}`}
+                title="Select all events on this day"
+                onClick={selectDay}
+                onKeyDown={activateOnKey(selectDay)}
               >
-                <EventBarBody
-                  event={event}
-                  index={index}
-                  selected={selected}
-                  onToggleSelect={() => onToggleSelect(event.id)}
-                  time={event.startTime ?? undefined}
-                />
-              </div>
-
-              {expanded && (
-                <div
-                  className="ev-detail"
-                  style={{ gridRow: expandedLane + 3, gridColumn: "1 / -1" }}
+                <span className="dow">{dayOfWeekAbbr(day)}</span>
+                <span className="dnum">{day.getUTCDate()}</span>
+                <button
+                  type="button"
+                  className="day-add"
+                  aria-label={`Add event on ${iso}`}
+                  title="Add an event on this day"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddOnDate(iso);
+                  }}
                 >
-                  <EventDetail
+                  +
+                </button>
+              </div>
+            );
+          })}
+
+          {layout.rows.map(({ event, index, colStart, span, lane, clippedStart, clippedEnd }) => {
+            const selected = selectedIds.has(event.id);
+            const hidden = isHidden(event);
+            const expanded = expandedRow?.event.id === event.id;
+            const gridRow = lane + 2 + (expandedLane >= 0 && lane > expandedLane ? 1 : 0);
+            return (
+              <Fragment key={event.id}>
+                <div
+                  className={`ev-row ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
+                  style={{
+                    gridRow,
+                    gridColumn: `${colStart} / span ${span}`,
+                    ["--cat" as string]: primaryGroupColor(meta, event),
+                    display: hidden ? "none" : undefined,
+                  }}
+                  role="button"
+                  tabIndex={hidden ? -1 : 0}
+                  aria-expanded={expanded}
+                  onClick={() => toggleExpanded(event.id)}
+                  onKeyDown={activateOnKey(() => toggleExpanded(event.id))}
+                >
+                  <EventBarBody
                     event={event}
-                    meta={meta}
-                    range={[clippedStart, clippedEnd]}
-                    actions={actionsFor(event)}
+                    index={index}
+                    selected={selected}
+                    onToggleSelect={() => onToggleSelect(event.id)}
+                    time={event.startTime ?? undefined}
                   />
                 </div>
-              )}
-            </Fragment>
-          );
-        })}
-      </div>
+
+                {expanded && (
+                  <div
+                    className="ev-detail"
+                    style={{ gridRow: expandedLane + 3, gridColumn: "1 / -1" }}
+                  >
+                    <EventDetail
+                      event={event}
+                      meta={meta}
+                      range={[clippedStart, clippedEnd]}
+                      actions={actionsFor(event)}
+                    />
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
+        </div>
+      </DayScroller>
 
       <EventList
         week={week}

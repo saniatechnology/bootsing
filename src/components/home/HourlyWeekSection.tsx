@@ -8,6 +8,7 @@ import { activateOnKey } from "@/lib/keyboard";
 import type { CalendarEvent, CalendarMeta, EventStatus } from "@/lib/types";
 import type { WeekRange } from "@/lib/weeks";
 import { EventBarBody } from "../shared/EventBarBody";
+import { DayScroller } from "../shared/DayScroller";
 import { EventDetail } from "../shared/EventDetail";
 import { StatusControls } from "./StatusControls";
 
@@ -50,7 +51,7 @@ export function HourlyWeekSection({
 }: HourlyWeekSectionProps) {
   const layout = buildHourlyWeekLayout(events, week);
   const bodyHeight = ((layout.axisEndMin - layout.axisStartMin) / 60) * HOUR_H;
-  const gridCols = `repeat(${layout.dayCount}, 1fr)`;
+  const gridCols = `repeat(${layout.dayCount}, var(--col-w, 1fr))`;
 
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const expandedEvent = events.find((e) => e.id === expandedId) ?? null;
@@ -62,98 +63,103 @@ export function HourlyWeekSection({
 
   return (
     <section className="hourly">
-      <div className="hourly-head" style={{ gridTemplateColumns: gridCols }}>
-        {layout.days.map((day) => (
-          <div className="hourly-dayhead" key={day.toISOString()}>
-            <span className="hourly-dow">{dayOfWeekAbbr(day)}</span>
-            <span className="hourly-dnum">{day.getUTCDate()}</span>
-          </div>
-        ))}
-      </div>
-
-      {layout.untimed.length > 0 && (
-        <div className="hourly-band" style={{ gridTemplateColumns: gridCols }}>
-          {layout.untimed.map((u) => {
-            const ev = u.event;
-            const selected = selectedIds.has(ev.id);
-            const expanded = expandedId === ev.id;
-            return (
-              <div
-                key={ev.id}
-                className={`hourly-item ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
-                style={{
-                  gridColumn: `${u.colStart} / span ${u.span}`,
-                  ["--cat" as string]: colorOf(ev),
-                }}
-                role="button"
-                tabIndex={0}
-                aria-expanded={expanded}
-                title={`${ev.name} — ${ev.venue}`}
-                onClick={() => toggleExpanded(ev.id)}
-                onKeyDown={activateOnKey(() => toggleExpanded(ev.id))}
-              >
-                <EventBarBody
-                  event={ev}
-                  index={orderIndex.get(ev.id) ?? 0}
-                  selected={selected}
-                  onToggleSelect={() => onToggleSelect(ev.id)}
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="hourly-body">
-        <div className="hourly-cols" style={{ gridTemplateColumns: gridCols, height: bodyHeight }}>
-          {layout.days.map((day, dayIndex) => (
-            <div
-              className="hourly-col"
-              key={day.toISOString()}
-              style={{ backgroundSize: `100% ${HOUR_H}px` }}
-            >
-              {layout.timed
-                .filter((t) => t.dayIndex === dayIndex)
-                .map((t) => {
-                  const ev = t.event;
-                  const top = ((t.startMin - layout.axisStartMin) / 60) * HOUR_H;
-                  const height = ((t.endMin - t.startMin) / 60) * HOUR_H;
-                  const selected = selectedIds.has(ev.id);
-                  const expanded = expandedId === ev.id;
-                  return (
-                    <div
-                      key={ev.id}
-                      className={`hourly-block ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
-                      style={{
-                        top,
-                        height: Math.max(height, 18),
-                        width: "100%",
-                        ["--cat" as string]: colorOf(ev),
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      aria-expanded={expanded}
-                      title={`${fmtBlockTime(t.startMin, t.endMin)} · ${ev.name} — ${ev.venue}`}
-                      onClick={() => toggleExpanded(ev.id)}
-                      onKeyDown={activateOnKey(() => toggleExpanded(ev.id))}
-                    >
-                      <EventBarBody
-                        event={ev}
-                        index={orderIndex.get(ev.id) ?? 0}
-                        selected={selected}
-                        onToggleSelect={() => onToggleSelect(ev.id)}
-                        time={fmtBlockTime(t.startMin, t.endMin)}
-                      />
-                    </div>
-                  );
-                })}
+      <DayScroller dayCount={layout.dayCount}>
+        <div className="hourly-head" style={{ gridTemplateColumns: gridCols }}>
+          {layout.days.map((day) => (
+            <div className="hourly-dayhead" key={day.toISOString()}>
+              <span className="hourly-dow">{dayOfWeekAbbr(day)}</span>
+              <span className="hourly-dnum">{day.getUTCDate()}</span>
             </div>
           ))}
         </div>
-        {!layout.hasTimed && layout.untimed.length === 0 && (
-          <p className="hourly-empty">No events with known times this week.</p>
+
+        {layout.untimed.length > 0 && (
+          <div className="hourly-band" style={{ gridTemplateColumns: gridCols }}>
+            {layout.untimed.map((u) => {
+              const ev = u.event;
+              const selected = selectedIds.has(ev.id);
+              const expanded = expandedId === ev.id;
+              return (
+                <div
+                  key={ev.id}
+                  className={`hourly-item ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
+                  style={{
+                    gridColumn: `${u.colStart} / span ${u.span}`,
+                    ["--cat" as string]: colorOf(ev),
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={expanded}
+                  title={`${ev.name} — ${ev.venue}`}
+                  onClick={() => toggleExpanded(ev.id)}
+                  onKeyDown={activateOnKey(() => toggleExpanded(ev.id))}
+                >
+                  <EventBarBody
+                    event={ev}
+                    index={orderIndex.get(ev.id) ?? 0}
+                    selected={selected}
+                    onToggleSelect={() => onToggleSelect(ev.id)}
+                  />
+                </div>
+              );
+            })}
+          </div>
         )}
-      </div>
+
+        <div className="hourly-body">
+          <div
+            className="hourly-cols"
+            style={{ gridTemplateColumns: gridCols, height: bodyHeight }}
+          >
+            {layout.days.map((day, dayIndex) => (
+              <div
+                className="hourly-col"
+                key={day.toISOString()}
+                style={{ backgroundSize: `100% ${HOUR_H}px` }}
+              >
+                {layout.timed
+                  .filter((t) => t.dayIndex === dayIndex)
+                  .map((t) => {
+                    const ev = t.event;
+                    const top = ((t.startMin - layout.axisStartMin) / 60) * HOUR_H;
+                    const height = ((t.endMin - t.startMin) / 60) * HOUR_H;
+                    const selected = selectedIds.has(ev.id);
+                    const expanded = expandedId === ev.id;
+                    return (
+                      <div
+                        key={ev.id}
+                        className={`hourly-block ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
+                        style={{
+                          top,
+                          height: Math.max(height, 18),
+                          width: "100%",
+                          ["--cat" as string]: colorOf(ev),
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-expanded={expanded}
+                        title={`${fmtBlockTime(t.startMin, t.endMin)} · ${ev.name} — ${ev.venue}`}
+                        onClick={() => toggleExpanded(ev.id)}
+                        onKeyDown={activateOnKey(() => toggleExpanded(ev.id))}
+                      >
+                        <EventBarBody
+                          event={ev}
+                          index={orderIndex.get(ev.id) ?? 0}
+                          selected={selected}
+                          onToggleSelect={() => onToggleSelect(ev.id)}
+                          time={fmtBlockTime(t.startMin, t.endMin)}
+                        />
+                      </div>
+                    );
+                  })}
+              </div>
+            ))}
+          </div>
+          {!layout.hasTimed && layout.untimed.length === 0 && (
+            <p className="hourly-empty">No events with known times this week.</p>
+          )}
+        </div>
+      </DayScroller>
 
       {expandedEvent && (
         <div className="ev-detail hourly-detail">

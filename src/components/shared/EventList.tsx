@@ -94,7 +94,7 @@ export function EventList({
                       status={statusBadge ? event.status : null}
                     />
                   </td>
-                  <td>
+                  <td data-label="Group">
                     <span
                       className="catdot"
                       aria-hidden="true"
@@ -106,11 +106,15 @@ export function EventList({
                     {event.name}
                     {event.approx && <span className="approx"> approx.</span>}
                   </td>
-                  <td>{event.venue}</td>
-                  <td className="mono">{fmtDateRange(clippedStart, clippedEnd)}</td>
-                  <td className="mono">{fmtTimeRange(event.startTime, event.endTime)}</td>
-                  <td>{event.cost}</td>
-                  <td>{event.desc}</td>
+                  <td data-label="Venue">{event.venue}</td>
+                  <td className="mono" data-label="Date">
+                    {fmtDateRange(clippedStart, clippedEnd)}
+                  </td>
+                  <td className="mono" data-label="Time">
+                    {fmtTimeRange(event.startTime, event.endTime)}
+                  </td>
+                  <td data-label="Cost">{event.cost}</td>
+                  <td data-label="Info">{event.desc}</td>
                   <td>
                     <EventLink link={event.link} onClick={(e) => e.stopPropagation()} />
                   </td>
