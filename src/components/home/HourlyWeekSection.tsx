@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { dayOfWeekAbbr, parseIsoDate } from "@/lib/dates";
-import { primaryGroupColor } from "@/lib/event-meta";
+import { isOngoingEvent, primaryGroupColor } from "@/lib/event-meta";
 import { buildHourlyWeekLayout } from "@/lib/hourly";
 import { activateOnKey } from "@/lib/keyboard";
 import type { CalendarEvent, CalendarMeta, EventStatus } from "@/lib/types";
@@ -61,6 +61,45 @@ export function HourlyWeekSection({
   const toggleExpanded = (id: number) => setExpandedId((prev) => (prev === id ? null : id));
   const colorOf = (event: CalendarEvent) => primaryGroupColor(meta, event);
 
+  // Multi-day/untimed events sit in an all-day band; long-running "ongoing" ones
+  // drop to a band beneath the grid so they don't crowd the one-off nights.
+  const topBand = layout.untimed.filter((u) => !isOngoingEvent(u.event));
+  const ongoingBand = layout.untimed.filter((u) => isOngoingEvent(u.event));
+
+  const renderBand = (items: typeof layout.untimed, className: string) =>
+    items.length > 0 ? (
+      <div className={className} style={{ gridTemplateColumns: gridCols }}>
+        {items.map((u) => {
+          const ev = u.event;
+          const selected = selectedIds.has(ev.id);
+          const expanded = expandedId === ev.id;
+          return (
+            <div
+              key={ev.id}
+              className={`hourly-item ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
+              style={{
+                gridColumn: `${u.colStart} / span ${u.span}`,
+                ["--cat" as string]: colorOf(ev),
+              }}
+              role="button"
+              tabIndex={0}
+              aria-expanded={expanded}
+              title={`${ev.name} — ${ev.venue}`}
+              onClick={() => toggleExpanded(ev.id)}
+              onKeyDown={activateOnKey(() => toggleExpanded(ev.id))}
+            >
+              <EventBarBody
+                event={ev}
+                index={orderIndex.get(ev.id) ?? 0}
+                selected={selected}
+                onToggleSelect={() => onToggleSelect(ev.id)}
+              />
+            </div>
+          );
+        })}
+      </div>
+    ) : null;
+
   return (
     <section className="hourly">
       <DayScroller dayCount={layout.dayCount}>
@@ -73,38 +112,7 @@ export function HourlyWeekSection({
           ))}
         </div>
 
-        {layout.untimed.length > 0 && (
-          <div className="hourly-band" style={{ gridTemplateColumns: gridCols }}>
-            {layout.untimed.map((u) => {
-              const ev = u.event;
-              const selected = selectedIds.has(ev.id);
-              const expanded = expandedId === ev.id;
-              return (
-                <div
-                  key={ev.id}
-                  className={`hourly-item ev-selectable${selected ? " selected" : ""}${expanded ? " expanded" : ""}`}
-                  style={{
-                    gridColumn: `${u.colStart} / span ${u.span}`,
-                    ["--cat" as string]: colorOf(ev),
-                  }}
-                  role="button"
-                  tabIndex={0}
-                  aria-expanded={expanded}
-                  title={`${ev.name} — ${ev.venue}`}
-                  onClick={() => toggleExpanded(ev.id)}
-                  onKeyDown={activateOnKey(() => toggleExpanded(ev.id))}
-                >
-                  <EventBarBody
-                    event={ev}
-                    index={orderIndex.get(ev.id) ?? 0}
-                    selected={selected}
-                    onToggleSelect={() => onToggleSelect(ev.id)}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {layout.untimed.length > 0 && topBand.length > 0 && renderBand(topBand, "hourly-band")}
 
         <div className="hourly-body">
           <div
@@ -159,6 +167,8 @@ export function HourlyWeekSection({
             <p className="hourly-empty">No events with known times this week.</p>
           )}
         </div>
+
+        {renderBand(ongoingBand, "hourly-band hourly-band-ongoing")}
       </DayScroller>
 
       {expandedEvent && (

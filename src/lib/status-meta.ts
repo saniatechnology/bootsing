@@ -13,7 +13,7 @@ export interface StatusMeta {
  * to compile until its label and emoji are chosen here.
  */
 export const STATUS_META: Record<EventStatus, StatusMeta> = {
-  boots: { label: "Boots", emoji: "👢", title: "I'm going for sure" },
+  boots: { label: "100%", emoji: "💯", title: "I'm going for sure" },
   maybe: { label: "Maybe", emoji: "💅", title: "Maybe" },
   interesting: { label: "Interesting", emoji: "👀", title: "Interesting" },
 };
