@@ -14,6 +14,8 @@ city and tastes (see [Personalising](#personalising)).
 Built with Next.js 16 (App Router), React 19, TypeScript, Supabase (Postgres)
 and the Anthropic SDK.
 
+<img width="1414" height="841" alt="Screenshot of the web app in a desktop browser, showing a bunch of events in a week view." src="https://github.com/user-attachments/assets/acd9287d-0042-4e71-b460-91db5780ba5b" />
+
 ## Requirements
 
 - Node 20.6 or newer (see `.nvmrc`).
