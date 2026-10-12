@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import type { ReactNode } from "react";
 import { dayOfWeekAbbr, toIsoDate } from "@/lib/dates";
 import { matchesGroup, primaryGroupColor } from "@/lib/event-meta";
 import { buildWeekLayout } from "@/lib/grid";
@@ -26,6 +27,8 @@ interface WeekSectionProps {
   onDelete: (event: CalendarEvent) => void;
   onToggleInteresting: (event: CalendarEvent) => void;
   onAddOnDate: (date: IsoDate) => void;
+  /** Rendered beneath both the grid and the list (the "Show ongoing" toggle). */
+  ongoingToggle?: ReactNode;
 }
 
 /**
@@ -46,6 +49,7 @@ export function WeekSection({
   onDelete,
   onToggleInteresting,
   onAddOnDate,
+  ongoingToggle,
 }: WeekSectionProps) {
   const layout = buildWeekLayout(events, week);
   const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -185,6 +189,8 @@ export function WeekSection({
         </div>
       </DayScroller>
 
+      {ongoingToggle}
+
       <EventList
         week={week}
         events={events}
@@ -206,6 +212,8 @@ export function WeekSection({
           </>
         )}
       />
+
+      {ongoingToggle}
     </section>
   );
 }

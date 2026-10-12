@@ -5,10 +5,25 @@
  * views (week grid, hourly grid, list) agree on the rules.
  */
 
+import { daysBetween, parseIsoDate } from "./dates";
 import type { CalendarEvent, CalendarMeta, GroupKey } from "./types";
 
 /** Colour used when an event's category maps to no group (should not happen with seeded meta). */
 const UNGROUPED_COLOR = "var(--text-muted)";
+
+/** Inclusive length of an event in whole days (a single-day event is 1). */
+export function eventDurationDays(event: CalendarEvent): number {
+  return daysBetween(parseIsoDate(event.start), parseIsoDate(event.end)) + 1;
+}
+
+/**
+ * An "ongoing" event runs longer than four days total — a multi-week exhibition
+ * or festival rather than a one-off night. These are hidden from the week and
+ * list views by default and revealed with the "Show ongoing" toggle.
+ */
+export function isOngoingEvent(event: CalendarEvent): boolean {
+  return eventDurationDays(event) > 4;
+}
 
 /** The filter groups an event belongs to, in the order configured for its category. */
 export function groupsOf(meta: CalendarMeta, event: CalendarEvent): GroupKey[] {

@@ -89,6 +89,18 @@
   cursor: default;
 }
 
+.ongoing-toggle {
+  display: flex;
+  justify-content: center;
+  margin: 1.2rem 0 0.4rem;
+}
+.ongoing-btn {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
 .ev-action-btn {
   font: inherit;
   font-family: "Archivo", sans-serif;

@@ -8,11 +8,13 @@ import type { ActiveRequest } from "@/hooks/useResearch";
 import { useSelection } from "@/hooks/useSelection";
 import { useWeekNavigation } from "@/hooks/useWeekNavigation";
 import { api, errorMessage } from "@/lib/api";
+import { isOngoingEvent, matchesGroup } from "@/lib/event-meta";
 import type { CalendarEvent, CalendarMeta, GroupKey } from "@/lib/types";
 import { browseHorizon, latestStart } from "@/lib/weeks";
 import { ChatPanel } from "../chat/ChatPanel";
 import { EventForm } from "../shared/EventForm";
 import type { EventFormTarget } from "../shared/EventForm";
+import { OngoingToggle } from "../shared/OngoingToggle";
 import { StatusIndicator } from "../shared/StatusIndicator";
 import { TopBar } from "../shared/TopBar";
 import { WeekNav } from "../shared/WeekNav";
@@ -36,6 +38,7 @@ interface CalendarAppProps {
 export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarAppProps) {
   const [events, setEvents] = useState(initialEvents);
   const [activeGroup, setActiveGroup] = useState<GroupKey | "all">("all");
+  const [showOngoing, setShowOngoing] = useState(false);
   const [formTarget, setFormTarget] = useState<EventFormTarget | null>(null);
   const [confirmResearch, setConfirmResearch] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -63,6 +66,18 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
   const weekHasEvents = week ? events.some((e) => e.start >= week[0] && e.start <= week[1]) : false;
   const researchingThisWeek =
     activeRequest?.kind === "research" && activeRequest.weekIndex === weekIndex;
+
+  // Long-running exhibitions/festivals are hidden by default; the toggle reveals them.
+  const ongoingThisWeek = week
+    ? events.filter(
+        (e) =>
+          isOngoingEvent(e) &&
+          matchesGroup(meta, e, activeGroup) &&
+          e.start <= week[1] &&
+          e.end >= week[0]
+      )
+    : [];
+  const displayed = showOngoing ? events : events.filter((e) => !isOngoingEvent(e));
 
   // Explore's star: unsaved -> "interesting"; already saved (any status) -> back to Explore-only.
   async function handleToggleInteresting(event: CalendarEvent) {
@@ -152,7 +167,7 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
       {week && (
         <WeekSection
           week={week}
-          events={events}
+          events={displayed}
           meta={meta}
           activeGroup={activeGroup}
           selectedIds={selection.selectedIds}
@@ -162,6 +177,15 @@ export function CalendarApp({ initialEvents, meta, initialWeekIndex }: CalendarA
           onDelete={handleDelete}
           onToggleInteresting={handleToggleInteresting}
           onAddOnDate={(date) => setFormTarget({ kind: "new", date })}
+          ongoingToggle={
+            ongoingThisWeek.length > 0 ? (
+              <OngoingToggle
+                count={ongoingThisWeek.length}
+                show={showOngoing}
+                onToggle={() => setShowOngoing((v) => !v)}
+              />
+            ) : null
+          }
         />
       )}
 

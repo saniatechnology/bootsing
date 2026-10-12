@@ -6,12 +6,14 @@ import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 import { useSelection } from "@/hooks/useSelection";
 import { useWeekNavigation } from "@/hooks/useWeekNavigation";
 import { api, errorMessage } from "@/lib/api";
+import { isOngoingEvent } from "@/lib/event-meta";
 import { EVENT_STATUS_KEYS } from "@/lib/types";
 import type { CalendarEvent, CalendarMeta, EventStatus } from "@/lib/types";
 import { browseHorizon, latestStart } from "@/lib/weeks";
 import { EventForm } from "../shared/EventForm";
 import type { EventFormTarget } from "../shared/EventForm";
 import { EventList } from "../shared/EventList";
+import { OngoingToggle } from "../shared/OngoingToggle";
 import { StatusIndicator } from "../shared/StatusIndicator";
 import { TopBar } from "../shared/TopBar";
 import { WeekNav } from "../shared/WeekNav";
@@ -33,6 +35,7 @@ interface HomeAppProps {
 export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps) {
   const [events, setEvents] = useState(initialEvents);
   const [statusFilter, setStatusFilter] = useState<EventStatus | "all">("all");
+  const [showOngoing, setShowOngoing] = useState(false);
   const [formTarget, setFormTarget] = useState<EventFormTarget | null>(null);
 
   const connection = useConnectionStatus();
@@ -51,6 +54,12 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
     browseHorizon(meta.weeks, latestStart(saved), thisWeekIndex)
   );
   const { week } = nav;
+
+  // Long-running exhibitions/festivals are hidden by default; the toggle reveals them.
+  const ongoingThisWeek = week
+    ? visible.filter((e) => isOngoingEvent(e) && e.start <= week[1] && e.end >= week[0])
+    : [];
+  const displayed = showOngoing ? visible : visible.filter((e) => !isOngoingEvent(e));
 
   async function handleSetStatus(id: number, status: EventStatus | null) {
     try {
@@ -102,16 +111,23 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
           <>
             <HourlyWeekSection
               week={week}
-              events={visible}
+              events={displayed}
               meta={meta}
               selectedIds={selection.selectedIds}
               onToggleSelect={selection.toggle}
               onEdit={(event) => setFormTarget({ kind: "edit", event })}
               onSetStatus={handleSetStatus}
             />
+            {ongoingThisWeek.length > 0 && (
+              <OngoingToggle
+                count={ongoingThisWeek.length}
+                show={showOngoing}
+                onToggle={() => setShowOngoing((v) => !v)}
+              />
+            )}
             <EventList
               week={week}
-              events={visible}
+              events={displayed}
               meta={meta}
               selectedIds={selection.selectedIds}
               onToggleSelect={selection.toggle}
@@ -122,6 +138,13 @@ export function HomeApp({ initialEvents, meta, initialWeekIndex }: HomeAppProps)
                 <StatusControls event={event} onSetStatus={handleSetStatus} />
               )}
             />
+            {ongoingThisWeek.length > 0 && (
+              <OngoingToggle
+                count={ongoingThisWeek.length}
+                show={showOngoing}
+                onToggle={() => setShowOngoing((v) => !v)}
+              />
+            )}
           </>
         )
       )}
