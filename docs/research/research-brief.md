@@ -103,6 +103,27 @@ similar, the smaller / less-obvious one wins.*
 - Only include **real events** found on a real source (venue site, ticketing page, listings
   site, official festival program). Every event gets a `link` to its most specific source.
 - Prefer primary sources (venue / official program) over aggregators.
+- **Dig past incomplete previews.** Many venue sites render their agenda with JavaScript,
+  so a plain page fetch only returns the first few server-rendered days. If a source looks
+  truncated or incomplete, do not stop there — do what it takes to get the full listing:
+  - Open the page in the **browser tool** (which runs the site's JavaScript like a real
+    browser) and **scroll** and/or **click** through the calendar, date cells, "load more",
+    pagination, or filter controls until all events for the target week are loaded.
+  - If the venue's own site still won't surface the full week, find the venue's events on
+    another Barcelona listings site that carries them (e.g. ticketing pages, graf.cat,
+    bcn.convoca.la, or similar aggregators) and source the events from there instead.
+  - Only conclude a venue has no events in the week after you've actually confirmed the full
+    week is loaded — never because the first partial view happened to be empty.
+- **Open each event's own detail page for the full data.** Agenda / listing / calendar views
+  usually show only a title and maybe a room — the **start time, door time, price, and full
+  description often live only on the individual event page**. Click through to each event's
+  detail page (or fetch its URL) to collect these before saving; don't leave `start_time` or
+  `cost` empty just because the listing view omitted them.
+  - Prices are frequently under labels like "Advance" / "Box office" / "Door"; capture the
+    advance price and note the door price when both exist (e.g. `"€19 (€22 door)"`).
+  - For late-night club nights that only list a "Doors open at" time, use that as the start
+    time. If a detail page genuinely publishes no time or price, only then fall back to
+    leaving it blank / `cost: "Unknown"`.
 - If a date is uncertain, set `approx: true` rather than dropping the event.
 - If price is unconfirmed, use `cost: "Unknown"` (or "Free" only when clearly free).
 - Only include events whose **start date falls within the target week**.
