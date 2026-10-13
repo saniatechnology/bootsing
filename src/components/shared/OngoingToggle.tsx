@@ -16,12 +16,7 @@ interface OngoingToggleProps {
 export function OngoingToggle({ count, show, onToggle }: OngoingToggleProps) {
   return (
     <div className="ongoing-toggle">
-      <button
-        type="button"
-        className="nav-btn ongoing-btn"
-        aria-expanded={show}
-        onClick={onToggle}
-      >
+      <button type="button" className="nav-btn ongoing-btn" aria-expanded={show} onClick={onToggle}>
         {show ? `Hide ongoing (${count})` : `Show ongoing (${count})`}
       </button>
     </div>
