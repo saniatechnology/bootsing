@@ -52,6 +52,9 @@ Legend: ✅ useful & fetchable · ⚠️ partial (pagination/limited) · 🟨 JS
 | Meetup (Jam!! Analog Jam Sessions) | meetup.com/es-es/jam-analog-jam-sessions-barcelona/events/ | ⚠️ | Fetchable but 0 upcoming events listed. |
 | Luma city page | luma.com/barcelona | ⚠️ | Lists titles without dates — useless for a date window; individual event pages still ✅. |
 | xceed.me | xceed.me/es/barcelona/events | 🟨 | JS-only; only surfaces via search snippets (e.g. ULTRAVIOLETA @ La Nau 02 Oct) — not verifiable. |
+| La Bonne (fav) | labonne.org/activitats/ | ✅ | Official activities page with dated cultural programming and an archive. Include all available week events. |
+| Qlist Barcelona | qlist.app/cities/Spain/Barcelona/88 | ✅ | Dated Barcelona queer-event feed plus LGBTQ+ venue listings; use “Load more” and verify event details against primary sources. |
+| Halo LGBT Barcelona | halolgbt.com/es/barcelona | ✅ | City-specific queer events listing; dated listings include venue, times, and prices. |
 
 ### Favorite venues still UN-sourced (from brief)
 - **Fluid** — IG `@fluidbcn`; site `fluidbcn.com` (no /agenda — 404) + linktr.ee/fluidbcn. Queer natural-wine bar, C/ Salvà 21, Poble Sec. Open Wed–Thu 20:00–01:00, Fri–Sat 20:00–03:00, Sun 18:30–00:00. Special parties (e.g. "Weird Glam") ticket via Entradium organizer `weid-glam` — but checked 2026-09-21: "Ahora mismo no hay eventos abiertos" (none open). Announce on IG only.

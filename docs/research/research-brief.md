@@ -80,12 +80,18 @@ Get all events from these as far as they're available online, independent of the
 - Santa Mónica.
 - CCCB.
 - Ssuave.
+- La Bonne — https://labonne.org/activitats/ (all available events).
 
 ### Sources
 
 Always check these on top of any other sources you might use.
 - https://bcn.convoca.la/
 - https://graf.cat/es/agenda/
+
+### Online agendas for queer events
+
+- Qlist Barcelona — check the dated event feed and load more results: https://qlist.app/cities/Spain/Barcelona/88
+- Halo LGBT Barcelona — queer events across the city: https://www.halolgbt.com/es/barcelona
 
 
 ### What to skip
